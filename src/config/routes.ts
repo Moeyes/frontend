@@ -6,9 +6,8 @@
 
 export const routes = {
     home: '/',
-    // Add your routes here
-    // example: '/products',
-    // about: '/about',
+    register: '/auth/register',
+    login: '/auth/login',
 } as const;
 
 export type RouteKey = keyof typeof routes;

@@ -4,4 +4,5 @@
  * Shared hooks used across multiple features
  */
 
-// Example: export { useNavigation } from './useNavigation';
+// Placeholder for common hooks
+export { };
