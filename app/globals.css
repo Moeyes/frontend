@@ -9,56 +9,58 @@
 
 :root {
   /* Core Colors - Light Mode */
-  --background: oklch(0.98 0.001 0);           /* #F7F9FC - Light gray-blue page bg */
-  --foreground: oklch(0.13 0.005 280);         /* #1A202C - Primary text color */
-  --card: oklch(1 0 0);                        /* #FFFFFF - Card backgrounds */
-  --card-foreground: oklch(0.13 0.005 280);    /* #1A202C - Card text */
+  --background: oklch(0.98 0.001 0); /* #F7F9FC - Light gray-blue page bg */
+  --foreground: oklch(0.13 0.005 280); /* #1A202C - Primary text color */
+  --card: oklch(1 0 0); /* #FFFFFF - Card backgrounds */
+  --card-foreground: oklch(0.13 0.005 280); /* #1A202C - Card text */
 
   /* Primary Navy - Main brand color */
-  --primary: oklch(0.28 0.088 258);            /* #1F3A5C - Buttons, headers, accents */
-  --primary-foreground: oklch(1 0 0);          /* #FFFFFF - Text on navy */
+  --primary: oklch(0.28 0.088 258); /* #1F3A5C - Buttons, headers, accents */
+  --primary-foreground: oklch(1 0 0); /* #FFFFFF - Text on navy */
 
   /* Secondary - Light Gray */
-  --secondary: oklch(0.95 0.001 0);            /* #F2F4F8 - Light backgrounds */
+  --secondary: oklch(0.95 0.001 0); /* #F2F4F8 - Light backgrounds */
   --secondary-foreground: oklch(0.13 0.005 280);
 
   /* Muted - Subtle/disabled states */
-  --muted: oklch(0.94 0.001 0);                /* #F0F3F7 - Muted backgrounds */
-  --muted-foreground: oklch(0.49 0.018 260);   /* #64748B - Muted text */
+  --muted: oklch(0.94 0.001 0); /* #F0F3F7 - Muted backgrounds */
+  --muted-foreground: oklch(0.49 0.018 260); /* #64748B - Muted text */
 
   /* Accent - Interactive elements */
-  --accent: oklch(0.50 0.145 261);             /* #3B82F6 - Focus, hover, interactive */
-  --accent-foreground: oklch(1 0 0);           /* #FFFFFF - Text on accent */
+  --accent: oklch(0.5 0.145 261); /* #3B82F6 - Focus, hover, interactive */
+  --accent-foreground: oklch(1 0 0); /* #FFFFFF - Text on accent */
 
   /* Destructive - Errors */
-  --error: oklch(0.65 0.22 16);                /* #DC2626 - Error state */
-  --error-foreground: oklch(1 0 0);            /* #FFFFFF */
-  --destructive: oklch(0.65 0.22 16);          /* #DC2626 - Error state (backward compat) */
-  --destructive-foreground: oklch(1 0 0);      /* #FFFFFF */
+  --error: oklch(0.65 0.22 16); /* #DC2626 - Error state */
+  --error-foreground: oklch(1 0 0); /* #FFFFFF */
+  --destructive: oklch(
+    0.65 0.22 16
+  ); /* #DC2626 - Error state (backward compat) */
+  --destructive-foreground: oklch(1 0 0); /* #FFFFFF */
 
   /* Success - Positive states */
-  --success: oklch(0.55 0.15 140);             /* #22C55E - Success states */
-  --success-foreground: oklch(1 0 0);          /* #FFFFFF */
+  --success: oklch(0.55 0.15 140); /* #22C55E - Success states */
+  --success-foreground: oklch(1 0 0); /* #FFFFFF */
 
   /* Warning - Caution states */
-  --warning: oklch(0.70 0.15 60);              /* #EAB308 - Warning states */
-  --warning-foreground: oklch(1 0 0);          /* #FFFFFF */
+  --warning: oklch(0.7 0.15 60); /* #EAB308 - Warning states */
+  --warning-foreground: oklch(1 0 0); /* #FFFFFF */
 
   /* Info - Informational states */
-  --info: oklch(0.50 0.145 261);               /* #3B82F6 - Info states */
-  --info-foreground: oklch(1 0 0);             /* #FFFFFF */
+  --info: oklch(0.5 0.145 261); /* #3B82F6 - Info states */
+  --info-foreground: oklch(1 0 0); /* #FFFFFF */
 
   /* UI Elements */
-  --border: oklch(0.93 0.001 0);               /* #E8EBF1 - Borders, dividers */
-  --input: oklch(0.97 0.001 0);                /* #F5F7FA - Input backgrounds */
-  --ring: oklch(0.50 0.145 261);               /* #3B82F6 - Focus rings */
+  --border: oklch(0.93 0.001 0); /* #E8EBF1 - Borders, dividers */
+  --input: oklch(0.97 0.001 0); /* #F5F7FA - Input backgrounds */
+  --ring: oklch(0.5 0.145 261); /* #3B82F6 - Focus rings */
 
   /* Legacy chart colors for backwards compatibility */
-  --chart-1: oklch(0.28 0.088 258);            /* Navy */
-  --chart-2: oklch(0.50 0.145 261);            /* Blue */
-  --chart-3: oklch(0.49 0.018 260);            /* Gray */
-  --chart-4: oklch(0.65 0.22 16);              /* Red */
-  --chart-5: oklch(0.67 0.15 140);             /* Green */
+  --chart-1: oklch(0.28 0.088 258); /* Navy */
+  --chart-2: oklch(0.5 0.145 261); /* Blue */
+  --chart-3: oklch(0.49 0.018 260); /* Gray */
+  --chart-4: oklch(0.65 0.22 16); /* Red */
+  --chart-5: oklch(0.67 0.15 140); /* Green */
 
   /* Popover for backwards compatibility */
   --popover: oklch(1 0 0);
@@ -72,54 +74,53 @@
   --sidebar-accent: oklch(0.94 0.001 0);
   --sidebar-accent-foreground: oklch(0.13 0.005 280);
   --sidebar-border: oklch(0.93 0.001 0);
-  --sidebar-ring: oklch(0.50 0.145 261);
+  --sidebar-ring: oklch(0.5 0.145 261);
 
   /* Radius */
   --radius: 0.5rem;
 }
-
 
 /* ============================================================================
    DARK MODE - Professional Admin Dashboard
    ============================================================================ */
 
 .dark {
-  --background: oklch(0.12 0.006 280);         /* #0F172A - Very dark navy */
-  --foreground: oklch(0.95 0.001 0);           /* #F1F5F9 - Light text */
-  --card: oklch(0.18 0.006 280);               /* #1E293B - Dark navy cards */
-  --card-foreground: oklch(0.95 0.001 0);      /* #F1F5F9 - Card text */
+  --background: oklch(0.12 0.006 280); /* #0F172A - Very dark navy */
+  --foreground: oklch(0.95 0.001 0); /* #F1F5F9 - Light text */
+  --card: oklch(0.18 0.006 280); /* #1E293B - Dark navy cards */
+  --card-foreground: oklch(0.95 0.001 0); /* #F1F5F9 - Card text */
 
   /* Navy Primary becomes brighter */
-  --primary: oklch(0.62 0.18 172);             /* #62B1FF - Bright blue */
+  --primary: oklch(0.62 0.18 172); /* #62B1FF - Bright blue */
   --primary-foreground: oklch(0.12 0.006 280); /* Dark background */
 
   /* Muted colors for dark mode */
-  --secondary: oklch(0.22 0.006 280);          /* Dark secondary */
+  --secondary: oklch(0.22 0.006 280); /* Dark secondary */
   --secondary-foreground: oklch(0.95 0.001 0);
-  
-  --muted: oklch(0.28 0.01 280);               /* #334155 - Muted bg */
-  --muted-foreground: oklch(0.73 0.01 280);    /* #94A3B8 - Muted text */
 
-  --accent: oklch(0.62 0.18 172);              /* Bright blue */
+  --muted: oklch(0.28 0.01 280); /* #334155 - Muted bg */
+  --muted-foreground: oklch(0.73 0.01 280); /* #94A3B8 - Muted text */
+
+  --accent: oklch(0.62 0.18 172); /* Bright blue */
   --accent-foreground: oklch(0.12 0.006 280);
 
-  --error: oklch(0.70 0.20 25);                /* Brighter red for dark mode */
+  --error: oklch(0.7 0.2 25); /* Brighter red for dark mode */
   --error-foreground: oklch(0.95 0.001 0);
-  --destructive: oklch(0.70 0.20 25);          /* Brighter red for dark mode */
+  --destructive: oklch(0.7 0.2 25); /* Brighter red for dark mode */
   --destructive-foreground: oklch(0.95 0.001 0);
 
-  --success: oklch(0.65 0.18 140);             /* Brighter green for dark mode */
+  --success: oklch(0.65 0.18 140); /* Brighter green for dark mode */
   --success-foreground: oklch(0.12 0.006 280);
 
-  --warning: oklch(0.80 0.18 60);              /* Brighter yellow for dark mode */
+  --warning: oklch(0.8 0.18 60); /* Brighter yellow for dark mode */
   --warning-foreground: oklch(0.12 0.006 280);
 
-  --info: oklch(0.62 0.18 172);                /* Bright blue */
+  --info: oklch(0.62 0.18 172); /* Bright blue */
   --info-foreground: oklch(0.12 0.006 280);
 
-  --border: oklch(0.28 0.01 280);              /* Dark borders */
-  --input: oklch(0.22 0.006 280);              /* Dark inputs */
-  --ring: oklch(0.62 0.18 172);                /* Bright blue ring */
+  --border: oklch(0.28 0.01 280); /* Dark borders */
+  --input: oklch(0.22 0.006 280); /* Dark inputs */
+  --ring: oklch(0.62 0.18 172); /* Bright blue ring */
 
   /* Popover & Sidebar */
   --popover: oklch(0.18 0.006 280);
@@ -204,19 +205,19 @@
   }
 
   h1 {
-    @apply text-3xl leading-9;           /* 30px */
+    @apply text-3xl leading-9; /* 30px */
   }
 
   h2 {
-    @apply text-2xl leading-7;           /* 24px */
+    @apply text-2xl leading-7; /* 24px */
   }
 
   h3 {
-    @apply text-xl leading-6;            /* 20px */
+    @apply text-xl leading-6; /* 20px */
   }
 
   h4 {
-    @apply text-lg leading-6;            /* 18px */
+    @apply text-lg leading-6; /* 18px */
   }
 
   /* Form Elements */

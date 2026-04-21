@@ -176,10 +176,10 @@ export function RegisterForm() {
                                     onClick={() => handleStepClick(step)}
                                     disabled={idx > stepIndex}
                                     className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm mb-3 transition-all duration-300 ${idx < stepIndex
-                                            ? 'bg-success text-white ring-4 ring-success/20'
-                                            : idx === stepIndex
-                                                ? 'bg-gradient-to-br from-primary to-primary text-primary-foreground ring-4 ring-primary/20 shadow-lg scale-105'
-                                                : 'bg-secondary text-muted-foreground cursor-not-allowed'
+                                        ? 'bg-success text-white ring-4 ring-success/20'
+                                        : idx === stepIndex
+                                            ? 'bg-gradient-to-br from-primary to-primary text-primary-foreground ring-4 ring-primary/20 shadow-lg scale-105'
+                                            : 'bg-secondary text-muted-foreground cursor-not-allowed'
                                         }`}
                                     title={idx <= stepIndex ? `Go to ${FORM_STEP_LABELS[step]}` : 'Complete previous steps'}
                                 >

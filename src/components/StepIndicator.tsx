@@ -39,13 +39,12 @@ export function StepIndicator({
             <React.Fragment key={index}>
               {/* Step Circle */}
               <div
-                className={`flex items-center justify-center w-12 h-12 rounded-full font-semibold text-sm transition-all duration-200 ${
-                  isActive
+                className={`flex items-center justify-center w-12 h-12 rounded-full font-semibold text-sm transition-all duration-200 ${isActive
                     ? "bg-primary text-primary-foreground shadow-md ring-4 ring-primary/20"
                     : isCompleted
                       ? "bg-primary text-primary-foreground shadow-md"
                       : "bg-muted text-muted-foreground border-2 border-border"
-                }`}
+                  }`}
               >
                 {isCompleted ? (
                   <Check className="w-5 h-5" />
@@ -57,9 +56,8 @@ export function StepIndicator({
               {/* Connector Line */}
               {index < steps.length - 1 && (
                 <div
-                  className={`flex-1 h-1 mx-2 rounded-full transition-colors duration-200 ${
-                    stepNumber < currentStep ? "bg-primary" : "bg-border"
-                  }`}
+                  className={`flex-1 h-1 mx-2 rounded-full transition-colors duration-200 ${stepNumber < currentStep ? "bg-primary" : "bg-border"
+                    }`}
                 />
               )}
             </React.Fragment>
@@ -80,11 +78,10 @@ export function StepIndicator({
         {steps.map((step, index) => (
           <p
             key={index}
-            className={`text-xs font-medium transition-colors ${
-              index + 1 <= currentStep
+            className={`text-xs font-medium transition-colors ${index + 1 <= currentStep
                 ? "text-primary"
                 : "text-muted-foreground"
-            }`}
+              }`}
           >
             {step}
           </p>

@@ -243,21 +243,21 @@ export default function Home() {
               Alert Components
             </h4>
             <div className="space-y-4">
-            <div className="bg-accent/10 border border-accent/30 text-accent rounded-lg p-4 text-sm mb-6">
-              <p className="font-medium">
-                ℹ️ This is an info alert with helpful information for users.
-              </p>
-            </div>
-            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg p-4 text-sm mb-6">
-              <p className="font-medium">
-                ✓ This is a success alert confirming a completed action.
-              </p>
-            </div>
-            <div className="bg-destructive/10 border border-destructive/30 text-destructive rounded-lg p-4 text-sm mb-6">
-              <p className="font-medium">
-                ✕ This is an error alert showing validation or system errors.
-              </p>
-            </div>
+              <div className="bg-accent/10 border border-accent/30 text-accent rounded-lg p-4 text-sm mb-6">
+                <p className="font-medium">
+                  ℹ️ This is an info alert with helpful information for users.
+                </p>
+              </div>
+              <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg p-4 text-sm mb-6">
+                <p className="font-medium">
+                  ✓ This is a success alert confirming a completed action.
+                </p>
+              </div>
+              <div className="bg-destructive/10 border border-destructive/30 text-destructive rounded-lg p-4 text-sm mb-6">
+                <p className="font-medium">
+                  ✕ This is an error alert showing validation or system errors.
+                </p>
+              </div>
             </div>
           </div>
         </section>
