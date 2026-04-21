@@ -4,12 +4,12 @@
  */
 
 import apiClient from '@/lib/api/client';
+import { AxiosError } from 'axios';
 import type { Event, Organization, Sport } from '../types';
 
 // Backend response types
 interface SportsEventResponse {
-    id: number;
-    sports_id?: number;
+    id: number;           // join table ID — DO NOT use this as sports_id
     event_name?: string;
     sport_name?: string;
     created_at?: string;
@@ -56,6 +56,21 @@ export async function fetchEvents(): Promise<Event[]> {
     }
 }
 
+export async function fetchAllSports(): Promise<{ id: number; name_kh: string }[]> {
+    try {
+        const cached = getCache<{ id: number; name_kh: string }[]>('all-sports');
+        if (cached) return cached;
+
+        const response = await apiClient.get<{ data: { id: number; name_kh: string }[] }>('/api/sports?skip=0&limit=200');
+        const sports = response.data.data || [];
+        setCache('all-sports', sports);
+        return sports;
+    } catch (error) {
+        console.error('Error fetching all sports:', error);
+        return [];
+    }
+}
+
 export async function fetchAllOrganizations(): Promise<Organization[]> {
     try {
         const cached = getCache<Organization[]>('organizations');
@@ -75,26 +90,26 @@ export async function fetchEventSports(eventId: number): Promise<Sport[]> {
     try {
         const cacheKey = `event-sports-${eventId}`;
         const cached = getCache<Sport[]>(cacheKey);
-        if (cached) {
-            console.log('⚡ Cache HIT for event-sports-' + eventId, cached);
-            return cached;
-        }
+        if (cached) return cached;
 
-        console.log('📡 Cache MISS - Fetching from backend for event ' + eventId);
-        const response = await apiClient.get<SportsEventResponse[]>(`/api/events/${eventId}/sports`);
-        const sportsEvents = response.data || [];
+        // Fetch both event-specific sports (which lacks IDs) and all sports (to get IDs)
+        const [eventSportsResponse, allSports] = await Promise.all([
+            apiClient.get<SportsEventResponse[]>(`/api/events/${eventId}/sports`),
+            fetchAllSports()
+        ]);
 
-        // Map SportsEventPublic response to Sport interface
-        // Use sports_id (the actual sport ID) not id (which is the sports_event link ID)
-        const sports: Sport[] = sportsEvents.map((se) => ({
-            id: se.sports_id || se.id, // Use sports_id if available, fallback to id
-            name_kh: se.sport_name || '',
-            sport_type: undefined,
-            created_at: se.created_at,
-        }));
+        const sportsEvents = eventSportsResponse.data || [];
 
-        console.log('📍 fetchEventSports - Raw response:', sportsEvents);
-        console.log('📍 fetchEventSports - Mapped sports:', sports);
+        // Map SportsEventPublic response to Sport interface using name matching for sports_id
+        const sports: Sport[] = sportsEvents.map((se) => {
+            const matchedSport = allSports.find(s => s.name_kh === se.sport_name);
+            return {
+                id: se.id,
+                sports_id: matchedSport ? matchedSport.id : 0,
+                name_kh: se.sport_name || '',
+                created_at: se.created_at,
+            };
+        }).filter(s => s.sports_id !== 0); // Only include sports we could resolve
 
         setCache(cacheKey, sports);
         return sports;
@@ -119,7 +134,7 @@ export async function fetchSurveyData() {
     }
 }
 
-// Submit survey registration - link org to sports using existing endpoints
+// Submit survey registration
 export interface SurveySubmissionPayload {
     organization_id: number;
     event_id: number;
@@ -127,24 +142,44 @@ export interface SurveySubmissionPayload {
 }
 
 export async function submitSurvey(payload: SurveySubmissionPayload): Promise<void> {
+    const { organization_id, event_id, sport_ids } = payload;
+    
+    console.log('🚀 Submitting Survey Payload:', {
+        org_id: organization_id,
+        events_id: event_id,
+        sports_id: sport_ids
+    });
+
+    // Link each sport to the organization for this event
+    const linkPromises = sport_ids.map(async (sport_id) => {
+        const body = {
+            org_id: organization_id,
+            events_id: event_id,
+            sports_id: sport_id,
+        };
+        
+        try {
+            console.log('📡 POST /api/events/add-org-to-sport', body);
+            await apiClient.post('/api/events/add-org-to-sport', body);
+        } catch (error) {
+            if (error instanceof AxiosError && error.response?.status === 400) {
+                const detail = (error.response.data)?.detail;
+                if (detail === 'This organization is already linked to this sport event.') {
+                    console.warn(`ℹ️ Organization already registered for sport ${sport_id}. Skipping.`);
+                    return; // Ignore duplicate error
+                }
+            }
+            throw error;
+        }
+    });
+
     try {
-        const { organization_id, event_id, sport_ids } = payload;
-
-        console.log('📤 submitSurvey - Payload:', { organization_id, event_id, sport_ids });
-
-        // Link each sport to the organization for this event
-        const linkPromises = sport_ids.map((sport_id) => {
-            console.log(`📤 Submitting: org_id=${organization_id}, events_id=${event_id}, sports_id=${sport_id}`);
-            return apiClient.post('/api/events/add-org-to-sport', {
-                org_id: organization_id,
-                events_id: event_id,
-                sports_id: sport_id,
-            });
-        });
-
         await Promise.all(linkPromises);
+        console.log('✅ Survey submission processing complete');
     } catch (error) {
-        console.error('Error submitting survey:', error);
+        if (error instanceof AxiosError) {
+            console.error('❌ API Error Details:', error.response?.data);
+        }
         throw error;
     }
 }

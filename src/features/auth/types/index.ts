@@ -98,17 +98,17 @@ export interface AuthContextType extends AuthState {
 
 export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     [UserRole.ADMIN]: [
-        'access:register', 'access:bynumber', 'access:by-sport',
-        'access:by-category', 'access:dashboard',
+        'access:register', 'access:bynumber', 'access:bysport',
+        'access:bycategory', 'access:dashboard',
         'action:edit-any-organization', 'action:download-any',
         'action:manage-users', 'action:manage-events',
     ],
     [UserRole.ORGANIZATION]: [
-        'access:register', 'access:bynumber', 'access:by-sport',
+        'access:register', 'access:bynumber', 'access:bysport',
         'access:dashboard', 'action:edit-own-organization', 'action:download-own',
     ],
     [UserRole.FEDERATION]: [
-        'access:by-category', 'access:dashboard', 'action:view-own-sport',
+        'access:bycategory', 'access:dashboard', 'action:view-own-sport',
     ],
     [UserRole.GUEST]: ['access:register'],
 };
@@ -116,8 +116,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
 export const FEATURE_ACCESS: Record<string, UserRole[]> = {
     'register':    [UserRole.ADMIN, UserRole.ORGANIZATION, UserRole.GUEST],
     'bynumber':    [UserRole.ADMIN, UserRole.ORGANIZATION],
-    'by-sport':    [UserRole.ADMIN, UserRole.ORGANIZATION],
-    'by-category': [UserRole.ADMIN, UserRole.FEDERATION],
+    'bysport':    [UserRole.ADMIN, UserRole.ORGANIZATION],
+    'bycategory': [UserRole.ADMIN, UserRole.FEDERATION],
     'dashboard':   [UserRole.ADMIN, UserRole.ORGANIZATION, UserRole.FEDERATION],
 };
 

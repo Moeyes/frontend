@@ -22,12 +22,8 @@ export function SurveyProvider({ children }: { children: React.ReactNode }) {
     const value: SurveyContextType = {
         formData: {
             eventId: formValues.eventId,
-            eventName: formValues.eventName || '',
             organizationId: formValues.organizationId,
-            organizationName: formValues.organizationName || '',
             sportIds: formValues.sportIds || [],
-            sportNames: formValues.sportNames || [],
-            sportsActualIds: formValues.sportsActualIds || [],
         },
         setFields: (fields: Partial<SurveyFormData>) => {
             Object.entries(fields).forEach(([key, value]) => {

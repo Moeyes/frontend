@@ -6,7 +6,7 @@
 export interface Event {
     id: number;
     name_kh: string;
-    type?: string;
+    type: string;
     created_at?: string;
 }
 
@@ -19,7 +19,8 @@ export interface Organization {
 }
 
 export interface Sport {
-    id: number;
+    id: number;          // Join table ID (sports_event.id)
+    sports_id: number;   // Actual Sport ID (sports.id)
     name_kh: string;
     sport_type?: string;
     created_at?: string;
@@ -27,12 +28,8 @@ export interface Sport {
 
 export interface SurveyFormData {
     eventId: number | null;
-    eventName: string;
     organizationId: number | null;
-    organizationName: string;
-    sportIds: number[];
-    sportNames: string[];
-    sportsActualIds: number[];
+    sportIds: number[]; // This will store sports_id (actual sport IDs)
 }
 
 export interface SurveyFormPayload {

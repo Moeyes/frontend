@@ -75,6 +75,6 @@ import { UserRole } from '@/features/auth/types';
 export const ROLE_DEFAULT_ROUTE: Record<UserRole, string> = {
     [UserRole.ADMIN]: '/dashboard',
     [UserRole.ORGANIZATION]: '/dashboard',
-    [UserRole.FEDERATION]: '/by-category',
+    [UserRole.FEDERATION]: '/bycategory',
     [UserRole.GUEST]: '/register',
 };

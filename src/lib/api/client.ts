@@ -16,7 +16,7 @@ export const clearStoredTokens = () => ss.remove(KEYS.ACCESS);
 // No refresh token helpers — it lives in an HttpOnly cookie, JS cannot read it
 
 const apiClient: AxiosInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000',
+    baseURL: '/',
     headers: { 'Content-Type': 'application/json' },
     withCredentials: true,  // ✅ CRITICAL — sends the HttpOnly refresh_token cookie automatically
 });

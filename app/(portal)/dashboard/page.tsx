@@ -116,7 +116,7 @@ export default function DashboardPage() {
                                     </div>
                                 </Link>
 
-                                <Link href="/by-sport">
+                                <Link href="/bysport">
                                     <div className="bg-card rounded-lg border border-border p-4 hover:border-primary transition-colors cursor-pointer">
                                         <h3 className="font-semibold text-foreground mb-2">By Sport</h3>
                                         <p className="text-sm text-muted-foreground">View registrations organized by sport</p>
@@ -126,7 +126,7 @@ export default function DashboardPage() {
                         )}
 
                         {(isFederation || isAdmin) && (
-                            <Link href="/by-category">
+                            <Link href="/bycategory">
                                 <div className="bg-card rounded-lg border border-border p-4 hover:border-primary transition-colors cursor-pointer">
                                     <h3 className="font-semibold text-foreground mb-2">By Category</h3>
                                     <p className="text-sm text-muted-foreground">View registrations by sport category</p>

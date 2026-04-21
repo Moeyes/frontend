@@ -3,8 +3,7 @@
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { byNumberSchema } from '@/lib/validators/bynumber.schema';
-import type { ByNumberFormData, SportRow } from '../types';
-import { fetchEventSports } from '../services';
+import type { ByNumberFormData } from '../types';
 
 export interface UseByNumberFormReturn {
     form: UseFormReturn<ByNumberFormData>;
@@ -15,7 +14,7 @@ export interface UseByNumberFormReturn {
 
 export function useByNumberForm(onSuccess?: () => void): UseByNumberFormReturn {
     const form = useForm<ByNumberFormData>({
-        resolver: zodResolver(byNumberSchema) as any,
+        resolver: zodResolver(byNumberSchema),
         mode: 'onBlur',
         defaultValues: {
             eventId: null,
@@ -46,7 +45,8 @@ export function useByNumberForm(onSuccess?: () => void): UseByNumberFormReturn {
 
             onSuccess?.();
         } catch (error) {
-            const message = error instanceof Error ? error.message : 'Failed to submit registration';
+            const message =
+                error instanceof Error ? error.message : 'Failed to submit registration';
             form.setError('root', { message });
         }
     };

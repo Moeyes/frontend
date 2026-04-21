@@ -14,7 +14,7 @@ export interface UseSurveyFormReturn {
 
 export function useSurveyForm(onSuccess?: () => void): UseSurveyFormReturn {
     const form = useForm<SurveyFormData>({
-        resolver: zodResolver(surveySchema) as any,
+        resolver: zodResolver(surveySchema),
         mode: 'onBlur',
         defaultValues: {
             eventId: null,
@@ -24,21 +24,26 @@ export function useSurveyForm(onSuccess?: () => void): UseSurveyFormReturn {
     });
 
     const handleSubmit = async (data: SurveyFormData) => {
+        console.log('📝 handleSubmit called with data:', data);
         try {
             const { submitSurvey } = await import('../services');
 
             if (!data.eventId || !data.organizationId) {
+                console.error('❌ Validation failed: Missing eventId or organizationId');
                 throw new Error('Missing required fields');
             }
 
+            console.log('🌐 Calling submitSurvey API...');
             await submitSurvey({
                 organization_id: data.organizationId,
                 event_id: data.eventId,
                 sport_ids: data.sportIds,
             });
 
+            console.log('✅ submitSurvey resolved successfully');
             onSuccess?.();
         } catch (error) {
+            console.error('💥 handleSubmit error:', error);
             const message = error instanceof Error ? error.message : 'Failed to submit survey';
             form.setError('root', { message });
         }
