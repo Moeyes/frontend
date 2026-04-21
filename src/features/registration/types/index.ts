@@ -19,6 +19,9 @@ import { RegisterFormData } from '@/lib/validators/register.schema';
 // Must match backend FullRegistrationRequest exactly
 
 export interface RegisterPayload {
+    // Authenticated user registering this participant
+    userId: string;
+
     // Event context
     eventId: number;
     organizationId: number;
@@ -32,8 +35,8 @@ export interface RegisterPayload {
     firstNameLatin: string;
     phone: string;
     gender: string;
-    dateOfBirth: string;        // alias for date_of_birth
-    idDocType: string;          // alias for id_document_type
+    dateOfBirth: string;        
+    idDocType: string;          
     address?: string;
     nationality?: string;
 
@@ -71,8 +74,11 @@ interface FieldError {
 
 // ─── Payload Transformer ──────────────────────────────────────────────────────
 
-export function formDataToPayload(data: RegisterFormData): RegisterPayload {
+export function formDataToPayload(data: RegisterFormData, userId: string): RegisterPayload {
     return {
+        // Authenticated user registering this participant
+        userId,
+
         // Event context
         eventId: data.eventId as number,
         organizationId: Number(data.organizationId), // backend expects int

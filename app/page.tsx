@@ -7,12 +7,29 @@
 'use client';
 
 import { useAuth } from '@/features/auth/context';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Trophy, Users, ArrowRight } from 'lucide-react';
+import { routes } from '@/config/constants';
 
 export default function HomePage() {
   const { isAuthenticated, user } = useAuth();
+  const router = useRouter();
+
+  /**
+   * Handle register navigation
+   * If user is authenticated, go to register
+   * If not authenticated, go to login first
+   */
+  const handleRegisterClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      router.push(routes.login);
+    } else {
+      router.push(routes.register);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -33,7 +50,7 @@ export default function HomePage() {
                   <span className="text-sm text-muted-foreground">
                     {user?.english_name || user?.khmer_name}
                   </span>
-                  <Link href="/dashboard">
+                  <Link href={routes.dashboard}>
                     <Button variant="default" size="sm">
                       Dashboard
                     </Button>
@@ -41,12 +58,12 @@ export default function HomePage() {
                 </>
               ) : (
                 <>
-                  <Link href="/(auth)/login">
+                  <Link href={routes.login}>
                     <Button variant="outline" size="sm">
                       Sign In
                     </Button>
                   </Link>
-                  <Link href="/(public)/register">
+                  <Link href={routes.login} onClick={handleRegisterClick}>
                     <Button variant="default" size="sm">
                       Register
                     </Button>
@@ -71,12 +88,12 @@ export default function HomePage() {
 
             {!isAuthenticated && (
               <div className="flex gap-4 justify-center mb-12">
-                <Link href="/(public)/register">
+                <Link href={routes.login} onClick={handleRegisterClick}>
                   <Button size="lg" className="gap-2">
                     Get Started <ArrowRight className="w-5 h-5" />
                   </Button>
                 </Link>
-                <Link href="/(auth)/login">
+                <Link href={routes.login}>
                   <Button variant="outline" size="lg">
                     Sign In
                   </Button>
@@ -141,7 +158,7 @@ export default function HomePage() {
             </p>
 
             {!isAuthenticated && (
-              <Link href="/(public)/register">
+              <Link href={routes.login} onClick={handleRegisterClick}>
                 <Button size="lg">
                   Register Now
                 </Button>

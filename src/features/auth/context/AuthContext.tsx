@@ -21,7 +21,6 @@ function isExpired(token: string): boolean {
   return !p || Date.now() >= p.exp * 1000;
 }
 
-// ✅ Normalize backend role string → frontend UserRole enum
 function normalizeRole(raw: string): UserRole {
   const map: Record<string, UserRole> = {
     'admin': UserRole.ADMIN,
@@ -79,7 +78,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const user = await getUserSession(payload.sub);
 
-    // ✅ Always normalize role — backend returns "admin", we need UserRole.ADMIN
     return {
       ...user,
       role: normalizeRole(user.role as unknown as string),
@@ -140,7 +138,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { access_token } = await loginUser({ username, password });
       setStoredToken(access_token);
 
-      // ✅ fetchUser already normalizes the role
       const user = await fetchUser(access_token);
       dispatch({ type: 'SET_USER', user, role: user.role });
       return user.role;

@@ -102,7 +102,7 @@ export function RegisterFormFields({
 
   const categoryOptions: SelectOption[] = categories.map((c) => ({
     value: String(c.id),
-    label: c.category_name,
+    label: c.category,  // Changed from category_name to category
   })) || [];
 
   // ─── STEP 1: EVENT SELECTION ───────────────────────────────────────
@@ -634,6 +634,7 @@ export function RegisterFormFields({
                 label="Event Type"
                 value={formData.eventType}
               />
+              {/* {console.log(useri)} */}
               <ReviewField
                 label="Event"
                 value={eventOptions.find((o) => o.value === String(formData.eventId))?.label}

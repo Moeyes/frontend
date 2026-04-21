@@ -30,8 +30,10 @@ export interface Sport {
 
 export interface Category {
     id: number;
-    category_name: string;
+    category: string;  // Changed from category_name
+    sport_name?: string;
     gender?: string;
+    created_at?: string;
 }
 
 // Cache for API responses to avoid repeated calls
@@ -152,7 +154,8 @@ export async function fetchCategories(
         const response = await apiClient.get(
             `/api/events/${eventId}/sports/${sportId}/categories`
         );
-        const categories = response.data.data || [];
+        // Backend returns array directly, not wrapped in { data: [...] }
+        const categories = Array.isArray(response.data) ? response.data : [];
         setCache(cacheKey, categories);
         return categories;
     } catch (error) {

@@ -4,7 +4,7 @@
  * Displays success screen after registration with action buttons
  */
 
-import { CheckCircle2, Home } from 'lucide-react';
+import { Check, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface RegistrationSuccessProps {
@@ -21,7 +21,9 @@ export function RegistrationSuccess({
             <div className="max-w-md w-full bg-card rounded-2xl border border-border overflow-hidden shadow-lg">
                 {/* Header */}
                 <div className="bg-gradient-to-br from-success to-success/90 px-6 py-12 text-center">
-                    <CheckCircle2 className="w-16 h-16 text-white mx-auto mb-4" />
+                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Check className="w-10 h-10 text-success" />
+                    </div>
                     <h1 className="text-2xl font-bold text-white mb-2">
                         Registration Successful!
                     </h1>

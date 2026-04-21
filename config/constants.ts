@@ -48,7 +48,7 @@ export const routes = {
     home: '/',
 
     // Auth routes
-    login: '/auth/login',
+    login: '/login',
 
     // Public registration (guest + org + admin)
     register: '/register',
@@ -56,8 +56,8 @@ export const routes = {
     // Portal routes (authenticated)
     dashboard: '/dashboard',
     bynumber: '/bynumber',
-    bySport: '/by-sport',
-    byCategory: '/by-category',
+    bySport: '/bysport',
+    byCategory: '/bycategory',
 
     // Error pages
     unauthorized: '/unauthorized',

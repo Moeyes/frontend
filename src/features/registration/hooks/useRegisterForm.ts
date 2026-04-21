@@ -3,6 +3,7 @@
 import { useCallback } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useAuth } from '@/features/auth';
 import { useRegisterMutation } from './useRegisterMutation';
 import { formDataToPayload, parseApiError, ApiErrorResponse } from '@/features/registration/types';
 import { registerSchema, RegisterFormData } from '@/lib/validators/register.schema';
@@ -17,7 +18,9 @@ interface UseRegisterFormReturn {
 export function useRegisterForm(
     onSuccess?: (enrollId: number) => void
 ): UseRegisterFormReturn {
-    const form = useForm<RegisterFormData, object, RegisterFormData>({ // ← third generic added
+    const { user } = useAuth();
+    
+    const form = useForm<RegisterFormData, object, RegisterFormData>({
         resolver: zodResolver(registerSchema),
         mode: 'onBlur',
         defaultValues: {
@@ -71,10 +74,14 @@ export function useRegisterForm(
 
     const onSubmit = useCallback(
         async (data: RegisterFormData) => {
-            const payload = formDataToPayload(data);
+            if (!user?.id) {
+                form.setError('root', { message: 'User not authenticated. Please login first.' });
+                return;
+            }
+            const payload = formDataToPayload(data, user.id);
             await mutation.mutateAsync(payload);
         },
-        [mutation]
+        [mutation, user, form]
     );
 
     return {
