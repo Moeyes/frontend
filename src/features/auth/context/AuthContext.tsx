@@ -1,55 +1,27 @@
+// src/features/auth/context/AuthContext.tsx
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
-import {
-  AuthContextType,
-  AuthState,
-  UserRole,
-  User,
-} from '@/features/auth/types';
-import {
-  loginUser as loginUserService,
-  logoutUser as logoutUserService,
-  refreshAccessToken as refreshTokenService,
-} from '@/features/auth/services';
-import {
-  setStoredToken,
-  setStoredRefreshToken,
-  getStoredRefreshToken,
-  getStoredToken,
-  clearStoredTokens,
-} from '@/lib/api/client';
-import { AxiosError } from 'axios';
+import React, { createContext, useCallback, useContext, useEffect, useReducer, useRef } from 'react';
+import { AuthContextType, AuthState, User, UserRole } from '@/features/auth/types';
+import { loginUser, logoutUser, refreshAccessToken, getUserSession } from '@/features/auth/services';
+import { getStoredToken, setStoredToken, clearStoredTokens } from '@/lib/api/client';
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// ─── JWT helpers ─────────────────────────────────────────────────────────────
-interface JwtPayload {
-  sub: string;       // user UUID
-  role: string;      // "admin" | "USER1" | "USER2"
-  type: string;
-  exp: number;
-  iat: number;
-  jti?: string;
-}
+// ─── JWT decode ───────────────────────────────────────────────────────────────
+interface JwtPayload { sub: string; role: string; exp: number; }
 
 function decodeJwt(token: string): JwtPayload | null {
   try {
-    const payload = token.split('.')[1];
-    const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
-    return JSON.parse(decoded) as JwtPayload;
-  } catch {
-    return null;
-  }
+    const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(b64)) as JwtPayload;
+  } catch { return null; }
 }
 
-function isTokenExpired(token: string): boolean {
-  const payload = decodeJwt(token);
-  if (!payload) return true;
-  return Date.now() >= payload.exp * 1000;
+function isExpired(token: string): boolean {
+  const p = decodeJwt(token);
+  return !p || Date.now() >= p.exp * 1000;
 }
 
-// Map backend role strings → frontend UserRole enum
+// ✅ Normalize backend role string → frontend UserRole enum
 function normalizeRole(raw: string): UserRole {
   const map: Record<string, UserRole> = {
     'admin': UserRole.ADMIN,
@@ -61,189 +33,156 @@ function normalizeRole(raw: string): UserRole {
     'GUEST': UserRole.GUEST,
     'guest': UserRole.GUEST,
   };
-  return map[raw] ?? UserRole.GUEST;
+
+  const normalized = map[raw];
+  if (!normalized) {
+    console.warn(`Unknown role from backend: "${raw}" — defaulting to GUEST`);
+  }
+  return normalized ?? UserRole.GUEST;
 }
 
-// Build a User from the JWT payload (no /me endpoint needed)
-function userFromToken(token: string): User | null {
-  const payload = decodeJwt(token);
-  if (!payload) return null;
-  const role = normalizeRole(payload.role);
-  return {
-    id: payload.sub,
-    username: payload.sub, // will be overwritten by stored user if available
-    email: '',
-    khmer_name: '',
-    english_name: '',
-    role,
-    is_active: true,
-    is_superuser: role === UserRole.ADMIN,
-    created_at: '',
-    updated_at: '',
-  };
-}
+// ─── Reducer ──────────────────────────────────────────────────────────────────
+type Action =
+  | { type: 'LOADING' }
+  | { type: 'SET_USER'; user: User; role: UserRole }
+  | { type: 'SET_ERROR'; error: string }
+  | { type: 'CLEAR_ERROR' }
+  | { type: 'LOGOUT' };
 
-function getStoredUser(): User | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    const raw = localStorage.getItem('auth_user');
-    return raw ? (JSON.parse(raw) as User) : null;
-  } catch {
-    return null;
+const EMPTY: AuthState = {
+  user: null, role: null,
+  isAuthenticated: false, isLoading: false, error: null,
+};
+
+function reducer(state: AuthState, action: Action): AuthState {
+  switch (action.type) {
+    case 'LOADING': return { ...state, isLoading: true, error: null };
+    case 'SET_USER': return { ...EMPTY, isAuthenticated: true, user: action.user, role: action.role };
+    case 'SET_ERROR': return { ...state, isLoading: false, error: action.error };
+    case 'CLEAR_ERROR': return { ...state, error: null };
+    case 'LOGOUT': return { ...EMPTY };
+    default: return state;
   }
 }
 
-// ─── Compute initial state synchronously (avoids setState-in-effect) ─────────
-function resolveInitialState(): AuthState {
-  const empty: AuthState = { user: null, isAuthenticated: false, isLoading: false, error: null, role: null };
-
-  if (typeof window === 'undefined') {
-    return { ...empty, isLoading: true };
-  }
-
-  const token = getStoredToken();
-  if (!token || isTokenExpired(token)) {
-    clearStoredTokens();
-    localStorage.removeItem('auth_user');
-    return empty;
-  }
-
-  // Prefer stored user (has username etc), fallback to token-only user
-  const user = getStoredUser() ?? userFromToken(token);
-  if (!user) {
-    clearStoredTokens();
-    return empty;
-  }
-
-  return { user, isAuthenticated: true, isLoading: false, error: null, role: user.role };
-}
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── Context ──────────────────────────────────────────────────────────────────
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AuthState>(resolveInitialState);
-  const initialized = useRef(false);
+  const [state, dispatch] = useReducer(reducer, { ...EMPTY, isLoading: true });
+  const didInit = useRef(false);
 
-  // SSR hydration only — deferred to avoid setState-in-effect lint error
+  // ── Helper: fetch full user + normalize role ─────────────────────────────
+  const fetchUser = useCallback(async (accessToken: string): Promise<User> => {
+    const payload = decodeJwt(accessToken);
+    if (!payload?.sub) throw new Error('Invalid token payload');
+
+    const user = await getUserSession(payload.sub);
+
+    // ✅ Always normalize role — backend returns "admin", we need UserRole.ADMIN
+    return {
+      ...user,
+      role: normalizeRole(user.role as unknown as string),
+    };
+  }, []);
+
+  // ── Restore session on mount ─────────────────────────────────────────────
   useEffect(() => {
-    if (initialized.current || !state.isLoading) return;
-    initialized.current = true;
-    const id = setTimeout(() => setState(resolveInitialState()), 0);
-    return () => clearTimeout(id);
-  }, [state.isLoading]);
+    if (didInit.current) return;
+    didInit.current = true;
 
+    const restore = async () => {
+      const accessToken = getStoredToken();
+
+      // No access token — try refresh via HttpOnly cookie
+      if (!accessToken) {
+        try {
+          const refreshed = await refreshAccessToken();
+          setStoredToken(refreshed.access_token);
+          const user = await fetchUser(refreshed.access_token);
+          dispatch({ type: 'SET_USER', user, role: user.role });
+        } catch {
+          dispatch({ type: 'LOGOUT' });
+        }
+        return;
+      }
+
+      // Access token valid — verify with backend
+      if (!isExpired(accessToken)) {
+        try {
+          const user = await fetchUser(accessToken);
+          dispatch({ type: 'SET_USER', user, role: user.role });
+        } catch {
+          dispatch({ type: 'LOGOUT' });
+        }
+        return;
+      }
+
+      // Access token expired — try refresh via HttpOnly cookie
+      try {
+        const refreshed = await refreshAccessToken();
+        setStoredToken(refreshed.access_token);
+        const user = await fetchUser(refreshed.access_token);
+        dispatch({ type: 'SET_USER', user, role: user.role });
+      } catch {
+        clearStoredTokens();
+        dispatch({ type: 'LOGOUT' });
+      }
+    };
+
+    void restore();
+  }, [fetchUser]);
+
+  // ── login ────────────────────────────────────────────────────────────────
   const login = useCallback(async (username: string, password: string): Promise<UserRole> => {
-    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+    dispatch({ type: 'LOADING' });
     try {
-      // Backend returns { access_token, refresh_token, token_type }
-      // There is NO user object in the response — role lives in the JWT
-      const response = await loginUserService({ username, password });
+      const { access_token } = await loginUser({ username, password });
+      setStoredToken(access_token);
 
-      setStoredToken(response.access_token);
-      setStoredRefreshToken(response.refresh_token);
-
-      // Decode role from JWT
-      const payload = decodeJwt(response.access_token);
-      const role = normalizeRole(payload?.role ?? '');
-
-      // Build user from token (no /me endpoint available)
-      const user: User = {
-        id: payload?.sub ?? '',
-        username,     // we know this from the login form
-        email: '',
-        khmer_name: '',
-        english_name: '',
-        role,
-        is_active: true,
-        is_superuser: role === UserRole.ADMIN,
-        created_at: '',
-        updated_at: '',
-      };
-
-      localStorage.setItem('auth_user', JSON.stringify(user));
-
-      setState({ user, isAuthenticated: true, isLoading: false, error: null, role });
-      return role;
+      // ✅ fetchUser already normalizes the role
+      const user = await fetchUser(access_token);
+      dispatch({ type: 'SET_USER', user, role: user.role });
+      return user.role;
     } catch (err) {
-      const message =
-        err instanceof AxiosError
-          ? err.response?.data?.detail || err.message
-          : err instanceof Error
-            ? err.message
-            : 'Login failed';
-      setState((prev) => ({
-        ...prev,
-        isLoading: false,
-        error: typeof message === 'string' ? message : 'Login failed',
-      }));
+      const message = err instanceof Error ? err.message : 'Login failed';
+      dispatch({ type: 'SET_ERROR', error: message });
       throw err;
     }
-  }, []);
+  }, [fetchUser]);
 
+  // ── logout ───────────────────────────────────────────────────────────────
   const logout = useCallback(async () => {
     try {
-      const refreshToken = getStoredRefreshToken();
-      await logoutUserService({ refresh_token: refreshToken || undefined });
-    } catch {
-      // best-effort
-    } finally {
+      await logoutUser();
+    } catch { /* best effort */ }
+    finally {
       clearStoredTokens();
-      localStorage.removeItem('auth_user');
-      setState({ user: null, isAuthenticated: false, isLoading: false, error: null, role: null });
+      dispatch({ type: 'LOGOUT' });
     }
   }, []);
 
+  // ── refreshSession ───────────────────────────────────────────────────────
   const refreshSession = useCallback(async () => {
-    const refreshToken = getStoredRefreshToken();
-    if (!refreshToken) return;
-    try {
-      const response = await refreshTokenService({ refresh_token: refreshToken });
-      setStoredToken(response.access_token);
-      setStoredRefreshToken(response.refresh_token);
+    const refreshed = await refreshAccessToken();
+    setStoredToken(refreshed.access_token);
+    const user = await fetchUser(refreshed.access_token);
+    dispatch({ type: 'SET_USER', user, role: user.role });
+  }, [fetchUser]);
 
-      const payload = decodeJwt(response.access_token);
-      const role = normalizeRole(payload?.role ?? '');
-      const existing = getStoredUser();
-      const user: User = existing
-        ? { ...existing, role }
-        : {
-          id: payload?.sub ?? '',
-          username: '',
-          email: '',
-          khmer_name: '',
-          english_name: '',
-          role,
-          is_active: true,
-          is_superuser: role === UserRole.ADMIN,
-          created_at: '',
-          updated_at: '',
-        };
-
-      localStorage.setItem('auth_user', JSON.stringify(user));
-      setState({ user, isAuthenticated: true, isLoading: false, error: null, role });
-    } catch {
-      clearStoredTokens();
-      localStorage.removeItem('auth_user');
-      setState({ user: null, isAuthenticated: false, isLoading: false, error: null, role: null });
-    }
-  }, []);
-
-  const clearError = useCallback(() => setState((prev) => ({ ...prev, error: null })), []);
+  const clearError = useCallback(() => dispatch({ type: 'CLEAR_ERROR' }), []);
 
   const hasRole = useCallback(
     (role: UserRole | UserRole[]) => {
-      if (!state.user) return false;
-      const roles = Array.isArray(role) ? role : [role];
-      return roles.includes(state.user.role);
+      if (!state.role) return false;
+      return Array.isArray(role) ? role.includes(state.role) : state.role === role;
     },
-    [state.user]
+    [state.role]
   );
 
   const canAccess = useCallback(
-    (requiredRoles: UserRole[]) => {
-      if (!state.user) return false;
-      return requiredRoles.includes(state.user.role);
-    },
-    [state.user]
+    (required: UserRole[]) => !!state.role && required.includes(state.role),
+    [state.role]
   );
 
   return (
@@ -253,8 +192,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within an AuthProvider');
-  return context;
+export function useAuth(): AuthContextType {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within <AuthProvider>');
+  return ctx;
 }

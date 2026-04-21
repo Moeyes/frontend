@@ -68,11 +68,13 @@ export type RouteKey = keyof typeof routes;
 /**
  * Role-based default redirect after login
  */
+// import { UserRole } from '@/features/auth/types';
+
 import { UserRole } from '@/features/auth/types';
 
 export const ROLE_DEFAULT_ROUTE: Record<UserRole, string> = {
-    [UserRole.ADMIN]: routes.dashboard,
-    [UserRole.ORGANIZATION]: routes.dashboard,
-    [UserRole.FEDERATION]: routes.dashboard,
-    [UserRole.GUEST]: routes.register,
+    [UserRole.ADMIN]: '/dashboard',
+    [UserRole.ORGANIZATION]: '/dashboard',
+    [UserRole.FEDERATION]: '/by-category',
+    [UserRole.GUEST]: '/register',
 };

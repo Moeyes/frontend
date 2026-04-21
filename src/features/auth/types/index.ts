@@ -65,10 +65,6 @@ export interface LoginResponse {
     token_type:    string;
 }
 
-export interface RefreshTokenRequest {
-    refresh_token: string;
-}
-
 export interface RefreshTokenResponse {
     access_token:  string;
     refresh_token: string;
@@ -141,4 +137,17 @@ export interface AuthErrorDetail {
     loc:   (string | number)[];
     msg:   string;
     input: unknown;
+}
+
+// src/features/auth/types/index.ts
+
+// ✅ Refresh no longer needs a body — remove the request type or make it empty
+export interface RefreshTokenRequest { 
+    refresh_token: string;
+}   // kept for compatibility, body is ignored
+
+export interface RefreshTokenResponse {
+    access_token: string;
+    refresh_token: string; // backend still returns it in body even though cookie is set
+    token_type: string;
 }

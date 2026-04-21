@@ -22,7 +22,10 @@ function LoginFormInner() {
         const role = await login(username, password);
         if (role) {
             const returnUrl = searchParams.get('returnUrl');
-            router.push(returnUrl ? decodeURIComponent(returnUrl) : ROLE_DEFAULT_ROUTE[role]);
+            const destination = returnUrl 
+                ? decodeURIComponent(returnUrl)
+                :  ROLE_DEFAULT_ROUTE[role] ?? '/dashboard'
+            router.push(destination);
         }
     };
 

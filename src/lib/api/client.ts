@@ -1,72 +1,87 @@
-/**
- * API Client
- *
- * Axios instance with interceptors for authentication and error handling
- */
+import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from 'axios';
 
-import axios, { AxiosInstance, AxiosError } from 'axios';
+const KEYS = { ACCESS: 'auth_access_token' } as const;
 
-export const TOKEN_KEY = 'auth_access_token';
-export const REFRESH_TOKEN_KEY = 'auth_refresh_token';
+const ss = {
+    get: (k: string) => { try { return sessionStorage.getItem(k); } catch { return null; } },
+    set: (k: string, v: string) => { try { sessionStorage.setItem(k, v); } catch { } },
+    remove: (k: string) => { try { sessionStorage.removeItem(k); } catch { } },
+};
 
-export function getStoredToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem(TOKEN_KEY);
-}
+// ── Public helpers used by AuthContext ────────────────────────────────────────
+export const getStoredToken = () => ss.get(KEYS.ACCESS);
+export const setStoredToken = (t: string) => ss.set(KEYS.ACCESS, t);
+export const clearStoredTokens = () => ss.remove(KEYS.ACCESS);
 
-export function setStoredToken(token: string): void {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(TOKEN_KEY, token);
-}
+// No refresh token helpers — it lives in an HttpOnly cookie, JS cannot read it
 
-export function setStoredRefreshToken(token: string): void {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(REFRESH_TOKEN_KEY, token);
-}
-
-export function getStoredRefreshToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
-}
-
-export function clearStoredTokens(): void {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-}
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
-// Create axios instance
 const apiClient: AxiosInstance = axios.create({
-    baseURL: BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+    baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000',
+    headers: { 'Content-Type': 'application/json' },
+    withCredentials: true,  // ✅ CRITICAL — sends the HttpOnly refresh_token cookie automatically
 });
 
-// Request interceptor: attach auth token from localStorage
-apiClient.interceptors.request.use(
-    (config) => {
-        const token = getStoredToken();
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => Promise.reject(error)
-);
+// ── Request: attach Bearer access token ───────────────────────────────────────
+apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+    const token = getStoredToken();
+    if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
 
-// Response interceptor: normalize error shape
+// ── Response: silent refresh on 401 ──────────────────────────────────────────
+let isRefreshing = false;
+let queue: Array<(token: string) => void> = [];
+
+const drainQueue = (token: string) => { queue.forEach(cb => cb(token)); queue = []; };
+
 apiClient.interceptors.response.use(
-    (response) => response,
-    (error: AxiosError) => {
-        if (error.response) {
-            return Promise.reject(error.response.data);
+    res => res,
+    async (error: AxiosError) => {
+        const original = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+        if (
+            error.response?.status !== 401 ||
+            original._retry ||
+            original.url?.includes('/refresh')
+        ) {
+            return Promise.reject(error);
         }
-        return Promise.reject({
-            detail: error.message || 'An unexpected error occurred',
-        });
+
+        original._retry = true;
+
+        if (isRefreshing) {
+            return new Promise(resolve => {
+                queue.push((token: string) => {
+                    original.headers!.Authorization = `Bearer ${token}`;
+                    resolve(apiClient(original));
+                });
+            });
+        }
+
+        isRefreshing = true;
+
+        try {
+            // ✅ No body needed — browser sends the HttpOnly cookie automatically
+            const { data } = await axios.post(
+                `${apiClient.defaults.baseURL}/api/auth/refresh`,
+                {},
+                { withCredentials: true }
+            );
+
+            setStoredToken(data.access_token);
+            original.headers!.Authorization = `Bearer ${data.access_token}`;
+            drainQueue(data.access_token);
+            return apiClient(original);
+        } catch {
+            clearStoredTokens();
+            queue = [];
+            window.dispatchEvent(new CustomEvent('auth:session-expired'));
+            return Promise.reject(error);
+        } finally {
+            isRefreshing = false;
+        }
     }
 );
 

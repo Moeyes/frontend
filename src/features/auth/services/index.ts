@@ -1,97 +1,34 @@
-/**
- * Authentication Service
- * 
- * API calls for login, logout, token refresh, and session management
- */
-
 import apiClient from '@/lib/api/client';
-import {
-  LoginRequest,
-  LoginResponse,
-  RefreshTokenRequest,
-  RefreshTokenResponse,
-  LogoutRequest,
-  LogoutResponse,
-  User,
-  UserSession,
-} from '@/features/auth/types';
+import { LoginRequest, LoginResponse, RefreshTokenResponse } from '@/features/auth/types';
+import { User } from '@/features/auth/types';
 
-const API_BASE = '/api/auth';
+const BASE = '/api/auth';
 
-/**
- * Login user with username and password
- */
+// POST /api/auth/login → returns { access_token, refresh_token, token_type }
+// Backend also sets HttpOnly cookie for refresh_token
 export async function loginUser(credentials: LoginRequest): Promise<LoginResponse> {
-  const response = await apiClient.post<LoginResponse>(
-    `${API_BASE}/login`,
-    credentials
-  );
-  return response.data;
+  const { data } = await apiClient.post<LoginResponse>(`${BASE}/login`, credentials);
+  return data;
 }
 
-/**
- * Refresh access token using refresh token
- */
-export async function refreshAccessToken(
-  request: RefreshTokenRequest
-): Promise<RefreshTokenResponse> {
-  const response = await apiClient.post<RefreshTokenResponse>(
-    `${API_BASE}/refresh`,
-    request
-  );
-  return response.data;
+// POST /api/auth/refresh → NO body needed, browser sends cookie automatically
+// Backend validates cookie against refresh_tokens table, returns new pair
+export async function refreshAccessToken(): Promise<RefreshTokenResponse> {
+  const { data } = await apiClient.post<RefreshTokenResponse>(`${BASE}/refresh`, {});
+  return data;
 }
 
-/**
- * Logout user and revoke refresh token
- */
-export async function logoutUser(request?: LogoutRequest): Promise<LogoutResponse> {
-  const response = await apiClient.post<LogoutResponse>(
-    `${API_BASE}/logout`,
-    request || {}
-  );
-  return response.data;
+// GET /api/auth/session/{user_id} → returns full UserPublic
+export async function getUserSession(userId: string): Promise<User> {
+  const { data } = await apiClient.get<User>(`${BASE}/session/${userId}`);
+  return data;
 }
 
-/**
- * Get current user session
- */
-export async function getCurrentSession(): Promise<UserSession> {
-  const response = await apiClient.get<UserSession>(
-    `${API_BASE}/session`
-  );
-  return response.data;
+// No logout endpoint in the backend — clear locally only
+export async function logoutUser(): Promise<void> {
+  // If you add DELETE /api/auth/logout later, call it here
+  return Promise.resolve();
 }
 
-/**
- * Get current authenticated user
- */
-export async function getCurrentUser(): Promise<User> {
-  const response = await apiClient.get<User>(
-    `${API_BASE}/me`
-  );
-  return response.data;
-}
-
-/**
- * Validate if token is still valid
- */
-export async function validateToken(): Promise<boolean> {
-  try {
-    await getCurrentUser();
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-export const authService = {
-  loginUser,
-  refreshAccessToken,
-  logoutUser,
-  getCurrentSession,
-  getCurrentUser,
-  validateToken,
-};
-
+export const authService = { loginUser, refreshAccessToken, getUserSession, logoutUser };
 export default authService;
