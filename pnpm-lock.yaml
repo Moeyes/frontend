@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  react-hook-form: ^7.72.1
+
 importers:
 
   .:
@@ -13,7 +16,7 @@ importers:
         version: 1.4.0(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@hookform/resolvers':
         specifier: ^5.2.2
-        version: 5.2.2(react-hook-form@7.72.1(react@19.2.4))
+        version: 5.2.2(react-hook-form@7.54.2(react@19.2.4))
       '@tanstack/react-query':
         specifier: ^5.99.1
         version: 5.99.1(react@19.2.4)
@@ -39,8 +42,8 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
       react-hook-form:
-        specifier: ^7.72.1
-        version: 7.72.1(react@19.2.4)
+        specifier: ^7.54.2
+        version: 7.54.2(react@19.2.4)
       shadcn:
         specifier: ^4.3.0
         version: 4.3.0(@types/node@20.19.39)(typescript@5.9.3)
@@ -325,7 +328,7 @@ packages:
   '@hookform/resolvers@5.2.2':
     resolution: {integrity: sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA==}
     peerDependencies:
-      react-hook-form: ^7.55.0
+      react-hook-form: ^7.72.1
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -2568,8 +2571,8 @@ packages:
     peerDependencies:
       react: ^19.2.4
 
-  react-hook-form@7.72.1:
-    resolution: {integrity: sha512-RhwBoy2ygeVZje+C+bwJ8g0NjTdBmDlJvAUHTxRjTmSUKPYsKfMphkS2sgEMotsY03bP358yEYlnUeZy//D9Ig==}
+  react-hook-form@7.54.2:
+    resolution: {integrity: sha512-eHpAUgUjWbZocoQYUHposymRb4ZP6d0uwUnooL2uOybA9/3tPUvoAKqEWK1WaSiTxxOfTpffNZP7QwlnM3/gEg==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
@@ -3399,10 +3402,10 @@ snapshots:
     dependencies:
       hono: 4.12.14
 
-  '@hookform/resolvers@5.2.2(react-hook-form@7.72.1(react@19.2.4))':
+  '@hookform/resolvers@5.2.2(react-hook-form@7.54.2(react@19.2.4))':
     dependencies:
       '@standard-schema/utils': 0.3.0
-      react-hook-form: 7.72.1(react@19.2.4)
+      react-hook-form: 7.54.2(react@19.2.4)
 
   '@humanfs/core@0.19.2':
     dependencies:
@@ -5637,7 +5640,7 @@ snapshots:
       react: 19.2.4
       scheduler: 0.27.0
 
-  react-hook-form@7.72.1(react@19.2.4):
+  react-hook-form@7.54.2(react@19.2.4):
     dependencies:
       react: 19.2.4
 

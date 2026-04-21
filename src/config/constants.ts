@@ -35,23 +35,23 @@ export const FORM_STEP_LABELS = {
 } as const;
 
 export const GENDER_OPTIONS = [
-    { value: 'Male', label: 'Male' },
-    { value: 'Female', label: 'Female' },
-    { value: 'Other', label: 'Other' },
-] as const;
+    { value: 'MALE', label: 'Male' },
+    { value: 'FEMALE', label: 'Female' },
+    { value: 'OTHER', label: 'Other' },
+];
 
 export const ID_DOCUMENT_OPTIONS = [
-    { value: 'IDCard', label: 'ID Card' },
-    { value: 'BirthCertificate', label: 'Birth Certificate' },
-    { value: 'Passport', label: 'Passport' },
-    { value: 'FamilyBook', label: 'Family Book' },
-    { value: 'Other', label: 'Other' },
-] as const;
+    { value: 'IDCARD', label: 'ID Card' },
+    { value: 'BIRTHCERTIFICATE', label: 'Birth Certificate' },
+    { value: 'PASSPORT', label: 'Passport' },
+    { value: 'FAMILYBOOK', label: 'Family Book' },
+    { value: 'OTHER', label: 'Other' },
+];
 
 export const ROLE_OPTIONS = [
-    { value: 'Athlete', label: 'Athlete' },
-    { value: 'Leader', label: 'Leader' },
-] as const;
+    { value: 'athlete', label: 'Athlete' },
+    { value: 'leader', label: 'Leader' },
+];
 
 export const LEADER_ROLE_OPTIONS = [
     { value: 'coach', label: 'Coach' },

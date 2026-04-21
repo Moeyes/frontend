@@ -46,8 +46,8 @@ export function SelectField<T extends FieldValues>({
             control={control}
             name={name}
             render={({ field }) => {
-                const selectedValue = field.value ?? '';
-                const selectedLabel = options.find(opt => opt.value === String(selectedValue))?.label || placeholder;
+                const selectedValue = String(field.value || '');
+                const selectedLabel = options.find((o) => o.value === selectedValue)?.label || placeholder;
 
                 return (
                     <FormField
@@ -57,7 +57,16 @@ export function SelectField<T extends FieldValues>({
                         hint={hint}
                         htmlFor={fieldId}
                     >
-                        <Select value={selectedValue} onValueChange={field.onChange}>
+                        <Select value={selectedValue} onValueChange={(value) => {
+                            // For string fields (organizationId, eventType, gender, idDocumentType, role, leaderRole), keep as string
+                            // For numeric ID fields (eventId, sportId, categoryId), convert to number
+                            const stringFields = ['organizationId', 'eventType', 'gender', 'idDocumentType', 'role', 'leaderRole'];
+                            const fieldNameStr = String(name);
+                            const isStringField = stringFields.includes(fieldNameStr);
+
+                            const finalValue = isStringField ? value : (!isNaN(Number(value)) ? Number(value) : value);
+                            field.onChange(finalValue);
+                        }}>
                             <SelectTrigger
                                 id={fieldId}
                                 className={error ? 'border-destructive' : ''}

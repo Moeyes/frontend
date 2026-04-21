@@ -44,7 +44,7 @@ import {
 type FormStep = 'event' | 'personal' | 'documents' | 'review';
 
 interface RegisterFormFieldsProps {
-  form: UseFormReturn<RegisterFormData>;
+  form: UseFormReturn<RegisterFormData, object, RegisterFormData>;
   cascadingData: CascadingDataLoaded | null;
   categories: Category[];
   step: FormStep;
@@ -321,7 +321,7 @@ export function RegisterFormFields({
                 name="gender"
                 label=""
                 placeholder="Select gender"
-                options={GENDER_OPTIONS as unknown as SelectOption[]}
+                options={[...GENDER_OPTIONS] as SelectOption[]}
                 required
                 error={formState.errors.gender?.message}
               />
@@ -416,7 +416,7 @@ export function RegisterFormFields({
               />
             </div>
 
-            {selectedRole === 'Leader' && (
+            {selectedRole === 'leader' && (
               <div className="mt-4">
                 <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
                   <Users className="w-4 h-4 text-primary" />
@@ -523,7 +523,7 @@ export function RegisterFormFields({
                   className="w-4 h-4 rounded cursor-pointer accent-primary"
                 />
                 <span className="text-sm font-medium text-foreground">
-                  Upload {idDocType === 'IDCard' ? 'ID Card' : idDocType === 'BirthCertificate' ? 'Birth Certificate' : idDocType === 'Passport' ? 'Passport' : 'Family Book'} (JPG, PNG, PDF • Max 5MB)
+                  Upload {idDocType === 'IDCARD' ? 'ID Card' : idDocType === 'BIRTHCERTIFICATE' ? 'Birth Certificate' : idDocType === 'PASSPORT' ? 'Passport' : 'Family Book'} (JPG, PNG, PDF • Max 5MB)
                 </span>
               </label>
 
@@ -554,20 +554,20 @@ export function RegisterFormFields({
 
           <div className="space-y-3">
             {/* Birth Certificate */}
-            <label className="flex items-center gap-3 p-3 rounded-lg border border-border cursor-pointer hover:bg-primary/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" style={{ pointerEvents: idDocType === 'BirthCertificate' ? 'none' : 'auto', opacity: idDocType === 'BirthCertificate' ? 0.5 : 1 }}>
+            <label className="flex items-center gap-3 p-3 rounded-lg border border-border cursor-pointer hover:bg-primary/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" style={{ pointerEvents: idDocType === 'BIRTHCERTIFICATE' ? 'none' : 'auto', opacity: idDocType === 'BIRTHCERTIFICATE' ? 0.5 : 1 }}>
               <input
                 type="checkbox"
                 checked={uploadBirthFlag}
                 onChange={(e) => form.setValue('_uploadBirth', e.target.checked)}
-                disabled={idDocType === 'BirthCertificate'}
+                disabled={idDocType === 'BIRTHCERTIFICATE'}
                 className="w-4 h-4 rounded cursor-pointer accent-primary"
               />
               <span className="text-sm font-medium text-foreground">
-                Birth Certificate {idDocType === 'BirthCertificate' ? '(Already selected)' : '(JPG, PNG, PDF • Max 5MB)'}
+                Birth Certificate {idDocType === 'BIRTHCERTIFICATE' ? '(Already selected)' : '(JPG, PNG, PDF • Max 5MB)'}
               </span>
             </label>
 
-            {uploadBirthFlag && idDocType !== 'BirthCertificate' && (
+            {uploadBirthFlag && idDocType !== 'BIRTHCERTIFICATE' && (
               <div className="ml-7 mt-2">
                 <FileUploadField
                   control={control}
@@ -582,20 +582,20 @@ export function RegisterFormFields({
             )}
 
             {/* Passport */}
-            <label className="flex items-center gap-3 p-3 rounded-lg border border-border cursor-pointer hover:bg-primary/5 transition-colors" style={{ pointerEvents: idDocType === 'Passport' ? 'none' : 'auto', opacity: idDocType === 'Passport' ? 0.5 : 1 }}>
+            <label className="flex items-center gap-3 p-3 rounded-lg border border-border cursor-pointer hover:bg-primary/5 transition-colors" style={{ pointerEvents: idDocType === 'PASSPORT' ? 'none' : 'auto', opacity: idDocType === 'PASSPORT' ? 0.5 : 1 }}>
               <input
                 type="checkbox"
                 checked={uploadPassportFlag}
                 onChange={(e) => form.setValue('_uploadPassport', e.target.checked)}
-                disabled={idDocType === 'Passport'}
+                disabled={idDocType === 'PASSPORT'}
                 className="w-4 h-4 rounded cursor-pointer accent-primary"
               />
               <span className="text-sm font-medium text-foreground">
-                Passport {idDocType === 'Passport' ? '(Already selected)' : '(JPG, PNG, PDF • Max 5MB)'}
+                Passport {idDocType === 'PASSPORT' ? '(Already selected)' : '(JPG, PNG, PDF • Max 5MB)'}
               </span>
             </label>
 
-            {uploadPassportFlag && idDocType !== 'Passport' && (
+            {uploadPassportFlag && idDocType !== 'PASSPORT' && (
               <div className="ml-7 mt-2">
                 <FileUploadField
                   control={control}
@@ -712,7 +712,7 @@ export function RegisterFormFields({
                 label="Role"
                 value={formData.role}
               />
-              {formData.role === 'Leader' && (
+              {formData.role === 'leader' && (
                 <ReviewField
                   label="Leader Role"
                   value={formData.leaderRole}

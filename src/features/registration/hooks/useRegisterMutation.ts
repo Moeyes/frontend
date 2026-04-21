@@ -8,7 +8,7 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { registerUser } from '@/features/registration/services';
-import { RegisterPayload, RegisterResponse, parseApiError } from '@/features/registration/types';
+import { RegisterPayload, RegisterResponse } from '@/features/registration/types';
 
 interface UseRegisterMutationOptions {
     onSuccess?: (data: RegisterResponse) => void;

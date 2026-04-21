@@ -21,19 +21,19 @@ const pastDateSchema = z.string().refine(
 export const registerSchema = z.object({
     // Context selection - all required
     eventType: z.string().min(1, 'Event Type is required').nullable(),
-    eventId: z.coerce.number().int().positive('Event is required').nullable(),
-    organizationId: z.coerce.number().int().positive('Organization is required').nullable(),
-    sportId: z.coerce.number().int().positive('Sport is required').nullable(),
-    categoryId: z.coerce.number().int().positive().nullable(),
+    eventId: z.number().min(1, 'Event is required').nullable(),
+    organizationId: z.string().min(1, 'Organization is required').nullable(),
+    sportId: z.number().min(1, 'Sport is required').nullable(),
+    categoryId: z.number().min(1, 'Category is required').nullable(),
 
     // Personal information
     khFamilyName: z.string().trim().min(1, 'Khmer family name is required'),
     khGivenName: z.string().trim().min(1, 'Khmer given name is required'),
     enFamilyName: z.string().trim().min(1, 'English family name is required'),
     enGivenName: z.string().trim().min(1, 'English given name is required'),
-    gender: z.enum(['Male', 'Female'], {
-        errorMap: () => ({ message: 'Please select a gender' }),
-    }),
+    gender: z.string()
+        .toUpperCase()
+        .pipe(z.enum(['MALE', 'FEMALE', 'OTHER'], { error: 'Please select a gender' })),
     dateOfBirth: pastDateSchema,
     nationality: z
         .string()
@@ -44,12 +44,18 @@ export const registerSchema = z.object({
         .string()
         .trim()
         .regex(phoneRegex, 'Phone must be 7-15 digits'),
-    idDocumentType: z.enum(['IDCard', 'BirthCertificate', 'Passport', 'FamilyBook', 'Other']),
+    idDocumentType: z.string()
+        .toUpperCase()
+        .pipe(z.enum(['IDCARD', 'BIRTHCERTIFICATE', 'PASSPORT', 'FAMILYBOOK', 'OTHER'])),
     address: z.string().trim().optional(),
 
     // Role information
-    role: z.enum(['Athlete', 'Leader']),
-    leaderRole: z.string().trim().optional(),
+    role: z.string()
+        .toLowerCase()
+        .pipe(z.enum(['athlete', 'leader'])),
+    leaderRole: z.string()
+        .optional()
+        .refine((val) => !val || val.length > 0, 'Leader role cannot be empty'),
 
     // Document paths
     photoPath: z.string().url().optional().nullable(),
@@ -88,7 +94,7 @@ export const registerSchema = z.object({
     }
 ).refine(
     (data) => {
-        if (data.role === 'Athlete' && !data.categoryId) {
+        if (data.role === 'athlete' && !data.categoryId) {
             return false;
         }
         return true;
@@ -99,7 +105,7 @@ export const registerSchema = z.object({
     }
 ).refine(
     (data) => {
-        if (data.role === 'Leader' && !data.leaderRole) {
+        if (data.role === 'leader' && !data.leaderRole) {
             return false;
         }
         return true;

@@ -1,9 +1,3 @@
-/**
- * useRegisterForm Hook
- * 
- * React Hook Form integration for registration form
- */
-
 'use client';
 
 import { useCallback } from 'react';
@@ -14,20 +8,17 @@ import { formDataToPayload, parseApiError, ApiErrorResponse } from '@/features/r
 import { registerSchema, RegisterFormData } from '@/lib/validators/register.schema';
 
 interface UseRegisterFormReturn {
-    form: UseFormReturn<RegisterFormData>;
+    form: UseFormReturn<RegisterFormData, object, RegisterFormData>; // ← any → object
     onSubmit: (data: RegisterFormData) => Promise<void>;
     isPending: boolean;
     serverError: string | null;
 }
 
-/**
- * Hook for managing registration form with validation and submission
- */
 export function useRegisterForm(
     onSuccess?: (enrollId: number) => void
 ): UseRegisterFormReturn {
-    const form = useForm<RegisterFormData>({
-        resolver: zodResolver(registerSchema) as any,
+    const form = useForm<RegisterFormData, object, RegisterFormData>({ // ← third generic added
+        resolver: zodResolver(registerSchema),
         mode: 'onBlur',
         defaultValues: {
             eventType: null,
@@ -35,13 +26,13 @@ export function useRegisterForm(
             khGivenName: '',
             enFamilyName: '',
             enGivenName: '',
-            gender: 'Male',
+            gender: 'MALE',
             dateOfBirth: '',
             nationality: 'Cambodian',
             phone: '',
-            idDocumentType: 'IDCard',
+            idDocumentType: 'OTHER',
             address: '',
-            role: 'Athlete',
+            role: 'athlete',
             eventId: null,
             organizationId: null,
             sportId: null,
@@ -69,10 +60,10 @@ export function useRegisterForm(
             const parsed = parseApiError(apiError);
 
             if (typeof parsed === 'string') {
-                form.setError('root' as any, { message: parsed });
+                form.setError('root', { message: parsed });
             } else {
                 parsed.forEach((message, field) => {
-                    form.setError(field as any, { message });
+                    form.setError(field as unknown as keyof RegisterFormData, { message });
                 });
             }
         },
@@ -80,7 +71,7 @@ export function useRegisterForm(
 
     const onSubmit = useCallback(
         async (data: RegisterFormData) => {
-            const payload = formDataToPayload(data as any);
+            const payload = formDataToPayload(data);
             await mutation.mutateAsync(payload);
         },
         [mutation]

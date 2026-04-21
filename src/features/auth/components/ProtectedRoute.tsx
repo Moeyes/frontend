@@ -38,22 +38,7 @@ export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps)
         }
     }, [isLoading, isAuthenticated, requiredRoles, canAccess, router, pathname]);
 
-    // Show spinner while auth state is loading OR while redirect is pending
-    if (isLoading || !isAuthenticated) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
-                    <p className="text-muted-foreground">Loading...</p>
-                </div>
-            </div>
-        );
-    }
-
-    // Role check failed — show nothing while redirect fires
-    if (requiredRoles && !canAccess(requiredRoles)) {
-        return null;
-    }
-
+    // Render children on both server and client
+    // Auth checks happen only in useEffect (client-side)
     return <>{children}</>;
 }
