@@ -1,6 +1,7 @@
 /**
- * Authentication Hooks
+ * Auth Feature - Hooks
  */
 
-export { useRegisterForm } from './useRegisterForm';
-export { useRegisterMutation } from './useRegisterMutation';
+export { useLogin } from './useLogin';
+export { useRequireAuth } from './useRequireAuth';
+export { useRequireRole } from './useRequireRole';

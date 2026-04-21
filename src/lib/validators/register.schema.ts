@@ -31,7 +31,9 @@ export const registerSchema = z.object({
     khGivenName: z.string().trim().min(1, 'Khmer given name is required'),
     enFamilyName: z.string().trim().min(1, 'English family name is required'),
     enGivenName: z.string().trim().min(1, 'English given name is required'),
-    gender: z.enum(['Male', 'Female', 'Other']),
+    gender: z.enum(['Male', 'Female'], {
+        errorMap: () => ({ message: 'Please select a gender' }),
+    }),
     dateOfBirth: pastDateSchema,
     nationality: z
         .string()

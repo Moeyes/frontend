@@ -11,6 +11,10 @@ export function useSurveyMutation() {
             organizationId: number;
             eventId: number;
             sportIds: number[];
-        }) => submitSurvey(organizationId, eventId, sportIds),
+        }) => submitSurvey({
+            organization_id: organizationId,
+            event_id: eventId,
+            sport_ids: sportIds,
+        }),
     });
 }

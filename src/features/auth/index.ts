@@ -1,10 +1,10 @@
 /**
- * Authentication Feature
+ * Auth Feature
  * 
- * User authentication and registration feature
+ * Complete authentication system with JWT, roles, and access control
  */
 
-export * from './components';
+export * from './context';
 export * from './hooks';
 export * from './services';
 export type * from './types';

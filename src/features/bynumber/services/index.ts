@@ -135,7 +135,7 @@ export async function fetchOrgEventSports(
         if (cached) return cached;
 
         // Get sports selected by org from survey (from sports_event_org table)
-        const response = await apiClient.get<{data: any[], count: number}>(
+        const response = await apiClient.get<{ data: any[], count: number }>(
             `/api/events/${eventId}/organizations/${organizationId}/sports`
         );
 

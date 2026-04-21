@@ -1,32 +1,57 @@
 /**
  * API Client
- * 
+ *
  * Axios instance with interceptors for authentication and error handling
  */
 
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import { constants } from '@/config/constants';
+
+export const TOKEN_KEY = 'auth_access_token';
+export const REFRESH_TOKEN_KEY = 'auth_refresh_token';
+
+export function getStoredToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem(TOKEN_KEY);
+}
+
+export function setStoredToken(token: string): void {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function setStoredRefreshToken(token: string): void {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(REFRESH_TOKEN_KEY, token);
+}
+
+export function getStoredRefreshToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
+}
+
+export function clearStoredTokens(): void {
+    if (typeof window === 'undefined') return;
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+}
+
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
-    baseURL: constants.api.baseUrl,
+    baseURL: BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-// Request interceptor: attach auth token if present
+// Request interceptor: attach auth token from localStorage
 apiClient.interceptors.request.use(
     (config) => {
-        // Future-proof: attach Bearer token from localStorage if available
-        const token = typeof window !== 'undefined'
-            ? localStorage.getItem('auth_token')
-            : null;
-
+        const token = getStoredToken();
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
-
         return config;
     },
     (error) => Promise.reject(error)
@@ -36,7 +61,6 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
-        // Normalize error response
         if (error.response) {
             return Promise.reject(error.response.data);
         }

@@ -65,7 +65,7 @@ export function ByNumberForm() {
     const handleNext = async () => {
         const currentStepIndex = FORM_STEPS.indexOf(currentStep);
         if (currentStepIndex < FORM_STEPS.length - 1) {
-            const fieldsToValidate: (keyof typeof form.getValues)[] = [];
+            const fieldsToValidate: string[] = [];
 
             if (currentStep === 'event') {
                 fieldsToValidate.push('eventId');

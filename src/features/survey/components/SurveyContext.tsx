@@ -3,12 +3,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { SurveyContextType, SurveyFormData } from '../types';
 import { fetchEvents } from '../services';
-import { useSurvey } from '../hooks/useSurvey';
+import { useSurvey } from '../hooks';
 
 const SurveyContextComponent = createContext<SurveyContextType | undefined>(undefined);
 
 export function SurveyProvider({ children }: { children: React.ReactNode }) {
-    const survey = useSurvey();
+    const { form } = useSurvey();
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
@@ -17,18 +17,24 @@ export function SurveyProvider({ children }: { children: React.ReactNode }) {
         fetchEvents().finally(() => setIsLoading(false));
     }, []);
 
+    const formValues = form.getValues();
+
     const value: SurveyContextType = {
         formData: {
-            eventId: survey.eventId,
-            eventName: survey.eventName,
-            organizationId: survey.organizationId,
-            organizationName: survey.organizationName,
-            sportIds: survey.sportIds,
-            sportNames: survey.sportNames,
-            sportsActualIds: survey.sportsActualIds,
+            eventId: formValues.eventId,
+            eventName: formValues.eventName || '',
+            organizationId: formValues.organizationId,
+            organizationName: formValues.organizationName || '',
+            sportIds: formValues.sportIds || [],
+            sportNames: formValues.sportNames || [],
+            sportsActualIds: formValues.sportsActualIds || [],
         },
-        setFields: survey.setFields,
-        reset: survey.reset,
+        setFields: (fields: Partial<SurveyFormData>) => {
+            Object.entries(fields).forEach(([key, value]) => {
+                form.setValue(key as keyof SurveyFormData, value);
+            });
+        },
+        reset: form.reset,
     };
 
     return (

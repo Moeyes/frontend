@@ -14,7 +14,7 @@ export interface UseSurveyFormReturn {
 
 export function useSurveyForm(onSuccess?: () => void): UseSurveyFormReturn {
     const form = useForm<SurveyFormData>({
-        resolver: zodResolver(surveySchema),
+        resolver: zodResolver(surveySchema) as any,
         mode: 'onBlur',
         defaultValues: {
             eventId: null,

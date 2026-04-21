@@ -19,7 +19,7 @@ import { uploadPhoto, uploadDocument } from '@/lib/upload/cloudinary';
 import {
   CascadingDataLoaded,
   Category,
-} from '@/features/auth/services/registration-data.service';
+} from '@/features/registration/services/registration-data.service';
 import {
   GENDER_OPTIONS,
   ID_DOCUMENT_OPTIONS,

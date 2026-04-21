@@ -1,6 +1,6 @@
 /**
- * Authentication Components
+ * Auth Feature - Components
  */
 
-export { RegisterForm } from './RegisterForm';
-export { RegisterFormFields } from './RegisterFormFields';
+export { LoginForm } from './LoginForm';
+export { ProtectedRoute } from './ProtectedRoute';

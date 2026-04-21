@@ -2,4 +2,5 @@
  * survey Feature - Hooks
  */
 
-export { useSurveyForm } from './useSurvey';
+export { useSurveyForm, useSurveyForm as useSurvey } from './useSurvey';
+export { useSurveyMutation } from './useSurveyMutation';

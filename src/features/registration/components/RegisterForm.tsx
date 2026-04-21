@@ -11,7 +11,7 @@
 
 import { useEffect, useState } from 'react';
 import { ChevronRight, ChevronLeft, CheckCircle2, AlertCircle, Info } from 'lucide-react';
-import { useRegisterForm } from '@/features/auth/hooks';
+import { useRegisterForm } from '@/features/registration/hooks';
 import { RegisterFormFields } from './RegisterFormFields';
 import { RegistrationSuccess } from './RegistrationSuccess';
 import { Button } from '@/components/ui/button';
@@ -20,8 +20,9 @@ import {
     fetchCategories,
     CascadingDataLoaded,
     Category,
-} from '@/features/auth/services/registration-data.service';
+} from '@/features/registration/services/registration-data.service';
 import { FORM_STEPS, FORM_STEP_LABELS } from '@/config/constants';
+// import { FORM_STEPS, F } from '@/config/constants';
 
 type Step = (typeof FORM_STEPS)[number];
 

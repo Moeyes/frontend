@@ -10,7 +10,7 @@ import { useCallback } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRegisterMutation } from './useRegisterMutation';
-import { formDataToPayload, parseApiError, ApiErrorResponse } from '@/features/auth/types';
+import { formDataToPayload, parseApiError, ApiErrorResponse } from '@/features/registration/types';
 import { registerSchema, RegisterFormData } from '@/lib/validators/register.schema';
 
 interface UseRegisterFormReturn {

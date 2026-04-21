@@ -15,7 +15,7 @@ export interface UseByNumberFormReturn {
 
 export function useByNumberForm(onSuccess?: () => void): UseByNumberFormReturn {
     const form = useForm<ByNumberFormData>({
-        resolver: zodResolver(byNumberSchema),
+        resolver: zodResolver(byNumberSchema) as any,
         mode: 'onBlur',
         defaultValues: {
             eventId: null,

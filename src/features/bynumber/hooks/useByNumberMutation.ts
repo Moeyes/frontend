@@ -12,6 +12,12 @@ export function useByNumberMutation() {
             organizationId: number;
             eventId: number;
             sports: SportRow[];
-        }) => submitByNumber(organizationId, eventId, sports),
+        }) => submitByNumber({ organization_id: organizationId, event_id: eventId, sports: sports.map(s => ({
+            sport_id: s.sport_id,
+            athlete_male_count: s.athlete_male_count || 0,
+            athlete_female_count: s.athlete_female_count || 0,
+            leader_male_count: s.leader_male_count || 0,
+            leader_female_count: s.leader_female_count || 0,
+        })) }),
     });
 }

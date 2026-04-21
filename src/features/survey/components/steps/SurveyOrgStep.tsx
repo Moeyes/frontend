@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useSurvey } from '../../hooks/useSurvey';
+import { useSurvey } from '../../hooks';
 import { fetchAllOrganizations } from '../../services';
 import type { Organization } from '../../types';
 
 export default function SurveyOrgStep() {
-    const survey = useSurvey();
+    const { form } = useSurvey();
     const [organizations, setOrganizations] = useState<Organization[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -25,15 +25,14 @@ export default function SurveyOrgStep() {
     }, []);
 
     const handleSelectOrganization = (org: Organization) => {
-        survey.setFields({
-            organizationId: org.id,
-            organizationName: org.name,
-        });
+        form.setValue('organizationId', org.id);
     };
 
     if (isLoading) {
         return <div className="text-center py-8">Loading organizations...</div>;
     }
+
+    const organizationId = form.watch('organizationId');
 
     return (
         <div>
@@ -49,13 +48,12 @@ export default function SurveyOrgStep() {
                         <button
                             key={org.id}
                             onClick={() => handleSelectOrganization(org)}
-                            className={`p-4 text-left border rounded-lg transition-all ${survey.organizationId === org.id
+                            className={`p-4 text-left border rounded-lg transition-all ${organizationId === org.id
                                     ? 'border-primary bg-primary/5'
                                     : 'border-slate-200 hover:border-slate-300'
                                 }`}
                         >
-                            <h3 className="font-semibold text-slate-900">{org.name}</h3>
-                            {org.province && <p className="text-sm text-slate-600 mt-1">Province: {org.province}</p>}
+                            <h3 className="font-semibold text-slate-900">{org.name_kh}</h3>
                         </button>
                     ))}
                 </div>
