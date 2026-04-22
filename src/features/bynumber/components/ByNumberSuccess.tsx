@@ -15,7 +15,7 @@ export function ByNumberSuccess({ onRegisterAnother }: ByNumberSuccessProps) {
                     <CheckCircle2 className="w-16 h-16 text-green-600 mx-auto mb-6" />
                     <h1 className="text-2xl font-bold text-slate-900 mb-3">Registration Successful!</h1>
                     <p className="text-slate-600 mb-8">
-                        Your organization's participant information has been successfully registered for the event. Thank you!
+                        Your organization&apos;s participant information has been successfully registered for the event. Thank you!
                     </p>
 
                     {onRegisterAnother && (

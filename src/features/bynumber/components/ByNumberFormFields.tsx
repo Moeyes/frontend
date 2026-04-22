@@ -179,7 +179,7 @@ export function ByNumberFormFields({
                                             value={sport.athlete_male_count}
                                             onChange={(e) => {
                                                 const updated = [...sports];
-                                                updated[index].athlete_male_count = parseInt(e.target.value) || 0;
+                                                updated[index] = { ...updated[index], athlete_male_count: parseInt(e.target.value) || 0 };
                                                 setValue('sports', updated);
                                             }}
                                             className="w-full px-2 py-1.5 border border-slate-300 rounded focus:ring-1 focus:ring-primary focus:border-primary text-center text-sm"
@@ -192,7 +192,7 @@ export function ByNumberFormFields({
                                             value={sport.athlete_female_count}
                                             onChange={(e) => {
                                                 const updated = [...sports];
-                                                updated[index].athlete_female_count = parseInt(e.target.value) || 0;
+                                                updated[index] = { ...updated[index], athlete_female_count: parseInt(e.target.value) || 0 };
                                                 setValue('sports', updated);
                                             }}
                                             className="w-full px-2 py-1.5 border border-slate-300 rounded focus:ring-1 focus:ring-primary focus:border-primary text-center text-sm"
@@ -205,7 +205,7 @@ export function ByNumberFormFields({
                                             value={sport.leader_male_count}
                                             onChange={(e) => {
                                                 const updated = [...sports];
-                                                updated[index].leader_male_count = parseInt(e.target.value) || 0;
+                                                updated[index] = { ...updated[index], leader_male_count: parseInt(e.target.value) || 0 };
                                                 setValue('sports', updated);
                                             }}
                                             className="w-full px-2 py-1.5 border border-slate-300 rounded focus:ring-1 focus:ring-primary focus:border-primary text-center text-sm"
@@ -218,7 +218,7 @@ export function ByNumberFormFields({
                                             value={sport.leader_female_count}
                                             onChange={(e) => {
                                                 const updated = [...sports];
-                                                updated[index].leader_female_count = parseInt(e.target.value) || 0;
+                                                updated[index] = { ...updated[index], leader_female_count: parseInt(e.target.value) || 0 };
                                                 setValue('sports', updated);
                                             }}
                                             className="w-full px-2 py-1.5 border border-slate-300 rounded focus:ring-1 focus:ring-primary focus:border-primary text-center text-sm"

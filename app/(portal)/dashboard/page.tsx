@@ -1,141 +1,90 @@
 /**
  * Dashboard Page
- * 
- * Main dashboard with role-based sections
  */
 
 'use client';
 
-import { useRequireAuth } from '@/features/auth/hooks';
 import { useAuth } from '@/features/auth/context';
-import { UserRole } from '@/features/auth/types';
-import Link from 'next/link';
-import { BarChart3, Users, Trophy, FileText, LogOut } from 'lucide-react';
+import { useRequireAuth } from '@/features/auth/hooks';
+import { 
+    useDashboard, 
+    StatsGrid, 
+    GenderChart, 
+    TopOrgsTable, 
+    RecentEnrollments 
+} from '@/features/dashboard';
+import { LogOut, LayoutDashboard, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function DashboardPage() {
     const { user, logout } = useAuth();
     useRequireAuth();
+    
+    const { data, isLoading, error } = useDashboard();
 
     if (!user) return null;
-
-    const isOrganization = user.role === UserRole.ORGANIZATION;
-    const isFederation = user.role === UserRole.FEDERATION;
-    const isAdmin = user.role === UserRole.ADMIN;
 
     const handleLogout = async () => {
         await logout();
     };
 
     return (
-        <div className="min-h-screen bg-background">
-            {/* Header */}
-            <header className="bg-card border-b border-border">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    <div className="flex items-center justify-between">
+        <div className="min-h-screen bg-background p-8">
+            <div className="max-w-7xl mx-auto space-y-8">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card p-6 rounded-2xl border border-border shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <LayoutDashboard className="w-6 h-6 text-primary" />
+                        </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-                            <p className="text-muted-foreground mt-1">
-                                Welcome, {user.english_name || user.khmer_name}!
+                            <h1 className="text-2xl font-black text-foreground">Dashboard</h1>
+                            <p className="text-sm text-muted-foreground font-medium">
+                                Welcome back, <span className="text-foreground">{user.khmer_name || user.english_name}</span>
                             </p>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <span className="text-sm text-muted-foreground bg-secondary px-3 py-1 rounded-lg">
-                                {user.role === UserRole.ADMIN ? 'Administrator' : user.role === UserRole.ORGANIZATION ? 'Organization' : 'Federation'}
-                            </span>
-                            <Button onClick={handleLogout} variant="outline" size="sm" className="gap-2">
-                                <LogOut className="w-4 h-4" />
-                                Logout
-                            </Button>
-                        </div>
                     </div>
-                </div>
-            </header>
-
-            {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {/* Registration Stats */}
-                    <div className="bg-card rounded-lg border border-border p-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-semibold text-foreground">Registrations</h3>
-                            <Users className="w-5 h-5 text-primary" />
+                    
+                    <div className="flex items-center gap-3">
+                        <div className="px-4 py-2 bg-secondary/50 rounded-lg border border-border">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Role</p>
+                            <p className="text-xs font-black text-foreground uppercase">{user.role}</p>
                         </div>
-                        <p className="text-3xl font-bold text-foreground">1,234</p>
-                        <p className="text-sm text-muted-foreground mt-2">Total participants</p>
-                    </div>
-
-                    {/* Events */}
-                    <div className="bg-card rounded-lg border border-border p-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-semibold text-foreground">Events</h3>
-                            <Trophy className="w-5 h-5 text-primary" />
-                        </div>
-                        <p className="text-3xl font-bold text-foreground">12</p>
-                        <p className="text-sm text-muted-foreground mt-2">Active events</p>
-                    </div>
-
-                    {/* Reports */}
-                    <div className="bg-card rounded-lg border border-border p-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-semibold text-foreground">Reports</h3>
-                            <BarChart3 className="w-5 h-5 text-primary" />
-                        </div>
-                        <p className="text-3xl font-bold text-foreground">8</p>
-                        <p className="text-sm text-muted-foreground mt-2">Generated reports</p>
-                    </div>
-
-                    {/* Documents */}
-                    <div className="bg-card rounded-lg border border-border p-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-semibold text-foreground">Documents</h3>
-                            <FileText className="w-5 h-5 text-primary" />
-                        </div>
-                        <p className="text-3xl font-bold text-foreground">42</p>
-                        <p className="text-sm text-muted-foreground mt-2">Uploaded files</p>
+                        <Button onClick={handleLogout} variant="outline" size="sm" className="gap-2 h-11 px-4">
+                            <LogOut className="w-4 h-4" />
+                            Logout
+                        </Button>
                     </div>
                 </div>
 
-                {/* Quick Access Links */}
-                <div className="mt-12">
-                    <h2 className="text-xl font-bold text-foreground mb-6">Quick Access</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {(isOrganization || isAdmin) && (
-                            <>
-                                <Link href="/register">
-                                    <div className="bg-card rounded-lg border border-border p-4 hover:border-primary transition-colors cursor-pointer">
-                                        <h3 className="font-semibold text-foreground mb-2">Register Participants</h3>
-                                        <p className="text-sm text-muted-foreground">Add new athlete or leader registrations</p>
-                                    </div>
-                                </Link>
-
-                                <Link href="/bynumber">
-                                    <div className="bg-card rounded-lg border border-border p-4 hover:border-primary transition-colors cursor-pointer">
-                                        <h3 className="font-semibold text-foreground mb-2">By Number</h3>
-                                        <p className="text-sm text-muted-foreground">View registrations by participant number</p>
-                                    </div>
-                                </Link>
-
-                                <Link href="/bysport">
-                                    <div className="bg-card rounded-lg border border-border p-4 hover:border-primary transition-colors cursor-pointer">
-                                        <h3 className="font-semibold text-foreground mb-2">By Sport</h3>
-                                        <p className="text-sm text-muted-foreground">View registrations organized by sport</p>
-                                    </div>
-                                </Link>
-                            </>
-                        )}
-
-                        {(isFederation || isAdmin) && (
-                            <Link href="/bycategory">
-                                <div className="bg-card rounded-lg border border-border p-4 hover:border-primary transition-colors cursor-pointer">
-                                    <h3 className="font-semibold text-foreground mb-2">By Category</h3>
-                                    <p className="text-sm text-muted-foreground">View registrations by sport category</p>
-                                </div>
-                            </Link>
-                        )}
+                {isLoading ? (
+                    <div className="flex flex-col items-center justify-center py-24 gap-4">
+                        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                        <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Loading Dashboard...</p>
                     </div>
-                </div>
-            </main>
+                ) : error ? (
+                    <div className="p-12 text-center bg-error/5 border border-error/20 rounded-2xl">
+                        <p className="text-error font-bold">Failed to load dashboard data</p>
+                        <p className="text-xs text-muted-foreground mt-1">Please check your connection and try again</p>
+                    </div>
+                ) : data ? (
+                    <>
+                        <StatsGrid stats={data.stats} />
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div className="lg:col-span-1">
+                                <GenderChart data={data.genderDistribution} />
+                            </div>
+                            <div className="lg:col-span-1">
+                                <TopOrgsTable data={data.topOrganizations} />
+                            </div>
+                            <div className="lg:col-span-1">
+                                <RecentEnrollments data={data.recentEnrollments} />
+                            </div>
+                        </div>
+                    </>
+                ) : null}
+            </div>
         </div>
     );
 }

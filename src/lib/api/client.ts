@@ -1,17 +1,25 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from 'axios';
 
-const KEYS = { ACCESS: 'auth_access_token' } as const;
+const KEYS = { 
+    ACCESS: 'auth_access_token',
+    REFRESH: 'auth_refresh_token'
+} as const;
 
 const ss = {
-    get: (k: string) => { try { return sessionStorage.getItem(k); } catch { return null; } },
-    set: (k: string, v: string) => { try { sessionStorage.setItem(k, v); } catch { } },
-    remove: (k: string) => { try { sessionStorage.removeItem(k); } catch { } },
+    get: (k: string) => { try { return localStorage.getItem(k); } catch { return null; } },
+    set: (k: string, v: string) => { try { localStorage.setItem(k, v); } catch { } },
+    remove: (k: string) => { try { localStorage.removeItem(k); } catch { } },
 };
 
 // ── Public helpers used by AuthContext ────────────────────────────────────────
 export const getStoredToken = () => ss.get(KEYS.ACCESS);
 export const setStoredToken = (t: string) => ss.set(KEYS.ACCESS, t);
-export const clearStoredTokens = () => ss.remove(KEYS.ACCESS);
+export const getStoredRefreshToken = () => ss.get(KEYS.REFRESH);
+export const setStoredRefreshToken = (t: string) => ss.set(KEYS.REFRESH, t);
+export const clearStoredTokens = () => {
+    ss.remove(KEYS.ACCESS);
+    ss.remove(KEYS.REFRESH);
+};
 
 // No refresh token helpers — it lives in an HttpOnly cookie, JS cannot read it
 

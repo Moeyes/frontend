@@ -20,6 +20,7 @@ export interface Organization {
     id: number;
     name_kh: string;
     name_en: string;
+    code?: string;
 }
 
 export interface Sport {

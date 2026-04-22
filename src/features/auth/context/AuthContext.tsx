@@ -4,7 +4,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useReducer, useRef } from 'react';
 import { AuthContextType, AuthState, User, UserRole } from '@/features/auth/types';
 import { loginUser, logoutUser, refreshAccessToken, getUserSession } from '@/features/auth/services';
-import { getStoredToken, setStoredToken, clearStoredTokens } from '@/lib/api/client';
+import { getStoredToken, setStoredToken, clearStoredTokens, getStoredRefreshToken, setStoredRefreshToken } from '@/lib/api/client';
 
 // ─── JWT decode ───────────────────────────────────────────────────────────────
 interface JwtPayload { sub: string; role: string; exp: number; }
@@ -43,20 +43,28 @@ function normalizeRole(raw: string): UserRole {
 // ─── Reducer ──────────────────────────────────────────────────────────────────
 type Action =
   | { type: 'LOADING' }
-  | { type: 'SET_USER'; user: User; role: UserRole }
+  | { type: 'SET_USER'; user: User; role: UserRole; accessToken: string; refreshToken: string | null }
   | { type: 'SET_ERROR'; error: string }
   | { type: 'CLEAR_ERROR' }
   | { type: 'LOGOUT' };
 
 const EMPTY: AuthState = {
   user: null, role: null,
+  accessToken: null, refreshToken: null,
   isAuthenticated: false, isLoading: false, error: null,
 };
 
 function reducer(state: AuthState, action: Action): AuthState {
   switch (action.type) {
     case 'LOADING': return { ...state, isLoading: true, error: null };
-    case 'SET_USER': return { ...EMPTY, isAuthenticated: true, user: action.user, role: action.role };
+    case 'SET_USER': return { 
+      ...EMPTY, 
+      isAuthenticated: true, 
+      user: action.user, 
+      role: action.role,
+      accessToken: action.accessToken,
+      refreshToken: action.refreshToken,
+    };
     case 'SET_ERROR': return { ...state, isLoading: false, error: action.error };
     case 'CLEAR_ERROR': return { ...state, error: null };
     case 'LOGOUT': return { ...EMPTY };
@@ -91,14 +99,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const restore = async () => {
       const accessToken = getStoredToken();
+      const refreshToken = getStoredRefreshToken();
 
       // No access token — try refresh via HttpOnly cookie
       if (!accessToken) {
         try {
           const refreshed = await refreshAccessToken();
           setStoredToken(refreshed.access_token);
+          setStoredRefreshToken(refreshed.refresh_token);
           const user = await fetchUser(refreshed.access_token);
-          dispatch({ type: 'SET_USER', user, role: user.role });
+          dispatch({ 
+            type: 'SET_USER', 
+            user, 
+            role: user.role, 
+            accessToken: refreshed.access_token,
+            refreshToken: refreshed.refresh_token,
+          });
         } catch {
           dispatch({ type: 'LOGOUT' });
         }
@@ -109,7 +125,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!isExpired(accessToken)) {
         try {
           const user = await fetchUser(accessToken);
-          dispatch({ type: 'SET_USER', user, role: user.role });
+          dispatch({ 
+            type: 'SET_USER', 
+            user, 
+            role: user.role, 
+            accessToken, 
+            refreshToken: refreshToken
+          });
         } catch {
           dispatch({ type: 'LOGOUT' });
         }
@@ -120,8 +142,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const refreshed = await refreshAccessToken();
         setStoredToken(refreshed.access_token);
+        setStoredRefreshToken(refreshed.refresh_token);
         const user = await fetchUser(refreshed.access_token);
-        dispatch({ type: 'SET_USER', user, role: user.role });
+        dispatch({ 
+          type: 'SET_USER', 
+          user, 
+          role: user.role, 
+          accessToken: refreshed.access_token,
+          refreshToken: refreshed.refresh_token,
+        });
       } catch {
         clearStoredTokens();
         dispatch({ type: 'LOGOUT' });
@@ -135,11 +164,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(async (username: string, password: string): Promise<UserRole> => {
     dispatch({ type: 'LOADING' });
     try {
-      const { access_token } = await loginUser({ username, password });
+      const { access_token, refresh_token } = await loginUser({ username, password });
       setStoredToken(access_token);
+      setStoredRefreshToken(refresh_token);
 
       const user = await fetchUser(access_token);
-      dispatch({ type: 'SET_USER', user, role: user.role });
+      dispatch({ 
+        type: 'SET_USER', 
+        user, 
+        role: user.role, 
+        accessToken: access_token, 
+        refreshToken: refresh_token 
+      });
       return user.role;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Login failed';
@@ -159,12 +195,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // ── refreshSession ───────────────────────────────────────────────────────
-  const refreshSession = useCallback(async () => {
-    const refreshed = await refreshAccessToken();
-    setStoredToken(refreshed.access_token);
-    const user = await fetchUser(refreshed.access_token);
-    dispatch({ type: 'SET_USER', user, role: user.role });
+  // ── refresh ───────────────────────────────────────────────────────────
+  const refresh = useCallback(async () => {
+    try {
+      const refreshed = await refreshAccessToken();
+      setStoredToken(refreshed.access_token);
+      setStoredRefreshToken(refreshed.refresh_token);
+      const user = await fetchUser(refreshed.access_token);
+      dispatch({ 
+        type: 'SET_USER', 
+        user, 
+        role: user.role, 
+        accessToken: refreshed.access_token, 
+        refreshToken: refreshed.refresh_token 
+      });
+    } catch (err) {
+      clearStoredTokens();
+      dispatch({ type: 'LOGOUT' });
+      throw err;
+    }
   }, [fetchUser]);
 
   const clearError = useCallback(() => dispatch({ type: 'CLEAR_ERROR' }), []);
@@ -183,7 +232,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <AuthContext.Provider value={{ ...state, login, logout, refreshSession, clearError, hasRole, canAccess }}>
+    <AuthContext.Provider value={{ ...state, login, logout, refresh, clearError, hasRole, canAccess }}>
       {children}
     </AuthContext.Provider>
   );

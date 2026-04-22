@@ -60,6 +60,41 @@ export interface RegisterResponse {
     user_id: string;
 }
 
+export interface Enrollment {
+    id: number;
+    user_id: string;
+    event_id: number;
+    organization_id: number;
+    sport_id: number;
+    category_id?: number | null;
+    kh_family_name: string;
+    kh_given_name: string;
+    en_family_name: string;
+    en_given_name: string;
+    phone: string;
+    gender: string;
+    date_of_birth: string;
+    id_document_type: string;
+    address?: string;
+    nationality?: string;
+    role: string;
+    leader_role?: string | null;
+    photo_url?: string | null;
+    birth_certificate_url?: string | null;
+    national_id_url?: string | null;
+    passport_url?: string | null;
+    created_at: string;
+    event_name?: string;
+    org_name?: string;
+    sport_name?: string;
+    category_name?: string;
+}
+
+export interface EnrollmentListResponse {
+    data: Enrollment[];
+    count: number;
+}
+
 // ─── API Error ────────────────────────────────────────────────────────────────
 
 export interface ApiErrorResponse {

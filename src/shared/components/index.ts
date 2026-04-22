@@ -6,5 +6,5 @@
  */
 
 // Example: export { Button } from './Button';
-// Example: export { Modal } from './Modal';
+export { Modal } from './Modal';
 // Example: export { Card } from './Card';

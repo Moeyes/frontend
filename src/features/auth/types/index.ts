@@ -44,6 +44,7 @@ export interface User {
     is_active:     boolean;
     is_superuser:  boolean;
     photo_path?:   string | null;
+    org_id?:       number | null;
     created_at:    string;
     updated_at:    string;
 }
@@ -81,6 +82,8 @@ export interface LogoutResponse {
 
 export interface AuthState {
     user:            User | null;
+    accessToken:     string | null;
+    refreshToken:    string | null;
     isAuthenticated: boolean;
     isLoading:       boolean;
     error:           string | null;
@@ -90,7 +93,7 @@ export interface AuthState {
 export interface AuthContextType extends AuthState {
     login:          (username: string, password: string) => Promise<UserRole>;
     logout:         () => Promise<void>;
-    refreshSession: () => Promise<void>;
+    refresh:        () => Promise<void>;
     clearError:     () => void;
     hasRole:        (role: UserRole | UserRole[]) => boolean;
     canAccess:      (requiredRoles: UserRole[]) => boolean;
@@ -116,12 +119,13 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
 export const FEATURE_ACCESS: Record<string, UserRole[]> = {
     'register':    [UserRole.ADMIN, UserRole.ORGANIZATION, UserRole.GUEST],
     'bynumber':    [UserRole.ADMIN, UserRole.ORGANIZATION],
-    'bysport':    [UserRole.ADMIN, UserRole.ORGANIZATION],
-    'bycategory': [UserRole.ADMIN, UserRole.FEDERATION],
+    'bysport':     [UserRole.ADMIN, UserRole.ORGANIZATION],
+    'bycategory':  [UserRole.ADMIN, UserRole.FEDERATION],
     'dashboard':   [UserRole.ADMIN, UserRole.ORGANIZATION, UserRole.FEDERATION],
 };
 
 export class AuthError extends Error {
+
     constructor(message: string, public code: string, public statusCode = 401) {
         super(message);
         this.name = 'AuthError';

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useCallback } from 'react';
 import { useAuth } from '@/features/auth/context';
 import { UserRole } from '@/features/auth/types';
+import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 
 interface UseLoginReturn {
@@ -13,35 +13,32 @@ interface UseLoginReturn {
 }
 
 export function useLogin(): UseLoginReturn {
-  const { login: contextLogin } = useAuth();
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { login: contextLogin, clearError: contextClearError, error: contextError } = useAuth();
 
-  // Returns UserRole on success, null on failure
-  const login = useCallback(
-    async (username: string, password: string): Promise<UserRole | null> => {
-      setIsPending(true);
-      setError(null);
-      try {
-        const role = await contextLogin(username, password);
-        return role;
-      } catch (err) {
-        const message =
-          err instanceof AxiosError
-            ? err.response?.data?.detail || err.message
-            : err instanceof Error
-              ? err.message
-              : 'Login failed';
-        setError(typeof message === 'string' ? message : 'Login failed');
-        return null;
-      } finally {
-        setIsPending(false);
-      }
+  const mutation = useMutation({
+    mutationFn: async ({ username, password }: { username: string; password: string }) => {
+      return await contextLogin(username, password);
     },
-    [contextLogin]
-  );
+  });
 
-  const clearError = useCallback(() => setError(null), []);
+  const login = async (username: string, password: string): Promise<UserRole | null> => {
+    try {
+      return await mutation.mutateAsync({ username, password });
+    } catch {
+      return null;
+    }
+  };
 
-  return { login, isPending, error, clearError };
+  const error = mutation.error 
+    ? (mutation.error instanceof AxiosError 
+        ? mutation.error.response?.data?.detail || mutation.error.message 
+        : mutation.error instanceof Error ? mutation.error.message : 'Login failed')
+    : contextError;
+
+  return { 
+    login, 
+    isPending: mutation.isPending, 
+    error: typeof error === 'string' ? error : 'Login failed', 
+    clearError: contextClearError 
+  };
 }

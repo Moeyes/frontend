@@ -11,8 +11,9 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/features/auth/context';
+import { useRequireAuth } from '@/features/auth/hooks';
 import { UserRole } from '@/features/auth/types';
 
 interface ProtectedRouteProps {
@@ -21,24 +22,27 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps) {
-    const { isLoading, isAuthenticated, canAccess } = useAuth();
+    const { isLoading, isAuthenticated } = useRequireAuth();
+    const { canAccess } = useAuth();
     const router = useRouter();
-    const pathname = usePathname();
 
     useEffect(() => {
-        if (isLoading) return;
-
-        if (!isAuthenticated) {
-            router.replace(`/auth/login?returnUrl=${encodeURIComponent(pathname)}`);
-            return;
-        }
+        if (isLoading || !isAuthenticated) return;
 
         if (requiredRoles && !canAccess(requiredRoles)) {
             router.replace('/unauthorized');
         }
-    }, [isLoading, isAuthenticated, requiredRoles, canAccess, router, pathname]);
+    }, [isLoading, isAuthenticated, requiredRoles, canAccess, router]);
 
-    // Render children on both server and client
-    // Auth checks happen only in useEffect (client-side)
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            </div>
+        );
+    }
+
+    if (!isAuthenticated) return null;
+
     return <>{children}</>;
 }

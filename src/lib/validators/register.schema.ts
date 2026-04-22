@@ -58,7 +58,7 @@ export const registerSchema = z.object({
         .refine((val) => !val || val.length > 0, 'Leader role cannot be empty'),
 
     // Document paths
-    photoPath: z.string().url().optional().nullable(),
+    photoPath: z.string().url('Profile photo is required').min(1, 'Profile photo is required').nullable(),
     birthCertificatePath: z.string().url().optional().nullable(),
     nationalIdPath: z.string().url().optional().nullable(),
     passportPath: z.string().url().optional().nullable(),

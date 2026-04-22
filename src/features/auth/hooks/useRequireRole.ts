@@ -7,26 +7,27 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/features/auth/context';
 import { UserRole } from '@/features/auth/types';
 
 export function useRequireRole(requiredRoles: UserRole | UserRole[]) {
   const { isAuthenticated, isLoading, hasRole } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (isLoading) return;
 
     if (!isAuthenticated) {
-      router.push('/auth/login');
+      router.push(`/login?returnUrl=${encodeURIComponent(pathname)}`);
       return;
     }
 
     if (!hasRole(requiredRoles)) {
       router.push('/unauthorized');
     }
-  }, [isLoading, isAuthenticated, requiredRoles, hasRole, router]);
+  }, [isLoading, isAuthenticated, requiredRoles, hasRole, router, pathname]);
 
   return { isAuthenticated, hasRole: hasRole(requiredRoles), isLoading };
 }

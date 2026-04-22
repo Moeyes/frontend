@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import type { SurveyContextType, SurveyFormData } from '../types';
 import { fetchEvents } from '../services';
 import { useSurvey } from '../hooks';
@@ -9,12 +9,17 @@ const SurveyContextComponent = createContext<SurveyContextType | undefined>(unde
 
 export function SurveyProvider({ children }: { children: React.ReactNode }) {
     const { form } = useSurvey();
-    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         // Preload events on mount
-        setIsLoading(true);
-        fetchEvents().finally(() => setIsLoading(false));
+        const load = async () => {
+            try {
+                await fetchEvents();
+            } catch (e) {
+                console.error("Failed to preload events", e);
+            }
+        };
+        load();
     }, []);
 
     const formValues = form.getValues();

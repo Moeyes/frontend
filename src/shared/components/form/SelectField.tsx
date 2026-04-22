@@ -23,6 +23,7 @@ interface SelectFieldProps<T extends FieldValues> {
     error?: string;
     hint?: string;
     htmlFor?: string;
+    disabled?: boolean;
 }
 
 /**
@@ -38,6 +39,7 @@ export function SelectField<T extends FieldValues>({
     error,
     hint,
     htmlFor,
+    disabled = false,
 }: SelectFieldProps<T>) {
     const fieldId = htmlFor || name;
 
@@ -57,16 +59,20 @@ export function SelectField<T extends FieldValues>({
                         hint={hint}
                         htmlFor={fieldId}
                     >
-                        <Select value={selectedValue} onValueChange={(value) => {
-                            // For string fields (organizationId, eventType, gender, idDocumentType, role, leaderRole), keep as string
-                            // For numeric ID fields (eventId, sportId, categoryId), convert to number
-                            const stringFields = ['organizationId', 'eventType', 'gender', 'idDocumentType', 'role', 'leaderRole'];
-                            const fieldNameStr = String(name);
-                            const isStringField = stringFields.includes(fieldNameStr);
+                        <Select 
+                            value={selectedValue} 
+                            disabled={disabled}
+                            onValueChange={(value) => {
+                                // For string fields (organizationId, eventType, gender, idDocumentType, role, leaderRole), keep as string
+                                // For numeric ID fields (eventId, sportId, categoryId), convert to number
+                                const stringFields = ['organizationId', 'eventType', 'gender', 'idDocumentType', 'role', 'leaderRole'];
+                                const fieldNameStr = String(name);
+                                const isStringField = stringFields.includes(fieldNameStr);
 
-                            const finalValue = isStringField ? value : (!isNaN(Number(value)) ? Number(value) : value);
-                            field.onChange(finalValue);
-                        }}>
+                                const finalValue = isStringField ? value : (!isNaN(Number(value)) ? Number(value) : value);
+                                field.onChange(finalValue);
+                            }}
+                        >
                             <SelectTrigger
                                 id={fieldId}
                                 className={error ? 'border-destructive' : ''}

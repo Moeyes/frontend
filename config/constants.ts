@@ -36,10 +36,10 @@ export const ROLE_OPTIONS = [
 
 // Leader role options
 export const LEADER_ROLE_OPTIONS = [
-    { value: 'Coach', label: 'Coach' },
-    { value: 'Manager', label: 'Manager' },
-    { value: 'Official', label: 'Official' },
-    { value: 'Medical', label: 'Medical Staff' },
+    { value: 'Coach', label: 'គ្រូបង្វឹក' },
+    { value: 'Manager', label: 'គ្រូជ៉នួយ' },
+    { value: 'Official', label: 'មន្ត្រីដឹកនាំក្រុម' },
+    // { value: 'Medical', label: 'Medical Staff' },
 ] as const;
 
 
