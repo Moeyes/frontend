@@ -1,16 +1,10 @@
-/**
- * Login Page
- * 
- * User authentication page
- */
-
-import { LoginForm } from '@/features/auth/components';
+import { LoginPage } from '@/modules/auth';
 
 export const metadata = {
-  title: 'Login - Choschmous',
+  title: 'Login',
   description: 'Sign in to your sports event account',
 };
 
-export default function LoginPage() {
-  return <LoginForm />;
+export default function Page() {
+    return <LoginPage />;
 }

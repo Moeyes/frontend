@@ -7,9 +7,9 @@
 
 'use client';
 
-import { ProtectedRoute } from '@/features/auth/components';
-import { UserRole } from '@/features/auth/types';
-import { Sidebar } from '@/components/Sidebar';
+import { ProtectedRoute } from '@/modules/auth';
+import { UserRole } from '@/core/auth';
+import { Sidebar } from '@/modules/common';
 
 // All portal routes require at least being logged in
 const PORTAL_ROLES: UserRole[] = [

@@ -6,7 +6,7 @@
 
 'use client';
 
-import { AuthProvider } from '@/features/auth/context';
+import { AuthProvider } from '@/core/auth';
 import { ReactNode } from 'react';
 
 export function AppAuthProvider({ children }: { children: ReactNode }) {

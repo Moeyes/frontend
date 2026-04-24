@@ -1,20 +1,10 @@
-/**
- * Register Page
- * 
- * Public registration form page for new participants
- */
-
-import { RegisterForm } from '@/features/registration';
+import { RegisterPage } from '@/modules/registration';
 
 export const metadata = {
   title: 'Register - Choschmous',
   description: 'Register for sports events',
 };
 
-export default function RegisterPage() {
-  return (
-    <main className="min-h-screen bg-background">
-      <RegisterForm />
-    </main>
-  );
+export default function Page() {
+    return <RegisterPage />;
 }
