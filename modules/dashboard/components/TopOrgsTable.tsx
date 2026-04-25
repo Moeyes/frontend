@@ -1,22 +1,22 @@
 import { TopOrganization } from '../types';
 import { Building2 } from 'lucide-react';
 import { DataTable, SectionHeader } from '@/shared';
+import { useTranslations } from 'next-intl';
 
 interface TopOrgsTableProps {
     data: TopOrganization[];
 }
 
 export function TopOrgsTable({ data }: TopOrgsTableProps) {
+    const t = useTranslations('dashboard');
+
     return (
         <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden flex flex-col h-full transition-all hover:shadow-md">
-            <SectionHeader
-                title="Top Organizations"
-                icon={Building2}
-            />
+            <SectionHeader title={t('topOrganizations')} icon={Building2} />
             <div className="flex-1 overflow-y-auto">
                 <DataTable
                     data={data}
-                    emptyMessage="No organization data"
+                    emptyMessage={t('noOrganizationData')}
                     columns={[
                         {
                             header: '#',
@@ -36,12 +36,12 @@ export function TopOrgsTable({ data }: TopOrgsTableProps) {
                             ),
                         },
                         {
-                            header: 'Members',
+                            header: t('members'),
                             align: 'right',
                             accessor: (org) => (
                                 <div className="flex items-baseline justify-end gap-1.5">
                                     <span className="text-sm font-black text-primary">{org.participant_count}</span>
-                                    <span className="text-[8px] uppercase font-black text-muted-foreground opacity-60 tracking-tighter">Members</span>
+                                    <span className="text-[8px] uppercase font-black text-muted-foreground opacity-60 tracking-tighter">{t('members')}</span>
                                 </div>
                             ),
                         },

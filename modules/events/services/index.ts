@@ -24,6 +24,8 @@ interface RawApiEvent {
     type?: string;
     event_type?: string;
     location?: string;
+    open_register_date?: string | null;
+    close_register_date?: string | null;
     created_at?: string;
     updated_at?: string;
 }
@@ -98,10 +100,12 @@ function mapApiEvent(apiEvent: RawApiEvent): Event {
         id: apiEvent.id,
         name: apiEvent.name_kh || 'Unnamed Event',
         description: apiEvent.description || '',
-        start_date: apiEvent.start_date || new Date().toISOString().split('T')[0],
-        end_date: apiEvent.end_date || new Date().toISOString().split('T')[0],
+        start_date: apiEvent.start_date || '',
+        end_date: apiEvent.end_date || '',
         event_type: (apiEvent.type ?? apiEvent.event_type) as Event['event_type'],
-        location: apiEvent.location || 'N/A',
+        location: apiEvent.location || '',
+        open_register_date: apiEvent.open_register_date ?? null,
+        close_register_date: apiEvent.close_register_date ?? null,
         created_at: apiEvent.created_at,
         updated_at: apiEvent.updated_at,
     };
@@ -126,16 +130,31 @@ export async function getEventById(eventId: number): Promise<Event> {
 export async function createEvent(eventData: EventCreate): Promise<Event> {
     const { data } = await apiClient.post<ApiItemResponse<RawApiEvent>>(
         buildUrl(`${EVENT_PATH}/`),
-        { name_kh: eventData.name, type: eventData.event_type }
+        {
+            name_kh: eventData.name,
+            type: eventData.event_type,
+            description: eventData.description || null,
+            start_date: eventData.start_date || null,
+            end_date: eventData.end_date || null,
+            location: eventData.location || null,
+            open_register_date: eventData.open_register_date || null,
+            close_register_date: eventData.close_register_date || null,
+        }
     );
     return mapApiEvent(extractItem(data));
 }
 
 export async function updateEvent(eventData: EventUpdate): Promise<Event> {
-    const { id, name, event_type } = eventData;
-    const payload: Record<string, string> = {};
-    if (name) payload.name_kh = name;
-    if (event_type) payload.type = event_type;
+    const { id, name, event_type, description, start_date, end_date, location, open_register_date, close_register_date } = eventData;
+    const payload: Record<string, string | null> = {};
+    if (name !== undefined) payload.name_kh = name ?? null;
+    if (event_type !== undefined) payload.type = event_type ?? null;
+    if (description !== undefined) payload.description = description || null;
+    if (start_date !== undefined) payload.start_date = start_date || null;
+    if (end_date !== undefined) payload.end_date = end_date || null;
+    if (location !== undefined) payload.location = location || null;
+    if (open_register_date !== undefined) payload.open_register_date = open_register_date || null;
+    if (close_register_date !== undefined) payload.close_register_date = close_register_date || null;
 
     const { data } = await apiClient.patch<ApiItemResponse<RawApiEvent>>(
         buildUrl(`${EVENT_PATH}/${id}`),

@@ -12,4 +12,5 @@ export * from './label';
 export * from './select';
 export { Modal } from './Modal';
 export { QueryBoundary } from './QueryBoundary';
+export { LanguageSwitcher } from './LanguageSwitcher';
 export * from './page';

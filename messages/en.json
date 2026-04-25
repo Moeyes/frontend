@@ -1,0 +1,402 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "update": "Update",
+    "saving": "Saving...",
+    "loading": "Loading...",
+    "search": "Search",
+    "filters": "Filters",
+    "actions": "Actions",
+    "previous": "Previous",
+    "next": "Next",
+    "close": "Close",
+    "add": "Add",
+    "view": "View",
+    "export": "Export",
+    "download": "Download",
+    "back": "Back",
+    "yes": "Yes",
+    "no": "No",
+    "optional": "Optional",
+    "required": "Required",
+    "notProvided": "Not provided",
+    "noData": "No data available",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "signOut": "Sign Out",
+    "dashboard": "Dashboard",
+    "account": "Account",
+    "role": "Role",
+    "page": "Page",
+    "of": "of",
+    "showing": "Showing",
+    "to": "to",
+    "total": "Total",
+    "connectionError": "Please check your connection and try again",
+    "comingSoon": "Coming soon...",
+    "exportAll": "Export All",
+    "pdf": "PDF"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "events": "Events",
+    "sports": "Sports",
+    "categories": "Categories",
+    "organizations": "Organizations",
+    "users": "Users",
+    "registration": "Registration",
+    "participation": "Participation",
+    "cards": "Cards",
+    "reports": "Reports",
+    "portalVersion": "Portal v1.0"
+  },
+  "auth": {
+    "welcomeBack": "Welcome Back",
+    "signInSubtitle": "Sign in to your sports event account",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "signIn": "Sign In",
+    "signingIn": "Signing in...",
+    "noAccount": "Don't have an account?",
+    "registerHere": "Register here",
+    "accessDenied": "Access Denied",
+    "noPermission": "You don't have permission to view this page.",
+    "signedInAs": "Signed in as",
+    "goToDashboard": "Go to Dashboard"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcomeBack": "Welcome back, {name}",
+    "failedToLoad": "Failed to load dashboard data",
+    "loadingDashboard": "Loading Dashboard...",
+    "stats": {
+      "totalParticipants": "Total Participants",
+      "activeEvents": "Active Events",
+      "organizations": "Organizations",
+      "totalSports": "Total Sports"
+    },
+    "genderDistribution": "Gender Distribution",
+    "topOrganizations": "Top Organizations",
+    "recentEnrollments": "Recent Enrollments",
+    "noRecentEnrollments": "No recent enrollments",
+    "noOrganizationData": "No organization data",
+    "members": "Members",
+    "male": "Male",
+    "female": "Female",
+    "other": "Other"
+  },
+  "events": {
+    "title": "Events",
+    "description": "View and manage sports events",
+    "createEvent": "Create Event",
+    "editEvent": "Edit Event",
+    "createNewEvent": "Create New Event",
+    "failedToLoad": "Failed to load events",
+    "eventName": "Event Name",
+    "description_field": "Description",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "eventType": "Event Type",
+    "location": "Location",
+    "registrationOpenDate": "Registration Open Date",
+    "registrationCloseDate": "Registration Close Date",
+    "registerWindow": "Register Window",
+    "notSet": "Not set",
+    "backToEvents": "Back to Events",
+    "register": "Register",
+    "types": {
+      "NATIONAL": "National",
+      "UNIVERSITY": "University",
+      "HIGH_SCHOOL": "High School",
+      "PRIMARY_SCHOOL": "Primary School"
+    },
+    "columns": {
+      "eventName": "Event Name",
+      "type": "Type",
+      "dates": "Dates",
+      "location": "Location"
+    },
+    "sports": {
+      "title": "Event Sports",
+      "selectSport": "Select sport...",
+      "noSportsAssigned": "No sports assigned to this event yet.",
+      "removeSportConfirm": "Are you sure you want to remove this sport from the event?"
+    },
+    "orgs": {
+      "title": "Organizations for {sportName}",
+      "subtitle": "Manage which organizations can register for this sport",
+      "selectOrg": "Select organization...",
+      "noOrgsAssigned": "No organizations assigned to this sport yet.",
+      "removeOrgConfirm": "Are you sure you want to remove this organization from this sport?",
+      "noMatches": "No matches",
+      "search": "Search...",
+      "columns": {
+        "orgName": "Organization Name",
+        "code": "Code",
+        "type": "Type"
+      }
+    }
+  },
+  "sports": {
+    "title": "Sports",
+    "description": "Manage sports and their categories",
+    "createSport": "Create Sport",
+    "editSport": "Edit Sport",
+    "createNewSport": "Create New Sport",
+    "failedToLoad": "Failed to load sports",
+    "sportName": "Sport Name",
+    "sportNameKhmer": "Sport Name (Khmer)",
+    "sportNameEnglish": "Sport Name (English)",
+    "sportType": "Sport Type",
+    "sportTypeOptional": "Sport Type (Optional)",
+    "description_field": "Description",
+    "backToSports": "Back to Sports",
+    "sportNotFound": "Sport not found",
+    "sportDiscipline": "Sport Discipline",
+    "columns": {
+      "sportName": "Sport Name",
+      "type": "Type",
+      "categoryCount": "Category Count"
+    },
+    "categories": {
+      "title": "Sport Categories",
+      "addCategory": "Add Category",
+      "editCategory": "Edit Category",
+      "categoryName": "Category Name",
+      "gender": "Gender",
+      "ageRange": "Age Range",
+      "noAgeLimit": "No age limit",
+      "years": "years",
+      "noCategories": "No categories defined for this sport.",
+      "failedToLoad": "Failed to load categories.",
+      "deleteCategoryConfirm": "Are you sure you want to delete this category?",
+      "genders": {
+        "male": "Male",
+        "female": "Female",
+        "other": "Other",
+        "mixed": "None / Mixed",
+        "any": "Mixed / Any"
+      },
+      "minAge": "Min Age (Optional)",
+      "maxAge": "Max Age (Optional)"
+    }
+  },
+  "organizations": {
+    "title": "Organizations",
+    "description": "Manage provinces, ministries and federations",
+    "createOrganization": "Create Organization",
+    "editOrganization": "Edit Organization",
+    "createNewOrganization": "Create New Organization",
+    "failedToLoad": "Failed to load organizations",
+    "nameKhmer": "Organization Name (Khmer)",
+    "nameEnglish": "Organization Name (English)",
+    "instituteType": "Institute Type",
+    "codeOptional": "Code (Optional)",
+    "provinceOptional": "Province (Optional)",
+    "national": "National",
+    "deleteConfirm": "Are you sure you want to delete this organization?",
+    "types": {
+      "PROVINCE": "Province",
+      "MINISTRY": "Ministry"
+    },
+    "columns": {
+      "orgName": "Organization Name",
+      "type": "Type",
+      "provinceCode": "Province / Code"
+    }
+  },
+  "users": {
+    "title": "User Management",
+    "description": "Manage system users and their roles",
+    "createUser": "Create User",
+    "editUser": "Edit User",
+    "createNewUser": "Create New User",
+    "failedToLoad": "Failed to load users",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "khmerName": "Khmer Name",
+    "englishName": "English Name",
+    "role": "Role",
+    "orgIdOptional": "Organization ID (Optional)",
+    "deleteConfirm": "Are you sure you want to delete this user?",
+    "roles": {
+      "admin": "Admin",
+      "organization": "Organization (User1)",
+      "federation": "Federation (User2)",
+      "guest": "Guest",
+      "org": "Org",
+      "fed": "Fed"
+    },
+    "columns": {
+      "user": "User",
+      "email": "Email",
+      "role": "Role",
+      "orgId": "Org ID"
+    }
+  },
+  "registration": {
+    "title": "Sports Event Registration",
+    "subtitle": "Complete all 5 steps to register for the sports event",
+    "loadingForm": "Loading registration form...",
+    "steps": {
+      "event": "Event & Sport",
+      "category": "Category",
+      "personal": "Personal Info",
+      "documents": "Photo Upload",
+      "review": "Review"
+    },
+    "registrationOpensOn": "Registration opens on {date}",
+    "registrationClosedOn": "Registration closed on {date}",
+    "fields": {
+      "eventType": "Event Type",
+      "event": "Event",
+      "organization": "Organization",
+      "sport": "Sport",
+      "category": "Category",
+      "selectEventType": "Select an event type",
+      "selectEvent": "Select an event",
+      "selectOrganization": "Select an organization",
+      "selectSport": "Select a sport",
+      "selectCategory": "Select a category",
+      "noCategories": "No categories available",
+      "fullNameKhmer": "Full Name (Khmer)",
+      "fullNameEnglish": "Full Name (English)",
+      "familyName": "Family Name *",
+      "givenName": "Given Name *",
+      "gender": "Gender *",
+      "dateOfBirth": "Date of Birth *",
+      "phone": "Phone Number *",
+      "nationality": "Nationality *",
+      "nationalityPlaceholder": "Cambodian",
+      "idType": "ID Type *",
+      "address": "Address (Optional)",
+      "addressPlaceholder": "Street address",
+      "role": "Role *",
+      "leaderRole": "Leader Role *",
+      "profilePhoto": "Profile Photo",
+      "photoUploadDesc": "Upload a clear passport-style photo. Max 2MB.",
+      "idDocument": "ID Document",
+      "birthCertificate": "Birth Certificate",
+      "photoUploaded": "Profile photo uploaded successfully"
+    },
+    "review": {
+      "eventDetails": "Event Details",
+      "personalInfo": "Personal Info",
+      "khmerName": "Khmer Name",
+      "englishName": "English Name",
+      "gender": "Gender",
+      "phone": "Phone",
+      "role": "Role",
+      "leader": "Leader ({leaderRole})",
+      "athlete": "Athlete"
+    },
+    "success": {
+      "title": "Registration Successful!",
+      "subtitle": "Participant has been registered successfully.",
+      "confirmed": "Registration Confirmed:",
+      "confirmedDesc": "Your registration is confirmed and saved.",
+      "registerAnother": "Register Another Participant",
+      "goHome": "Go to Home"
+    },
+    "list": {
+      "searchPlaceholder": "Search by name, phone or ID...",
+      "failedToLoad": "Failed to load participants",
+      "noParticipants": "No participants found",
+      "deleteConfirm": "Are you sure you want to delete this registration?",
+      "columns": {
+        "participant": "Participant",
+        "eventSport": "Event & Sport",
+        "role": "Role",
+        "registered": "Registered"
+      },
+      "pagination": {
+        "showing": "Showing {from} to {to} of {total} participants"
+      }
+    }
+  },
+  "participation": {
+    "title": "Participation Management",
+    "description": "Manage participation records across different sports",
+    "addRecord": "Add Record",
+    "addParticipation": "Add Participation",
+    "saveParticipation": "Save Participation",
+    "failedToLoad": "Failed to load participations",
+    "records": {
+      "title": "Participation Records",
+      "subtitle": "Track participation across events and sports"
+    },
+    "fields": {
+      "enrollId": "Enroll ID *",
+      "eventId": "Event ID *",
+      "sportId": "Sport ID *",
+      "categoryId": "Category ID",
+      "required": "Required"
+    },
+    "columns": {
+      "participant": "Participant",
+      "event": "Event",
+      "sportCategory": "Sport & Category",
+      "registered": "Registered"
+    },
+    "deleteConfirm": "Are you sure you want to remove this participation entry?"
+  },
+  "cards": {
+    "title": "Participant Cards",
+    "description": "Generate and manage participant cards for National Primary School Games 2026.",
+    "event": "Event",
+    "organization": "Organization",
+    "search": "Search",
+    "searchPlaceholder": "Search by name...",
+    "selectEvent": "Select Event",
+    "selectOrganization": "Select Organization",
+    "noCardsFound": "No cards found for this selection.",
+    "page": "Page {page} of {total}"
+  },
+  "reports": {
+    "title": "Excel Reports",
+    "description": "Export registration data and summaries to Excel files",
+    "filters": "Report Filters",
+    "selectEvent": "Select Event",
+    "selectOrganization": "Select Organization",
+    "chooseEvent": "-- Choose Event --",
+    "allOrganizations": "-- All Organizations (Admin) --",
+    "pleaseSelectEvent": "Please select an event",
+    "orgSportReport": {
+      "title": "Organization Sport Report",
+      "description": "Summary of registrations grouped by organization and sport. Includes total counts and gender distribution.",
+      "download": "Download Excel"
+    },
+    "participantReport": {
+      "title": "Participant Details Report",
+      "description": "Exhaustive list of all registered participants including personal details, roles, and document status.",
+      "download": "Download Excel"
+    }
+  },
+  "bycategory": {
+    "title": "By Category",
+    "description": "View and search registrations organized by category",
+    "comingSoon": "Coming soon...",
+    "comingSoonDesc": "Category-based registration tools will live here."
+  },
+  "unauthorized": {
+    "title": "Access Denied",
+    "noPermission": "You don't have permission to view this page.",
+    "signedInAs": "Signed in as",
+    "goToDashboard": "Go to Dashboard",
+    "signOut": "Sign Out"
+  },
+  "language": {
+    "switchTo": "ភាសាខ្មែរ",
+    "current": "EN"
+  }
+}

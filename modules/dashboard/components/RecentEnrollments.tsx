@@ -1,22 +1,22 @@
 import { RecentEnrollment } from '../types';
 import { User, Calendar } from 'lucide-react';
 import { DataTable, SectionHeader } from '@/shared';
+import { useTranslations } from 'next-intl';
 
 interface RecentEnrollmentsProps {
     data: RecentEnrollment[];
 }
 
 export function RecentEnrollments({ data }: RecentEnrollmentsProps) {
+    const t = useTranslations('dashboard');
+
     return (
         <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden h-full flex flex-col transition-all hover:shadow-md">
-            <SectionHeader
-                title="Recent Enrollments"
-                icon={Calendar}
-            />
+            <SectionHeader title={t('recentEnrollments')} icon={Calendar} />
             <div className="flex-1 overflow-y-auto">
                 <DataTable
                     data={data}
-                    emptyMessage="No recent enrollments"
+                    emptyMessage={t('noRecentEnrollments')}
                     columns={[
                         {
                             header: 'Participant',

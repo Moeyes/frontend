@@ -17,6 +17,8 @@ export interface Event {
     end_date: string;
     event_type: EventType;
     location?: string;
+    open_register_date?: string | null;
+    close_register_date?: string | null;
     created_at?: string;
     updated_at?: string;
 }
@@ -28,10 +30,14 @@ export interface EventCreate {
     end_date: string;
     event_type: EventType;
     location: string;
+    open_register_date?: string | null;
+    close_register_date?: string | null;
 }
 
 export interface EventUpdate extends Partial<EventCreate> {
     id: number;
+    open_register_date?: string | null;
+    close_register_date?: string | null;
 }
 
 export interface Organization {

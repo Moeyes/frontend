@@ -6,42 +6,23 @@ import { Button } from '@/shared/ui/button';
 import { PageHeader, PageShell } from '@/shared';
 import { ParticipationForm } from './ParticipationForm';
 import { ParticipationList } from './ParticipationList';
+import { useTranslations } from 'next-intl';
 
 export function ParticipationPage() {
     const [showForm, setShowForm] = useState(false);
+    const t = useTranslations('participation');
 
     return (
         <PageShell size="wide">
             <PageHeader
-                title="Participation Management"
-                description="Manage participation records across different sports"
+                title={t('title')} description={t('description')}
                 action={
-                    <Button
-                        onClick={() => setShowForm((value) => !value)}
-                        variant={showForm ? 'outline' : 'default'}
-                        className="gap-2"
-                    >
-                        {showForm ? (
-                            <>
-                                <X className="h-4 w-4" />
-                                Close
-                            </>
-                        ) : (
-                            <>
-                                <Plus className="h-4 w-4" />
-                                Add Record
-                            </>
-                        )}
+                    <Button onClick={() => setShowForm((v) => !v)} variant={showForm ? 'outline' : 'default'} className="gap-2">
+                        {showForm ? <><X className="h-4 w-4" />{t('records.title')}</> : <><Plus className="h-4 w-4" />{t('addRecord')}</>}
                     </Button>
                 }
             />
-
-            {showForm && (
-                <div className="max-w-2xl">
-                    <ParticipationForm onSuccess={() => setShowForm(false)} />
-                </div>
-            )}
-
+            {showForm && <div className="max-w-2xl"><ParticipationForm onSuccess={() => setShowForm(false)} /></div>}
             <ParticipationList />
         </PageShell>
     );
