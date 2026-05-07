@@ -1,0 +1,13 @@
+'use client'
+
+import { PageErrorState } from '@/shared/ui/page/PageErrorState'
+
+export default function ErrorPage({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string }
+  reset: () => void
+}) {
+  return <PageErrorState message={error.message} onRetry={reset} />
+}

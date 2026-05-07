@@ -1,0 +1,24 @@
+import { useTranslations } from 'next-intl'
+import { PageShell } from '@/shared/layout/PageShell'
+import { PageHeader } from '@/shared/ui/page/PageHeader'
+import { ContentPanel } from '@/shared/ui/page/ContentPanel'
+import { ProtectedRoute } from '@/core/auth/ProtectedRoute'
+import { ExampleList } from '@/modules/MODULE_NAME'
+
+export default function ModulePage() {
+  const t = useTranslations('MODULE_NAME')
+
+  return (
+    <ProtectedRoute requiredRoles={['admin', 'super_admin']}>
+      <PageShell>
+        <PageHeader
+          title={t('list.title')}
+          // action={<CreateButton />}
+        />
+        <ContentPanel>
+          <ExampleList />
+        </ContentPanel>
+      </PageShell>
+    </ProtectedRoute>
+  )
+}
