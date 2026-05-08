@@ -237,22 +237,24 @@
     "createOrganization": "បង្កើតអង្គការ",
     "editOrganization": "កែប្រែអង្គការ",
     "createNewOrganization": "បង្កើតអង្គការថ្មី",
-    "failedToLoad": "បរាជ័យក្នុងការផ្ទុកអង្គការ",
-    "nameKhmer": "ឈ្មោះអង្គការ (ខ្មែរ)",
-    "nameEnglish": "ឈ្មោះអង្គការ (អង់គ្លេស)",
+    "backToOrganizations": "ត្រឡប់ទៅអង្គការ",
+    "nameKh": "ឈ្មោះអង្គការ (ខ្មែរ)",
     "instituteType": "ប្រភេទស្ថាប័ន",
     "codeOptional": "លេខកូដ (មិនចាំបាច់)",
-    "provinceOptional": "ខេត្ត (មិនចាំបាច់)",
-    "national": "ជាតិ",
     "deleteConfirm": "តើអ្នកពិតជាចង់លុបអង្គការនេះ?",
+    "validation": {
+      "nameRequired": "សូមបញ្ចូលឈ្មោះអង្គការ",
+      "typeRequired": "សូមជ្រើសរើសប្រភេទស្ថាប័ន"
+    },
     "types": {
-      "PROVINCE": "ខេត្ត",
-      "MINISTRY": "ក្រសួង"
+      "province": "ខេត្ត",
+      "ministry": "ក្រសួង"
     },
     "columns": {
       "orgName": "ឈ្មោះអង្គការ",
       "type": "ប្រភេទ",
-      "provinceCode": "ខេត្ត / លេខកូដ"
+      "code": "លេខកូដ",
+      "createdAt": "ថ្ងៃបញ្ចូល"
     }
   },
   "users": {

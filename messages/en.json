@@ -237,22 +237,24 @@
     "createOrganization": "Create Organization",
     "editOrganization": "Edit Organization",
     "createNewOrganization": "Create New Organization",
-    "failedToLoad": "Failed to load organizations",
-    "nameKhmer": "Organization Name (Khmer)",
-    "nameEnglish": "Organization Name (English)",
+    "backToOrganizations": "Back to Organizations",
+    "nameKh": "Organization Name (Khmer)",
     "instituteType": "Institute Type",
     "codeOptional": "Code (Optional)",
-    "provinceOptional": "Province (Optional)",
-    "national": "National",
     "deleteConfirm": "Are you sure you want to delete this organization?",
+    "validation": {
+      "nameRequired": "Organization name is required",
+      "typeRequired": "Institute type is required"
+    },
     "types": {
-      "PROVINCE": "Province",
-      "MINISTRY": "Ministry"
+      "province": "Province",
+      "ministry": "Ministry"
     },
     "columns": {
       "orgName": "Organization Name",
       "type": "Type",
-      "provinceCode": "Province / Code"
+      "code": "Code",
+      "createdAt": "Created"
     }
   },
   "users": {
