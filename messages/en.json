@@ -444,30 +444,37 @@
     }
   },
   "participation": {
-    "title": "Participation Management",
-    "description": "Manage participation records across different sports",
-    "addRecord": "Add Record",
-    "addParticipation": "Add Participation",
-    "saveParticipation": "Save Participation",
-    "failedToLoad": "Failed to load participations",
-    "records": {
-      "title": "Participation Records",
-      "subtitle": "Track participation across events and sports"
+    "title": "Organizer Registration",
+    "description": "Manage organizer and leader registrations",
+    "addOrganizer": "Add Organizer",
+    "createTitle": "Register Organizer",
+    "backToList": "Back to List",
+    "noOrganizers": "No organizers registered yet",
+    "deleteConfirm": "Are you sure you want to delete this organizer registration?",
+    "orgIdMissing": "organization_id missing — registration may not be scoped correctly",
+    "leaderRole": "Leader Role",
+    "leaderRoles": {
+      "coach": "Coach",
+      "manager": "Manager",
+      "delegate": "Delegate",
+      "team_lead": "Team Lead",
+      "coach_trainer": "Coach Trainer",
+      "teacher_assistant": "Teacher Assistant"
     },
-    "fields": {
-      "enrollId": "Enroll ID *",
-      "eventId": "Event ID *",
-      "sportId": "Sport ID *",
-      "categoryId": "Category ID",
-      "required": "Required"
+    "validation": {
+      "eventRequired": "Please select an event",
+      "sportRequired": "Please select a sport",
+      "leaderRoleRequired": "Please select a leader role",
+      "nameRequired": "Name is required",
+      "genderRequired": "Please select a gender",
+      "dobRequired": "Date of birth is required"
     },
     "columns": {
-      "participant": "Participant",
-      "event": "Event",
-      "sportCategory": "Sport & Category",
+      "organizer": "Organizer",
+      "leaderRole": "Role",
+      "sport": "Sport",
       "registered": "Registered"
-    },
-    "deleteConfirm": "Are you sure you want to remove this participation entry?"
+    }
   },
   "cards": {
     "title": "Participant Cards",

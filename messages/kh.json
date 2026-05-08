@@ -444,30 +444,37 @@
     }
   },
   "participation": {
-    "title": "គ្រប់គ្រងការចូលរួម",
-    "description": "គ្រប់គ្រងកំណត់ត្រាការចូលរួមក្នុងកីឡាផ្សេងៗ",
-    "addRecord": "បន្ថែមកំណត់ត្រា",
-    "addParticipation": "បន្ថែមការចូលរួម",
-    "saveParticipation": "រក្សាទុកការចូលរួម",
-    "failedToLoad": "បរាជ័យក្នុងការផ្ទុកការចូលរួម",
-    "records": {
-      "title": "កំណត់ត្រាការចូលរួម",
-      "subtitle": "តាមដានការចូលរួមតាមព្រឹត្តិការណ៍ និងកីឡា"
+    "title": "ចុះឈ្មោះអ្នករៀបចំ",
+    "description": "គ្រប់គ្រងការចុះឈ្មោះអ្នករៀបចំ និងអ្នកដឹកនាំ",
+    "addOrganizer": "បន្ថែមអ្នករៀបចំ",
+    "createTitle": "ចុះឈ្មោះអ្នករៀបចំ",
+    "backToList": "ត្រឡប់ទៅបញ្ជី",
+    "noOrganizers": "មិនទាន់មានអ្នករៀបចំ",
+    "deleteConfirm": "តើអ្នកពិតជាចង់លុបការចុះឈ្មោះអ្នករៀបចំនេះ?",
+    "orgIdMissing": "organization_id មិនទាន់ — ការចុះឈ្មោះប្រហែលជាមិនត្រូវ Scope",
+    "leaderRole": "តួនាទីអ្នកដឹកនាំ",
+    "leaderRoles": {
+      "coach": "គ្រូបង្វឹក",
+      "manager": "អ្នកគ្រប់គ្រង",
+      "delegate": "ប្រតិភូ",
+      "team_lead": "ប្រធានក្រុម",
+      "coach_trainer": "គ្រូបង្វឹកជំនាញ",
+      "teacher_assistant": "ជំនួយការ"
     },
-    "fields": {
-      "enrollId": "លេខចុះឈ្មោះ *",
-      "eventId": "លេខព្រឹត្តិការណ៍ *",
-      "sportId": "លេខកីឡា *",
-      "categoryId": "លេខប្រភេទ",
-      "required": "តម្រូវ"
+    "validation": {
+      "eventRequired": "សូមជ្រើសរើសព្រឹត្តិការណ៍",
+      "sportRequired": "សូមជ្រើសរើសកីឡា",
+      "leaderRoleRequired": "សូមជ្រើសរើសតួនាទី",
+      "nameRequired": "សូមបញ្ចូលឈ្មោះ",
+      "genderRequired": "សូមជ្រើសរើសភេទ",
+      "dobRequired": "សូមបញ្ចូលថ្ងៃខែឆ្នាំកំណើត"
     },
     "columns": {
-      "participant": "អ្នកចូលរួម",
-      "event": "ព្រឹត្តិការណ៍",
-      "sportCategory": "កីឡា & ប្រភេទ",
+      "organizer": "អ្នករៀបចំ",
+      "leaderRole": "តួនាទី",
+      "sport": "កីឡា",
       "registered": "ចុះឈ្មោះ"
-    },
-    "deleteConfirm": "តើអ្នកពិតជាចង់លុបការចូលរួមនេះ?"
+    }
   },
   "cards": {
     "title": "កាតអ្នកចូលរួម",
