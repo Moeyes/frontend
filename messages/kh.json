@@ -135,11 +135,25 @@
     "backToEvents": "ត្រឡប់ទៅព្រឹត្តិការណ៍",
     "register": "ចុះឈ្មោះ",
     "types": {
-      "NATIONAL": "ជាតិ",
-      "UNIVERSITY": "សកលវិទ្យាល័យ",
-      "HIGH_SCHOOL": "វិទ្យាល័យ",
-      "PRIMARY_SCHOOL": "បឋមសិក្សា"
+      "national": "កីឡាជាតិ",
+      "university": "កីឡាឧត្តមសិក្សា",
+      "highSchool": "សិស្សមធ្យមសិក្សា",
+      "primarySchool": "កីឡាសិស្សបថមសិក្សា"
     },
+    "status": {
+      "upcoming": "នាំមុខ",
+      "active": "កំពុងដំណើរ",
+      "ended": "បានបញ្ចប់",
+      "unknown": "មិនដឹង"
+    },
+    "addSport": "បន្ថែមកីឡា",
+    "selectSportPlaceholder": "ជ្រើសរើសកីឡា...",
+    "noSportSelected": "សូមជ្រើសរើសកីឡាមុន",
+    "sportAlreadyAttached": "កីឡានេះបានភ្ជាប់រួចហើយ",
+    "deleteConfirm": "តើអ្នកពិតជាចង់លុបព្រឹត្តិការណ៍នេះ?",
+    "backToEvents": "ត្រឡប់ទៅព្រឹត្តិការណ៍",
+    "detailTitle": "ព័ត៌មានព្រឹត្តិការណ៍",
+    "backendGap": "ត្រូវការ Backend ថ្មី — មិនទាន់ត្រៀម",
     "columns": {
       "eventName": "ឈ្មោះព្រឹត្តិការណ៍",
       "type": "ប្រភេទ",
@@ -151,6 +165,11 @@
       "selectSport": "ជ្រើសរើសកីឡា...",
       "noSportsAssigned": "មិនទាន់មានកីឡាត្រូវបានកំណត់ក្នុងព្រឹត្តិការណ៍នេះ។",
       "removeSportConfirm": "តើអ្នកពិតជាចង់លុបកីឡានេះចេញពីព្រឹត្តិការណ៍?"
+    },
+    "validation": {
+      "nameRequired": "សូមបញ្ចូលឈ្មោះព្រឹត្តិការណ៍",
+      "typeRequired": "សូមជ្រើសរើសប្រភេទព្រឹត្តិការណ៍",
+      "dateRangeInvalid": "ថ្ងៃបញ្ចប់ត្រូវតែក្រោយថ្ងៃចាប់ផ្ដើម"
     },
     "orgs": {
       "title": "អង្គការសម្រាប់ {sportName}",

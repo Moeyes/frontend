@@ -135,11 +135,25 @@
     "backToEvents": "Back to Events",
     "register": "Register",
     "types": {
-      "NATIONAL": "National",
-      "UNIVERSITY": "University",
-      "HIGH_SCHOOL": "High School",
-      "PRIMARY_SCHOOL": "Primary School"
+      "national": "National Games",
+      "university": "University & TVET Games",
+      "highSchool": "National High School Games",
+      "primarySchool": "Primary School Games"
     },
+    "status": {
+      "upcoming": "Upcoming",
+      "active": "Active",
+      "ended": "Ended",
+      "unknown": "Unknown"
+    },
+    "addSport": "Add Sport",
+    "selectSportPlaceholder": "Select sport...",
+    "noSportSelected": "Please select a sport first",
+    "sportAlreadyAttached": "Sport already attached",
+    "deleteConfirm": "Are you sure you want to delete this event?",
+    "backToEvents": "Back to Events",
+    "detailTitle": "Event Details",
+    "backendGap": "Backend required — not yet available",
     "columns": {
       "eventName": "Event Name",
       "type": "Type",
@@ -151,6 +165,11 @@
       "selectSport": "Select sport...",
       "noSportsAssigned": "No sports assigned to this event yet.",
       "removeSportConfirm": "Are you sure you want to remove this sport from the event?"
+    },
+    "validation": {
+      "nameRequired": "Event name is required",
+      "typeRequired": "Event type is required",
+      "dateRangeInvalid": "End date must be after start date"
     },
     "orgs": {
       "title": "Organizations for {sportName}",
