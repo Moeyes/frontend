@@ -1,307 +1,627 @@
-# Rebuild Conventions
+# CONVENTIONS.md — Frontend Rebuild Rules
 
-Every module rebuild follows these rules exactly. Deviations must be documented in `_rebuild/SHARED_CHANGES.md` with reason.
+> Every module rebuild (Prompt 6) must follow these rules exactly.  
+> Deviations require explicit justification documented in `_rebuild/SHARED_CHANGES.md`.  
+> Cross-reference: `RED_LINES.md` for hard stops · `SCENARIOS.md` for what to build · `SECURITY_CHECKLIST.md` for done criteria.
 
 ---
 
-## 1. Folder shape per module
+## 1. Folder Shape Per Module
 
 ```
 modules/<domain>/
-  components/        PascalCase .tsx files + index.ts barrel
-  hooks/             use<X>.ts files + index.ts barrel
-  services/          api call functions (camelCase named exports) + schema.ts (Zod)
-  types/             domain-local types only — never duplicate _contract/ types
-  index.ts           public surface: only what other modules import
+  components/           PascalCase .tsx files
+    <Domain>List.tsx
+    <Domain>Form.tsx
+    <Domain>Detail.tsx
+    index.ts            barrel — re-exports everything in this folder
+  hooks/
+    use<Domain>List.ts
+    use<Domain>Create.ts
+    use<Domain>Update.ts
+    use<Domain>Delete.ts
+    index.ts            barrel
+  services/
+    <domain>.service.ts   raw API calls, typed via _contract/api.types.ts
+    schema.ts             Zod schemas for all forms in this module
+    keys.ts               React Query key factory
+  types/
+    index.ts              domain-local types ONLY (UI state, form shapes, etc.)
+                          Never redeclare backend response types here.
+  index.ts                public surface — only what other modules import
 ```
 
-Rules:
-- **Never import across modules directly** — only via each module's `index.ts`
-- Backend types come from `_contract/api.types.ts` only
-- Domain-local types (UI state, form values, derived shapes) live in `modules/<domain>/types/`
-- No `default` exports from modules — named exports only
+### Rules
+- A module **only exports** from its `index.ts`. Other modules import from `modules/<domain>` — never from a sub-path like `modules/<domain>/components/EventForm`.
+- `types/index.ts` holds UI-only types (e.g., `EventStatusBadgeVariant`, `RegistrationStep`). **Never** define backend response shapes here — those come from `_contract/api.types.ts`.
+- `services/<domain>.service.ts` holds raw `client.get/post/patch/delete` calls. No React state, no hooks, no side effects.
+- `hooks/` wraps services with React Query. Components never call services directly.
+
+### Concrete example — `events` module
+
+```
+modules/events/
+  components/
+    EventList.tsx
+    EventForm.tsx
+    EventDetail.tsx
+    EventSportManager.tsx
+    EventSportOrgManager.tsx
+    index.ts
+  hooks/
+    useEvents.ts          useQuery for list
+    useEvent.ts           useQuery for single
+    useCreateEvent.ts     useMutation
+    useUpdateEvent.ts     useMutation
+    useDeleteEvent.ts     useMutation
+    useAddSport.ts        useMutation
+    useRemoveSport.ts     useMutation
+    index.ts
+  services/
+    events.service.ts
+    schema.ts
+    keys.ts
+  types/
+    index.ts
+  index.ts
+```
 
 ---
 
-## 2. API layer rules
+## 2. API Layer Rules
 
-### Client
-All HTTP goes through `core/api/client.ts`. Components and hooks never call `fetch` or `axios` directly.
+### Client usage pattern
+
+`core/api/client.ts` exports a typed fetch wrapper built on top of `openapi-fetch` (or equivalent) using `_contract/api.types.ts`:
 
 ```ts
-// core/api/client.ts — interface
-type ApiMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+import type { paths } from '@/_contract/api.types';
+import createClient from 'openapi-fetch';
 
-export function apiClient<T>(
-  method: ApiMethod,
-  path: string,
-  options?: { body?: unknown; params?: Record<string, string> }
-): Promise<T>
+export const client = createClient<paths>({ baseUrl: process.env.NEXT_PUBLIC_API_URL });
 ```
 
-- Auto-injects `Authorization: Bearer <token>` from AuthContext (server-side: reads cookie)
-- Auto-injects `Idempotency-Key: <uuid-v4>` on POST / PUT / PATCH
-- On 401: attempts token refresh via `POST /api/auth/refresh`, retries once
-- On 403: redirects to `/unauthorized`
-- Parses RFC 7807 error bodies: `{ type, title, status, detail, instance }`
-- Logs request + response in `process.env.NODE_ENV === 'development'`
+All API calls go through this client. **Never use raw `fetch()` for backend calls.**
 
-### Services
+### Service pattern
+
 ```ts
-// modules/<domain>/services/<domain>.service.ts
-import type { paths } from '@/_contract/api.types'
-import { apiClient } from '@/core/api/client'
+// modules/events/services/events.service.ts
+import { client } from '@/core/api/client';
+import type { components } from '@/_contract/api.types';
 
-export async function listEvents(params?: { page?: number; limit?: number }) {
-  return apiClient<paths['/api/events/']['get']['responses']['200']['content']['application/json']>(
-    'GET', '/api/events/', { params }
-  )
+export type EventPublic = components['schemas']['EventPublic'];
+export type EventCreate = components['schemas']['EventCreate'];
+
+export async function listEvents(params?: { skip?: number; limit?: number; name?: string }) {
+  const { data, error } = await client.GET('/api/events/', { params: { query: params } });
+  if (error) throw error;
+  return data;
+}
+
+export async function createEvent(body: EventCreate) {
+  const { data, error } = await client.POST('/api/events/', { body });
+  if (error) throw error;
+  return data;
+}
+
+export async function updateEvent(event_id: number, body: components['schemas']['EventUpdate']) {
+  const { data, error } = await client.PATCH('/api/events/{event_id}', {
+    params: { path: { event_id } },
+    body,
+  });
+  if (error) throw error;
+  return data;
 }
 ```
 
-### React Query keys
-Each module defines a typed query key factory:
+**Rules:**
+- Import backend types from `@/_contract/api.types` — never hand-write them (Red Line #2).
+- Service functions return data or throw. No React state inside services.
+- `client.ts` handles: Authorization header injection, Idempotency-Key on POST/PATCH/PUT, 401 refresh, 403 redirect.
+
+### React Query key factory
+
 ```ts
-// modules/<domain>/services/keys.ts
+// modules/events/services/keys.ts
 export const eventKeys = {
   all:    () => ['events'] as const,
   lists:  () => [...eventKeys.all(), 'list'] as const,
   list:   (params: object) => [...eventKeys.lists(), params] as const,
   detail: (id: number) => [...eventKeys.all(), 'detail', id] as const,
+} as const;
+```
+
+Always use the key factory — never inline string arrays in `useQuery` calls.
+
+### Hook pattern — query
+
+```ts
+// modules/events/hooks/useEvents.ts
+import { useQuery } from '@tanstack/react-query';
+import { listEvents } from '../services/events.service';
+import { eventKeys } from '../services/keys';
+
+export function useEvents(params?: { skip?: number; limit?: number }) {
+  return useQuery({
+    queryKey: eventKeys.list(params ?? {}),
+    queryFn: () => listEvents(params),
+  });
 }
 ```
 
-### Mutations — standard pattern
+### Hook pattern — mutation (optimistic update)
+
 ```ts
-const mutation = useMutation({
-  mutationFn: createEvent,
-  onMutate: async (newData) => {
-    await queryClient.cancelQueries({ queryKey: eventKeys.lists() })
-    const previous = queryClient.getQueryData(eventKeys.lists())
-    queryClient.setQueryData(eventKeys.lists(), (old) => /* optimistic update */)
-    return { previous }
-  },
-  onError: (_err, _vars, ctx) => {
-    queryClient.setQueryData(eventKeys.lists(), ctx?.previous) // rollback
-    toast.error(t('events.error.create_failed'))
-  },
-  onSettled: () => {
-    queryClient.invalidateQueries({ queryKey: eventKeys.lists() })
-  },
-})
+// modules/events/hooks/useCreateEvent.ts
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createEvent, type EventCreate } from '../services/events.service';
+import { eventKeys } from '../services/keys';
+
+export function useCreateEvent() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: EventCreate) => createEvent(body),
+
+    onMutate: async (newEvent) => {
+      await qc.cancelQueries({ queryKey: eventKeys.lists() });
+      const previous = qc.getQueryData(eventKeys.list({}));
+      // optimistic insert — omit if list shape is complex
+      return { previous };
+    },
+
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        qc.setQueryData(eventKeys.list({}), context.previous);
+      }
+    },
+
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: eventKeys.lists() });
+    },
+  });
+}
 ```
+
+**Rules:**
+- Every mutation: `onMutate` (optimistic) + `onError` (rollback) + `onSettled` (invalidate).
+- `onSettled` always invalidates the relevant list key.
+- Idempotency-Key is injected automatically by `client.ts` — do not add it manually in hooks.
+
+### RBAC scoping in queries (Red Line #6)
+
+```ts
+// WRONG — leaks all orgs' data to federation user
+const { data } = useEvents();
+
+// CORRECT — scoped to user's organization
+const { user } = useAuth();
+const { data } = useQuery({
+  queryKey: eventKeys.list({ organization_id: user.organization_id }),
+  queryFn: () => listRegistrations({ role: 'athlete', organization_id: user.organization_id }),
+  enabled: !!user.organization_id,
+});
+```
+
+For Admin (`role = 'admin'`): no scoping params needed.  
+For Federation (`role = 'user1'`) and Organization (`role = 'user2'`): always pass `organization_id` from `useAuth()`.
 
 ---
 
-## 3. Form rules
+## 3. Form Rules
 
-- **Library:** React Hook Form + `@hookform/resolvers/zod`
-- **Schema location:** `modules/<domain>/services/schema.ts`
-- **Fields:** Always use `shared/form/*` — never bare `<input>`, `<select>`, `<textarea>`
-- **Error display:** Inline under each field via `FormField` component
-- **Submit button:** Disabled while `mutation.isPending`; spinner inside button
+### Stack
+- **React Hook Form** + **zodResolver** for all forms
+- Zod schema lives in `modules/<domain>/services/schema.ts` — never inline in components
+- All form fields use `shared/form/*` components — never bare `<input>`, `<select>`, `<textarea>`
+
+### Schema pattern
 
 ```ts
-// modules/<domain>/services/schema.ts
-import { z } from 'zod'
+// modules/events/services/schema.ts
+import { z } from 'zod';
 
 export const eventCreateSchema = z.object({
-  name_kh: z.string().min(1, { message: 'events.validation.name_required' }),
-  type: z.enum(['...', '...']),
-  // ...
-})
-export type EventCreateForm = z.infer<typeof eventCreateSchema>
+  name_kh: z.string().min(1, { message: 'events.form.nameRequired' }),
+  type: z.enum(['កីឡាជាតិ', 'កីឡាឧត្តមសិក្សា...', ...] as const),
+  description: z.string().optional(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
+  location: z.string().optional(),
+  open_register_date: z.string().optional(),
+  close_register_date: z.string().optional(),
+}).refine(
+  (d) => !d.start_date || !d.end_date || d.start_date <= d.end_date,
+  { message: 'events.form.dateRangeInvalid', path: ['end_date'] }
+);
+
+export type EventCreateFormValues = z.infer<typeof eventCreateSchema>;
 ```
 
+Error message values in Zod schemas are **i18n keys**, not literal strings. The `shared/form/FormField` component calls `t(error.message)` to resolve them.
+
+### Form component pattern
+
 ```tsx
-// Usage in component
-const form = useForm<EventCreateForm>({
-  resolver: zodResolver(eventCreateSchema),
-  defaultValues: { name_kh: '', ... },
-})
+// modules/events/components/EventForm.tsx
+'use client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { TextInputField, SelectField, DateField } from '@/shared/form';
+import { Button } from '@/shared/ui';
+import { eventCreateSchema, type EventCreateFormValues } from '../services/schema';
+import { useCreateEvent } from '../hooks';
+
+export function EventForm() {
+  const { mutate, isPending } = useCreateEvent();
+
+  const form = useForm<EventCreateFormValues>({
+    resolver: zodResolver(eventCreateSchema),
+    defaultValues: { name_kh: '', type: undefined },
+  });
+
+  const onSubmit = (values: EventCreateFormValues) => mutate(values);
+
+  return (
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      <TextInputField control={form.control} name="name_kh" labelKey="events.form.namekh" />
+      <SelectField control={form.control} name="type" labelKey="events.form.type" options={...} />
+      <Button type="submit" disabled={isPending} loading={isPending}>
+        {t('common.save')}
+      </Button>
+    </form>
+  );
+}
+```
+
+**Rules:**
+- Submit button: `disabled={isPending}`, shows spinner while `isPending`.
+- Errors shown inline under each field via `shared/form/FormField` — never a summary box.
+- Server-side RFC7807 errors mapped to fields in `onError`:
+
+```ts
+onError: (err) => {
+  // RFC7807: { detail: [{ loc: ['body', 'name_kh'], msg: '...' }] }
+  if (err?.detail && Array.isArray(err.detail)) {
+    err.detail.forEach(({ loc, msg }) => {
+      const field = loc[loc.length - 1] as keyof EventCreateFormValues;
+      form.setError(field, { message: msg });
+    });
+  }
+}
 ```
 
 ---
 
-## 4. List / table rules
+## 4. List / Table Rules
 
-- All tables use `shared/ui/DataTable.tsx` (TanStack Table v8)
-- All lists wrapped in `<QueryBoundary>` from `shared/ui/QueryBoundary.tsx`
-- Server-side pagination and filtering via URL search params (use `useSearchParams`)
-- Column headers from `messages/kh.json` via `t('key')`
-- Default page size: `20` (from `core/config/constants.ts`)
+### Component pattern
 
 ```tsx
-// Standard list pattern
-<QueryBoundary
-  isLoading={isLoading}
-  isEmpty={data?.data.length === 0}
-  isError={isError}
-  onRetry={refetch}
-  emptyMessage={t('events.list.empty')}
->
-  <DataTable columns={columns} data={data.data} pagination={...} />
-</QueryBoundary>
+// modules/events/components/EventList.tsx
+'use client';
+import { DataTable } from '@/shared/ui/DataTable';
+import { QueryBoundary } from '@/shared/ui/QueryBoundary';
+import { PageEmptyState } from '@/shared/ui/page/PageEmptyState';
+import { useEvents } from '../hooks';
+import { columns } from './columns'; // ColumnDef[] with Khmer headers
+
+export function EventList() {
+  const query = useEvents({ skip: 0, limit: 20 });
+
+  return (
+    <QueryBoundary query={query} empty={<PageEmptyState messageKey="events.empty" ctaKey="events.create" />}>
+      {(data) => <DataTable columns={columns} data={data.data ?? []} />}
+    </QueryBoundary>
+  );
+}
 ```
+
+### Pagination
+
+- Server-side pagination: pass `skip`/`limit` (or `page`/`limit`) from **URL search params**.
+- Use `useSearchParams()` + `useRouter()` from Next.js to read/update pagination state.
+- Never store pagination in component state — it lives in the URL.
+
+```ts
+// Reading pagination from URL
+const searchParams = useSearchParams();
+const skip = Number(searchParams.get('skip') ?? 0);
+const limit = Number(searchParams.get('limit') ?? 20);
+```
+
+### Column definition
+
+```ts
+// Khmer headers always come from i18n
+import { useTranslations } from 'next-intl';
+import type { ColumnDef } from '@tanstack/react-table';
+import type { EventPublic } from '../services/events.service';
+
+export function useEventColumns(): ColumnDef<EventPublic>[] {
+  const t = useTranslations();
+  return [
+    { accessorKey: 'name_kh', header: t('events.columns.name') },
+    { accessorKey: 'type', header: t('events.columns.type') },
+    { accessorKey: 'start_date', header: t('events.columns.startDate'),
+      cell: ({ getValue }) => formatKhmerDate(getValue<string>()) },
+  ];
+}
+```
+
+**Rules:**
+- Column headers always from `messages/kh.json` (via `t('key')`). Never hardcoded strings.
+- `QueryBoundary` wraps every list — handles loading skeleton + error state + empty state.
+- Empty state always has a CTA (e.g., "Create first event").
 
 ---
 
-## 5. Page shell rules
+## 5. Page Shell Rules
 
-Every page follows this structure:
-
-```
-app/(portal)/<route>/
-  page.tsx          — main page (use PageShell + PageHeader)
-  loading.tsx       — shows <PageLoadingState />
-  error.tsx         — shows recoverable error UI with retry button
-```
+### Page file structure
 
 ```tsx
-// page.tsx pattern
+// app/(portal)/events/page.tsx
+import { PageShell } from '@/shared/layout/PageShell';
+import { PageHeader } from '@/shared/ui/page/PageHeader';
+import { EventList } from '@/modules/events';
+
 export default function EventsPage() {
   return (
     <PageShell>
-      <PageHeader title={t('events.list.title')} action={<CreateButton />} />
-      <ContentPanel>
-        <EventList />
-      </ContentPanel>
+      <PageHeader titleKey="events.title" />
+      <EventList />
     </PageShell>
-  )
+  );
 }
 ```
 
 ```tsx
-// loading.tsx
-export default function Loading() {
-  return <PageLoadingState />
-}
+// app/(portal)/events/loading.tsx
+import { PageLoadingState } from '@/shared/ui/page/PageLoadingState';
+export default function Loading() { return <PageLoadingState />; }
 ```
 
 ```tsx
-// error.tsx
-'use client'
-export default function ErrorPage({ error, reset }: { error: Error; reset: () => void }) {
-  return <PageErrorState message={error.message} onRetry={reset} />
+// app/(portal)/events/error.tsx
+'use client';
+import { PageErrorState } from '@/shared/ui/page/PageErrorState';
+export default function Error({ error, reset }: { error: Error; reset: () => void }) {
+  return <PageErrorState error={error} onRetry={reset} />;
 }
 ```
+
+**Rules:**
+- Every `app/(portal)/<route>/` must have `page.tsx` + `loading.tsx` + `error.tsx`.
+- `loading.tsx` shows skeleton — no spinner-only state at page level.
+- `error.tsx` must have a **retry** button that calls `reset()`.
+- Page titles always via `PageHeader` with a `titleKey` prop — never hardcoded.
 
 ---
 
-## 6. Auth and RBAC rules
+## 6. Auth and RBAC Rules
+
+### Route protection
 
 ```tsx
-// Protect a page
-<ProtectedRoute requiredRoles={['admin', 'super_admin']}>
-  <EventsPage />
-</ProtectedRoute>
+// app/(portal)/events/page.tsx
+import { ProtectedRoute } from '@/core/auth';
+
+export default function EventsPage() {
+  return (
+    <ProtectedRoute requiredRoles={['admin']}>
+      <PageShell>...</PageShell>
+    </ProtectedRoute>
+  );
+}
 ```
+
+`ProtectedRoute` reads the current user from `AuthContext`. If `user.role` is not in `requiredRoles`, it redirects to `/unauthorized`.
+
+### Component-level gating
+
+```tsx
+import { useRequireRole } from '@/core/auth';
+
+function DeleteButton({ eventId }: { eventId: number }) {
+  const canDelete = useRequireRole(['admin']);
+  if (!canDelete) return null;
+  return <Button variant="destructive">...</Button>;
+}
+```
+
+### Auth context shape
 
 ```ts
-// Component-level gating
-const { hasRole } = useRequireRole(['admin'])
-if (!hasRole) return null
+interface AuthUser {
+  id: string;
+  role: 'admin' | 'user1' | 'user2' | 'guest';
+  organization_id: number | null;
+  kh_family_name: string;
+  kh_given_name: string;
+  en_family_name: string;
+  en_given_name: string;
+  is_active: boolean;
+}
 ```
 
-**Federation / Organization scoping:**
-```ts
-const { organizationId } = useAuth()
+Source: `GET /api/auth/session/{user_id}` → `components['schemas']['UserPublic']`
 
-// Every list query for scoped resources
-const { data } = useQuery({
-  queryKey: registrationKeys.list({ org_id: organizationId }),
-  queryFn: () => listRegistrations({ org_id: organizationId }),
-  enabled: !!organizationId,
-})
-```
+### Token storage
 
-**Role strings (from backend):** `super_admin` | `admin` | `federation` | `organization` | `organizer`
+- Tokens live in **HttpOnly cookies** only.
+- `app/api/auth/login/route.ts` calls the backend, receives `TokenPair`, sets cookies.
+- `app/api/auth/refresh/route.ts` rotates the token.
+- `app/api/auth/logout/route.ts` clears cookies.
+- The frontend JS layer **never reads tokens** — cookies are attached automatically by the browser.
+
+### RBAC role mapping (from `UserRole` enum in backend)
+
+| Backend value | Platform role | Sees |
+|---------------|--------------|------|
+| `admin` | Admin / Super Admin | Everything |
+| `user1` | Federation | Own surveys + own registrations (scoped by `organization_id`) |
+| `user2` | Organization | Own organizers (scoped by `organization_id`) |
+| `guest` | Organizer | Read-only own profile |
 
 ---
 
-## 7. i18n rules
+## 7. i18n Rules
 
-- Zero hardcoded strings in JSX — always `t('key')`
-- Every new key added to BOTH `messages/en.json` AND `messages/kh.json`
-- Khmer is canonical — write Khmer value first, English is the fallback
-- Key format: `<module>.<section>.<item>` e.g. `events.create.title`
-- Use `useTranslations('events')` hook, not the full key every time
+### Key format
+
+```
+<module>.<area>.<label>
+```
+
+Examples:
+- `events.form.nameKh`
+- `events.columns.startDate`
+- `common.save`
+- `common.cancel`
+- `registration.steps.personal`
+
+### Rule
+
+Every string visible to the user must come from `t('key')`. Zero exceptions.
 
 ```tsx
-// Correct
-const t = useTranslations('events')
-<h1>{t('create.title')}</h1>
+// WRONG
+<h1>Event List</h1>
+<button>Submit</button>
 
-// Wrong
-<h1>Create Event</h1>
+// CORRECT
+<h1>{t('events.title')}</h1>
+<button>{t('common.submit')}</button>
 ```
+
+### Adding keys
+
+Add to **both** `messages/en.json` AND `messages/kh.json` in the same commit. Khmer is canonical — the Khmer text must be correct. English may be approximate.
+
+```json
+// messages/kh.json (canonical)
+{
+  "events": {
+    "title": "ព្រឹត្តិការណ៍",
+    "form": {
+      "nameKh": "ឈ្មោះព្រឹត្តិការណ៍ (ខ្មែរ)",
+      "nameRequired": "ត្រូវការឈ្មោះ"
+    }
+  }
+}
+
+// messages/en.json (secondary)
+{
+  "events": {
+    "title": "Events",
+    "form": {
+      "nameKh": "Event Name (Khmer)",
+      "nameRequired": "Name is required"
+    }
+  }
+}
+```
+
+Zod error messages are i18n keys (e.g., `'events.form.nameRequired'`), resolved by the form field component.
 
 ---
 
-## 8. Naming conventions
+## 8. Naming Conventions
 
 | Thing | Convention | Example |
 |-------|-----------|---------|
-| Component file | PascalCase | `EventCreateForm.tsx` |
-| Component export | PascalCase named | `export function EventCreateForm()` |
-| Hook file | camelCase with `use` prefix | `useEventList.ts` |
-| Hook export | camelCase named | `export function useEventList()` |
-| Service function | camelCase named | `export async function createEvent()` |
-| Type / interface | PascalCase, no `I` prefix | `EventCreateForm`, `ApiError` |
-| Type file | camelCase | `event.types.ts` |
-| Schema file | `schema.ts` per module | `modules/events/services/schema.ts` |
-| Query key factory | `<domain>Keys` | `eventKeys` |
-| CSS / Tailwind | utility classes only — no custom CSS classes unless absolutely necessary | |
-
-File name must match the primary export name exactly.
+| React component | PascalCase | `EventList`, `EventForm` |
+| Hook | `use` + PascalCase | `useEvents`, `useCreateEvent` |
+| Service function | camelCase | `listEvents`, `createEvent` |
+| Service file | `<domain>.service.ts` | `events.service.ts` |
+| Type (local) | PascalCase, no `I` prefix | `EventStatusBadge`, `RegistrationStep` |
+| Zod schema | `<entity><action>Schema` | `eventCreateSchema`, `loginSchema` |
+| React Query keys file | `keys.ts` | always `keys.ts` |
+| File name | Matches default export name | `EventList.tsx` exports `EventList` |
+| Test file | `<name>.test.ts(x)` | `EventList.test.tsx` |
 
 ---
 
-## 9. State machine rules
+## 9. State Machine Rules
 
-For any domain with status FSM (surveys, submissions):
+### Problem context
+
+The master plan defines an FSM: `DRAFT → SUBMITTED → APPROVED / REJECTED / FLAGGED → REVISION_REQUESTED`. However, as of the contract freeze, the backend has **no status fields or transition endpoints** for surveys or events. The frontend follows this pattern:
+
+**While backend FSM is missing:** Show read-only status derived from data (e.g., date-based event status). Disable transition action buttons with tooltip noting backend gap.
+
+**When backend adds FSM:** Wire to dedicated endpoints. Never PATCH a `status` field.
+
+### Status definition
 
 ```ts
-// modules/<domain>/types/status.ts
-export const SUBMISSION_STATUS = {
-  DRAFT: 'DRAFT',
-  SUBMITTED: 'SUBMITTED',
-  APPROVED: 'APPROVED',
-  REJECTED: 'REJECTED',
-  FLAGGED: 'FLAGGED',
-  REVISION_REQUESTED: 'REVISION_REQUESTED',
-} as const
-export type SubmissionStatus = keyof typeof SUBMISSION_STATUS
-
-export const STATUS_COLOR_MAP: Record<SubmissionStatus, string> = {
-  DRAFT: 'bg-gray-100 text-gray-700',
-  SUBMITTED: 'bg-blue-100 text-blue-700',
-  APPROVED: 'bg-green-100 text-green-700',
-  REJECTED: 'bg-red-100 text-red-700',
-  FLAGGED: 'bg-yellow-100 text-yellow-700',
-  REVISION_REQUESTED: 'bg-orange-100 text-orange-700',
-}
+// modules/submissions/types/index.ts
+export type SurveyStatus = 'PENDING' | 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'FLAGGED';
+export type EventStatus = 'UPCOMING' | 'ACTIVE' | 'ENDED'; // derived client-side from dates
 ```
 
-Rules:
-- Client **never** changes status directly in local state
-- All status changes go through a mutation that calls the backend
-- Optimistic update rolls back on error
-- Status displayed via `<Badge className={STATUS_COLOR_MAP[status]}>` from `shared/ui/Badge.tsx`
+### Status badge color map
+
+```ts
+// shared/ui/Badge.tsx variant map
+const surveyStatusVariants: Record<SurveyStatus, BadgeVariant> = {
+  PENDING: 'outline',
+  SUBMITTED: 'secondary',
+  APPROVED: 'success',
+  REJECTED: 'destructive',
+  FLAGGED: 'warning',
+};
+```
+
+### Transition mutations (for when backend adds FSM)
+
+```ts
+// WRONG — patches status field directly (Red Line #5)
+await client.PATCH('/api/participation-per-sport/{id}', { body: { status: 'APPROVED' } });
+
+// CORRECT — dedicated endpoint (once backend adds it)
+await client.POST('/api/participation-per-sport/{id}/approve');
+```
 
 ---
 
-## 10. Definition of Done for a module rebuild
+## 10. Definition of Done for a Module Rebuild
 
-A module is done when ALL of the following pass:
+See `SECURITY_CHECKLIST.md` for the full self-audit. Summary:
 
-- [ ] All scenarios from `SCENARIOS.md` that touch this module pass manually
-- [ ] `pnpm tsc --noEmit` — zero type errors for this module's files
-- [ ] `pnpm lint` — zero lint errors for this module's files
-- [ ] `pnpm build` — build succeeds
-- [ ] All strings in `messages/en.json` and `messages/kh.json` — no hardcoded strings
-- [ ] Loading + empty + error states implemented on every list component
-- [ ] Form validation errors shown inline under every field
-- [ ] RBAC enforced on routes and conditional UI elements
-- [ ] Optimistic updates with rollback on all mutations
-- [ ] No `console.error` or `console.warn` in normal flow
+| Check | Requirement |
+|-------|------------|
+| TypeScript | `pnpm tsc --noEmit` clean across entire repo |
+| Lint | `pnpm lint` clean across entire repo |
+| Build | `pnpm build` succeeds |
+| Scenarios | All relevant SCENARIOS.md scenarios: PASS / NEEDS-BACKEND-FIX / FAIL documented |
+| i18n | Every string in both `en.json` and `kh.json` |
+| Loading | Every list has skeleton loading state |
+| Empty | Every list has `PageEmptyState` with CTA |
+| Error | Every list/page has recoverable error + retry |
+| RBAC | `ProtectedRoute` on every page; scoping params on every federation/org list query |
+| Forms | Inline validation, spinner on submit, server error mapping |
+| Mutations | Optimistic update + onError rollback + onSettled invalidation |
+| Contract | No hand-written backend types — all from `_contract/api.types.ts` |
+| Tokens | No localStorage — HttpOnly cookies only |
+| Status | No `status` in PATCH body — FSM via dedicated endpoints |
+| Idempotency | All mutations through `client.ts` (auto-injects key) |
+| Console | No `console.log` / `console.debug` / `debugger` in committed code |
+
+---
+
+## Quick Reference — Anti-Patterns
+
+| Anti-pattern | Correct pattern |
+|-------------|----------------|
+| `import { createEvent } from '../services/events.service'` inside a component | Use `useCreateEvent()` hook |
+| `interface EventResponse { id: number; name: string; }` in `types/` | Import from `components['schemas']['EventPublic']` |
+| `const age = differenceInYears(new Date(), dob)` | `computeAgeAtEvent(dob, event.start_date)` |
+| `localStorage.setItem('token', data.access_token)` | Route handler sets HttpOnly cookie |
+| `body: { status: 'APPROVED' }` in a PATCH mutation | `POST /api/.../approve` endpoint |
+| `t` calls without adding key to both JSON files | Add to en.json AND kh.json |
+| `<ColumnDef header="ព្រឹត្តិការណ៍" />` | `header: t('events.columns.name')` |
+| `useQuery(['events'], listEvents)` without scoping | `useQuery(eventKeys.list({org_id}), () => listEvents({org_id}))` |
+| `fetch('/api/...')` directly | `client.GET('/api/...')` |

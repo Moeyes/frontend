@@ -1,34 +1,36 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useTranslations } from 'next-intl'
-import { toast } from 'sonner'
-import { createExample } from '../services/example.service'
-import { exampleKeys } from '../services/keys'
-import type { ExampleCreateForm } from '../services/schema'
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
+import { createDOMAIN, type DOMAINCreate } from '../services/example.service';
+import { DOMAIN_keys } from '../services/keys';
 
-export function useExampleCreate() {
-  const queryClient = useQueryClient()
-  const t = useTranslations('MODULE_NAME')
+export function useCreateDOMAIN() {
+  const qc = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
-    mutationFn: (data: ExampleCreateForm) => createExample(data),
-    onMutate: async (newData) => {
-      await queryClient.cancelQueries({ queryKey: exampleKeys.lists() })
-      const previous = queryClient.getQueryData(exampleKeys.lists())
-      // optimistic insert
-      queryClient.setQueryData(exampleKeys.lists(), (old: any) =>
-        old ? { ...old, data: [{ ...newData, id: -1 }, ...old.data] } : old
-      )
-      return { previous }
+    mutationFn: (body: DOMAINCreate) => createDOMAIN(body),
+
+    onMutate: async (_newItem) => {
+      await qc.cancelQueries({ queryKey: DOMAIN_keys.lists() });
+      const previous = qc.getQueryData(DOMAIN_keys.list({}));
+      // Optionally insert optimistic row here
+      return { previous };
     },
-    onError: (_err, _vars, ctx) => {
-      queryClient.setQueryData(exampleKeys.lists(), ctx?.previous)
-      toast.error(t('error.create_failed'))
+
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        qc.setQueryData(DOMAIN_keys.list({}), context.previous);
+      }
+      toast.error(t('common.error.createFailed'));
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: exampleKeys.lists() })
-    },
+
     onSuccess: () => {
-      toast.success(t('success.created'))
+      toast.success(t('common.success.created'));
     },
-  })
+
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: DOMAIN_keys.lists() });
+    },
+  });
 }

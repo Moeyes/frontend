@@ -1,28 +1,44 @@
-import { apiClient } from '@/core/api/client'
-import type { ExampleCreateForm } from './schema'
+// Replace DOMAIN and paths with actual endpoints from _contract/ENDPOINTS.md
+// All types come from _contract/api.types.ts — never hand-write backend types (Red Line #2)
+import { client } from '@/core/api/client';
+import type { components } from '@/_contract/api.types';
 
-// Replace these with real paths from _contract/api.types.ts
-// type ExampleListResponse = paths['/api/MODULE/']['get']['responses']['200']['content']['application/json']
-// type ExamplePublic = ExampleListResponse['data'][number]
+// Re-export the types this module uses from the contract
+export type DOMAINPublic = components['schemas']['REPLACE_WITH_SCHEMA_NAME'];
+export type DOMAINCreate = components['schemas']['REPLACE_WITH_CREATE_SCHEMA'];
 
-export async function listExamples(params?: { page?: number; limit?: number }) {
-  return apiClient<{ data: unknown[]; count: number }>(
-    'GET', '/api/MODULE/', { params: params as Record<string, string> }
-  )
+export async function listDOMAIN(params?: { skip?: number; limit?: number }) {
+  const { data, error } = await client.GET('/api/REPLACE_ME/', { params: { query: params } });
+  if (error) throw error;
+  return data;
 }
 
-export async function getExample(id: number) {
-  return apiClient<unknown>('GET', `/api/MODULE/${id}`)
+export async function getDOMAIN(id: number) {
+  const { data, error } = await client.GET('/api/REPLACE_ME/{id}', {
+    params: { path: { id } },
+  });
+  if (error) throw error;
+  return data;
 }
 
-export async function createExample(body: ExampleCreateForm) {
-  return apiClient<unknown>('POST', '/api/MODULE/', { body })
+export async function createDOMAIN(body: DOMAINCreate) {
+  const { data, error } = await client.POST('/api/REPLACE_ME/', { body });
+  if (error) throw error;
+  return data;
 }
 
-export async function updateExample(id: number, body: Partial<ExampleCreateForm>) {
-  return apiClient<unknown>('PATCH', `/api/MODULE/${id}`, { body })
+export async function updateDOMAIN(id: number, body: Partial<DOMAINCreate>) {
+  const { data, error } = await client.PATCH('/api/REPLACE_ME/update', {
+    body: { ...body, id },
+  });
+  if (error) throw error;
+  return data;
 }
 
-export async function deleteExample(id: number) {
-  return apiClient<void>('DELETE', '/api/MODULE/delete', { body: { id } })
+export async function deleteDOMAIN(id: number) {
+  const { data, error } = await client.DELETE('/api/REPLACE_ME/delete', {
+    body: { id },
+  });
+  if (error) throw error;
+  return data;
 }

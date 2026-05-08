@@ -1,24 +1,18 @@
-import { useTranslations } from 'next-intl'
-import { PageShell } from '@/shared/layout/PageShell'
-import { PageHeader } from '@/shared/ui/page/PageHeader'
-import { ContentPanel } from '@/shared/ui/page/ContentPanel'
-import { ProtectedRoute } from '@/core/auth/ProtectedRoute'
-import { ExampleList } from '@/modules/MODULE_NAME'
+// app/(portal)/REPLACE_ROUTE/page.tsx
+// Copy this file to the correct app route path and rename to page.tsx
+import { ProtectedRoute } from '@/core/auth';
+import { PageShell } from '@/shared/layout/PageShell';
+import { PageHeader } from '@/shared/ui/page/PageHeader';
+import { DOMAINList } from '@/modules/DOMAIN';
 
-export default function ModulePage() {
-  const t = useTranslations('MODULE_NAME')
-
+export default function DOMAINPage() {
   return (
-    <ProtectedRoute requiredRoles={['admin', 'super_admin']}>
+    // Replace requiredRoles with the roles from ROUTE_MAP.md for this route
+    <ProtectedRoute requiredRoles={['admin']}>
       <PageShell>
-        <PageHeader
-          title={t('list.title')}
-          // action={<CreateButton />}
-        />
-        <ContentPanel>
-          <ExampleList />
-        </ContentPanel>
+        <PageHeader titleKey="DOMAIN.title" />
+        <DOMAINList />
       </PageShell>
     </ProtectedRoute>
-  )
+  );
 }

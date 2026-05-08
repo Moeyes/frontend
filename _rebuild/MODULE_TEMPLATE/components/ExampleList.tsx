@@ -1,24 +1,41 @@
-'use client'
+'use client';
+import { useTranslations } from 'next-intl';
+import { DataTable } from '@/shared/ui/DataTable';
+import { QueryBoundary } from '@/shared/ui/QueryBoundary';
+import { PageEmptyState } from '@/shared/ui/page/PageEmptyState';
+import { useDOMAINList } from '../hooks';
+import type { ColumnDef } from '@tanstack/react-table';
+import type { DOMAINPublic } from '../services/example.service';
 
-import { useTranslations } from 'next-intl'
-import { QueryBoundary } from '@/shared/ui/QueryBoundary'
-import { DataTable } from '@/shared/ui/DataTable'
-import { useExampleList } from '../hooks'
-import { columns } from './columns'
+function useDOMAINColumns(): ColumnDef<DOMAINPublic>[] {
+  const t = useTranslations();
+  return [
+    // { accessorKey: 'id', header: t('DOMAIN.columns.id') },
+    // { accessorKey: 'name_kh', header: t('DOMAIN.columns.name') },
+  ];
+}
 
-export function ExampleList() {
-  const t = useTranslations('MODULE_NAME')
-  const { data, isLoading, isError, refetch } = useExampleList()
+export function DOMAINList() {
+  const query = useDOMAINList();
+  const columns = useDOMAINColumns();
 
   return (
     <QueryBoundary
-      isLoading={isLoading}
-      isEmpty={!data?.data.length}
-      isError={isError}
-      onRetry={refetch}
-      emptyMessage={t('list.empty')}
+      query={query}
+      empty={
+        <PageEmptyState
+          messageKey="DOMAIN.empty"
+          ctaKey="DOMAIN.create"
+          // ctaHref="/DOMAIN/new"
+        />
+      }
     >
-      <DataTable columns={columns} data={data?.data ?? []} />
+      {(data) => (
+        <DataTable
+          columns={columns}
+          data={(data as any)?.data ?? []}
+        />
+      )}
     </QueryBoundary>
-  )
+  );
 }

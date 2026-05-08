@@ -1,2 +1,4 @@
-export { ExampleList } from './ExampleList'
-export { ExampleCreateForm } from './ExampleCreateForm'
+export { DOMAINList } from './ExampleList';
+export { DOMAINCreateForm } from './ExampleCreateForm';
+// export { DOMAINDetail } from './ExampleDetail';
+// export { DOMAINEditForm } from './ExampleEditForm';

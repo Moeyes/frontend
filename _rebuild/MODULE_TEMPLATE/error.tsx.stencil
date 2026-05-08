@@ -1,13 +1,14 @@
-'use client'
+// app/(portal)/REPLACE_ROUTE/error.tsx
+// Copy this file to the correct app route path and rename to error.tsx
+'use client';
+import { PageErrorState } from '@/shared/ui/page/PageErrorState';
 
-import { PageErrorState } from '@/shared/ui/page/PageErrorState'
-
-export default function ErrorPage({
+export default function Error({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
-  return <PageErrorState message={error.message} onRetry={reset} />
+  return <PageErrorState error={error} onRetry={reset} />;
 }

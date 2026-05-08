@@ -1,6 +1,9 @@
-export const exampleKeys = {
-  all:    () => ['MODULE_NAME'] as const,
-  lists:  () => [...exampleKeys.all(), 'list'] as const,
-  list:   (params: object) => [...exampleKeys.lists(), params] as const,
-  detail: (id: number) => [...exampleKeys.all(), 'detail', id] as const,
-}
+// Replace DOMAIN with your module name (e.g. 'events', 'survey', 'registration')
+const DOMAIN = 'REPLACE_ME';
+
+export const DOMAIN_keys = {
+  all:    () => [DOMAIN] as const,
+  lists:  () => [...DOMAIN_keys.all(), 'list'] as const,
+  list:   (params: object) => [...DOMAIN_keys.lists(), params] as const,
+  detail: (id: number) => [...DOMAIN_keys.all(), 'detail', id] as const,
+} as const;

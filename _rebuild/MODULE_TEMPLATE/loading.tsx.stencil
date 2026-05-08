@@ -1,5 +1,7 @@
-import { PageLoadingState } from '@/shared/ui/page/PageLoadingState'
-
+// app/(portal)/REPLACE_ROUTE/loading.tsx
+// Copy this file to the correct app route path and rename to loading.tsx
+// No changes needed — PageLoadingState is a generic skeleton.
+import { PageLoadingState } from '@/shared/ui/page/PageLoadingState';
 export default function Loading() {
-  return <PageLoadingState />
+  return <PageLoadingState />;
 }

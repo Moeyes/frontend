@@ -1,9 +1,12 @@
-// Domain-local types only.
-// Backend types must be imported from @/_contract/api.types, NOT re-declared here.
+// Domain-local UI types ONLY.
+// Never redefine backend response shapes here — those come from:
+//   import type { components } from '@/_contract/api.types';
+//
+// Valid contents:
+//   - UI state enums (e.g. form steps, badge variants)
+//   - Derived/composed types used only within this module's components
+//   - Props interfaces for complex components
 
-// Example: UI-only state type
-export type ExampleFilter = {
-  search?: string
-  page?: number
-  limit?: number
-}
+// Example:
+// export type DOMAINFormStep = 'personal' | 'documents' | 'review';
+// export type DOMAINStatusBadge = 'success' | 'warning' | 'destructive' | 'outline';
