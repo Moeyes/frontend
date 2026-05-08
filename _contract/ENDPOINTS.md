@@ -1,239 +1,206 @@
 # Backend Endpoints Reference
 
-Auto-generated from `openapi.json` fetched from `http://localhost:8000/api/openapi.json`.
-
-**Note on auth:** All endpoints in the OpenAPI spec are marked as "public" (no `securitySchemes` defined on operations). In practice the backend uses JWT Bearer tokens via middleware. The frontend must send `Authorization: Bearer <access_token>` on all non-login requests. Roles listed below are inferred from business logic in the master plan, not from the OpenAPI spec — the teammate has not decorated endpoints with role requirements yet.
-
-Format: `METHOD path → req body → response shape → inferred role(s)`
+> Auto-generated from `http://localhost:8000/api/openapi.json`.  
+> Re-run `pnpm contract:sync` to refresh after backend changes.  
+> **42 paths → 53 endpoint methods** (some paths expose multiple HTTP methods).
 
 ---
 
 ## AUTH
 
-| Method | Path | Request | Response | Roles |
+| Method | Path | Request | Response | Notes |
 |--------|------|---------|----------|-------|
-| POST | `/api/auth/login` | `{username*, password*}` | `{access_token*, refresh_token*, token_type}` | public |
-| POST | `/api/auth/refresh` | none (uses refresh token cookie/header) | `{access_token*, refresh_token*, token_type}` | public |
-| GET | `/api/auth/session/{user_id}` | — | `UserPublic{id, kh_family_name, kh_given_name, en_family_name, en_given_name, email, username, role}` | authenticated |
-
----
-
-## DASHBOARD
-
-| Method | Path | Request | Response | Roles |
-|--------|------|---------|----------|-------|
-| GET | `/api/dashboard` | — | `DashboardResponse{success, data{stats, events[], sports[], topOrganizations[], recentEnrollments[], genderDistribution}}` | Admin, Super Admin |
-
----
-
-## EVENTS
-
-| Method | Path | Request | Response | Roles |
-|--------|------|---------|----------|-------|
-| POST | `/api/events/` | `EventCreate{name_kh*, type*(eventType enum), description?, start_date?, end_date?, location?, open_register_date?, close_register_date?}` | `EventPublic` | Admin, Super Admin |
-| GET | `/api/events/` | — | `EventsPublic{data[EventPublic], count}` | Admin, Super Admin |
-| GET | `/api/events/{event_id}` | — | `EventPublic{id, name_kh, type, description, start_date, end_date, location, open_register_date, close_register_date}` | All authenticated |
-| PATCH | `/api/events/{event_id}` | `EventUpdate{name_kh?, type?, description?, start_date?, end_date?, location?, open_register_date?, close_register_date?}` | `EventPublic` | Admin, Super Admin |
-| DELETE | `/api/events/delete` | `{event_id*}` | 204 | Admin, Super Admin |
-| POST | `/api/events/add-sport` | `{events_id?, sports_id?}` | `SportsEventPublic{id, event_name, sport_name, created_at}` | Admin, Super Admin |
-| DELETE | `/api/events/remove-sport-from-event` | `{association_id*}` | 204 | Admin, Super Admin |
-| POST | `/api/events/add-org-to-sport` | `{events_id*, sports_id*, org_id*}` | `SportsEventOrgPublic{id, events_id, sports_id, organization_id, created_at}` | Admin, Super Admin |
-| DELETE | `/api/events/delete-event-sport-org-link` | `{association_id*}` | 204 | Admin, Super Admin |
-| DELETE | `/api/events/remove-org-completely-from-event` | `{event_id*, org_id*}` | 204 | Admin, Super Admin |
-| GET | `/api/events/{event_id}/sports` | — | `[SportsEventPublic]` | All authenticated |
-| GET | `/api/events/{event_id}/organizations` | — | `[EventOrgNamesPublic{organization_id, organization_name}]` | All authenticated |
-| GET | `/api/events/{event_id}/sports/{sport_id}/orgs` | — | `[SportEventOrgOnly{id, organization_id, organization_name, created_at}]` | All authenticated |
-| GET | `/api/events/{event_id}/sports/{sport_id}/categories` | — | `[CategoryPublic{id, sport_name, category, gender, created_at}]` | All authenticated |
-
-**eventType enum values (Khmer strings):**
-- កីឡាជាតិ
-- កីឡាអ៊ុតស្មើនិងមធ្យមសិក្សាបន្ថែកជាតិថ្នាក់ជាតិ
-- សិស្សមធ្យមសិក្សា​ថ្នាក់ជាតិ
-- កីឡាសិស្សបឋមសិក្សាជាតិ
-
----
-
-## SPORTS
-
-| Method | Path | Request | Response | Roles |
-|--------|------|---------|----------|-------|
-| GET | `/api/sports/` | — | `SportsPublic{data[SportPublic], count}` | All authenticated |
-| POST | `/api/sports/` | `{name_kh*, sport_type*}` | `SportPublic{id, name_kh, sport_type, created_at}` | Admin, Super Admin |
-| GET | `/api/sports/{sport_id}` | — | `SportPublic` | All authenticated |
-| POST | `/api/sports/category` | `{sport_id*, event_id*, category_name*, gender*(MALE\|FEMALE)}` | `CategoryPublic{id, sport_name, category, gender, created_at}` | Admin, Super Admin |
-| PATCH | `/api/sports/category` | `{category_id*, category_name*}` | `CategoryPublic` | Admin, Super Admin |
-| DELETE | `/api/sports/category` | `{category_id*}` | 204 | Admin, Super Admin |
-| GET | `/api/sports/category/{category_id}` | — | `CategoryPublic` | All authenticated |
-
----
-
-## ORGANIZATION
-
-| Method | Path | Request | Response | Roles |
-|--------|------|---------|----------|-------|
-| GET | `/api/organization/` | — | `OrganizationsPublic{data[OrganizationPublic], count}` | Admin, Super Admin |
-| POST | `/api/organization/` | `{name_kh*, type*(province\|ministry), code?}` | `OrganizationPublic{id, name_kh, type, code, created_at}` | Admin, Super Admin |
-| GET | `/api/organization/{org_id}` | — | `OrganizationPublic` | All authenticated |
-| PATCH | `/api/organization/update` | `{org_id*, data{name_kh?, type?, code?}}` | `OrganizationPublic` | Admin, Super Admin |
-| DELETE | `/api/organization/delete` | `{org_id*}` | 204 | Admin, Super Admin |
+| `POST` | `/api/auth/login` | `LoginRequest` | `TokenPair` | Accepts username + password |
+| `POST` | `/api/auth/refresh` | — (cookie/header) | `TokenPair` | Rotates access token |
+| `GET` | `/api/auth/session/{user_id}` | — | `UserPublic` | Fetch current session user |
 
 ---
 
 ## USERS
 
-| Method | Path | Request | Response | Roles |
+| Method | Path | Request | Response | Notes |
 |--------|------|---------|----------|-------|
-| GET | `/api/users/` | — | `UsersPublic{data[UserPublic], count}` | Admin, Super Admin |
-| POST | `/api/users/` | `{kh_family_name*, kh_given_name*, en_family_name*, en_given_name*, email*, username*, role?, photo_path?}` | `UserPublic{id, kh_family_name, kh_given_name, en_family_name, en_given_name, email, username, role}` | Admin, Super Admin |
-| GET | `/api/users/{user_id}` | — | `UserPublic` | Admin, Super Admin |
-| PATCH | `/api/users/update` | `{user_id*, data{kh_family_name?, kh_given_name?, en_family_name?, en_given_name?, email?, username?, role?, photo_path?}}` | `UserPublic` | Admin, Super Admin |
-| DELETE | `/api/users/delete` | `{user_id*}` | `{message}` | Admin, Super Admin |
+| `GET` | `/api/users/` | — | `UsersPublic` | List all users |
+| `POST` | `/api/users/` | `UserCreate` | `UserPublic` | Create user |
+| `GET` | `/api/users/{user_id}` | — | `UserPublic` | Get single user |
+| `PATCH` | `/api/users/update` | `UserUpdateBody` | `UserPublic` | Update user |
+| `DELETE` | `/api/users/delete` | `UserDeleteBody` | — | Delete user |
 
 ---
 
-## PARTICIPATION-PER-SPORT
+## EVENTS
 
-> Appears to serve as the **survey headcount submission** feature. Federations/organizations submit participant counts per sport per event.
-
-| Method | Path | Request | Response | Roles |
+| Method | Path | Request | Response | Notes |
 |--------|------|---------|----------|-------|
-| GET | `/api/participation-per-sport/` | — | `ParticipationPerSportPublicList{data[], count}` | Admin, Federation, Organization |
-| POST | `/api/participation-per-sport/` | `{org_id*, events_id*, sports_id*, organization_id*, athlete_female_count?, leader_female_count?, athlete_male_count?, leader_male_count?}` | `ParticipationPerSportPublic{id, org_id, org_name, event_name, sports_Events_id, athlete_female_count, leader_female_count, athlete_male_count, leader_male_count}` | Federation, Organization |
-| GET | `/api/participation-per-sport/{id}` | — | `ParticipationPerSportPublic` | Admin, Federation, Organization |
-| PATCH | `/api/participation-per-sport/{id}` | `{org_id?, events_id?, sports_id?, organization_id?, athlete_female_count?, leader_female_count?, athlete_male_count?, leader_male_count?}` | `ParticipationPerSportPublic` | Federation, Organization |
-| DELETE | `/api/participation-per-sport/{id}` | — | `ParticipationPerSportPublic` | Admin, Super Admin |
+| `GET` | `/api/events/` | — | `EventsPublic` | List events |
+| `POST` | `/api/events/` | `EventCreate` | `EventPublic` | Create event |
+| `GET` | `/api/events/{event_id}` | — | `EventPublic` | Get event detail |
+| `PATCH` | `/api/events/{event_id}` | `EventUpdate` | `EventPublic` | Update event |
+| `DELETE` | `/api/events/delete` | `DeleteEventBody` | — | Delete event |
+| `POST` | `/api/events/add-sport` | `SportsEventCreate` | `SportsEventPublic` | Attach sport to event |
+| `DELETE` | `/api/events/remove-sport-from-event` | `RemoveSportFromEventBody` | — | Detach sport from event |
+| `POST` | `/api/events/add-org-to-sport` | `EventSportOrgLink` | `SportsEventOrgPublic` | Link org to event+sport |
+| `DELETE` | `/api/events/delete-event-sport-org-link` | `DeleteEventSportOrgLinkBody` | — | Unlink org from event+sport |
+| `DELETE` | `/api/events/remove-org-completely-from-event` | `RemoveOrgCompletelyFromEventBody` | — | Remove org from all sports in event |
+| `GET` | `/api/events/{event_id}/sports` | — | `[SportsEventPublic]` | List sports attached to event |
+| `GET` | `/api/events/{event_id}/organizations` | — | `[EventOrgNamesPublic]` | List orgs in event |
+| `GET` | `/api/events/{event_id}/sports/{sport_id}/categories` | — | `[CategoryPublic]` | Categories for a sport in event |
+| `GET` | `/api/events/{event_id}/sports/{sport_id}/orgs` | — | `[SportEventOrgOnly]` | Orgs for a sport in event |
 
 ---
 
-## REGISTRATION
+## SPORTS
 
-> Handles participant registration (athletes and leaders) for events. Request body is a flexible object — schema inferred from provided examples.
-
-| Method | Path | Request | Response | Roles |
+| Method | Path | Request | Response | Notes |
 |--------|------|---------|----------|-------|
-| GET | `/api/registration/` | — | `[ParticipantPublic]` | Admin, Federation, Organization |
-| POST | `/api/registration/` | See athlete/leader examples below | `ParticipantPublic` | Federation, Organization |
-| GET | `/api/registration/{enroll_id}` | — | `ParticipantPublic` | Admin, Federation, Organization |
-| PATCH | `/api/registration/update` | `{enroll_id*, role*(athlete\|leader), data{kh_family_name?, kh_given_name?, ...}}` | `ParticipantPublic` | Federation, Organization |
-| DELETE | `/api/registration/delete` | `{enroll_id*}` | 204 | Admin, Federation, Organization |
-
-**Athlete registration payload:**
-```json
-{
-  "eventId": 11, "organizationId": 5, "sportId": 1, "categoryId": 22,
-  "lastNameKhmer": "...", "firstNameKhmer": "...", "lastNameLatin": "Sok", "firstNameLatin": "Sabbay",
-  "gender": "Male", "dateOfBirth": "2005-05-20", "phone": "012345678",
-  "idDocType": "IDCard",
-  "photoUrl": "...", "nationalityDocumentUrl": "...", "birthCertificateUrl": "...",
-  "nationalIdUrl": "...", "passportUrl": "...",
-  "role": "Athlete"
-}
-```
-
-**Leader/Coach registration payload:**
-```json
-{
-  "eventId": 11, "organizationId": 5, "sportId": 1,
-  "lastNameKhmer": "...", "firstNameKhmer": "...", "lastNameLatin": "Chan", "firstNameLatin": "Dara",
-  "gender": "Male", "dateOfBirth": "1985-10-15", "phone": "099888777",
-  "idDocType": "Passport",
-  "photoUrl": "...", "nationalityDocumentUrl": "...", "birthCertificateUrl": "...",
-  "nationalIdUrl": "...", "passportUrl": "...",
-  "role": "leader", "leaderRole": "coach"
-}
-```
+| `GET` | `/api/sports/` | — | `SportsPublic` | List all sports |
+| `POST` | `/api/sports/` | `SportCreate` | `SportPublic` | Create sport |
+| `GET` | `/api/sports/{sport_id}` | — | `SportPublic` | Get sport detail |
+| `POST` | `/api/sports/category` | `AddCategoryBody` | `CategoryPublic` | Add category to sport |
+| `PATCH` | `/api/sports/category` | `UpdateCategoryBody` | `CategoryPublic` | Update category |
+| `DELETE` | `/api/sports/category` | `DeleteCategoryBody` | — | Delete category |
+| `GET` | `/api/sports/category/{category_id}` | — | `CategoryPublic` | Get category by ID |
 
 ---
 
-## CARD
+## ORGANIZATIONS
 
-> Out of scope for the main sprint. Lowest priority.
-
-| Method | Path | Request | Response | Roles |
+| Method | Path | Request | Response | Notes |
 |--------|------|---------|----------|-------|
-| GET | `/api/card/{p_id}/{org_id}/{event_id}` | — | `CardResponse{id, name, gender, sport, role, org_name, card_type, profile_image}` | Admin, Federation |
-| GET | `/api/cards/{org_id}/{event_id}` | — | `PaginatedCardsResponse{cards[], total}` | Admin, Federation |
+| `GET` | `/api/organization/` | — | `OrganizationsPublic` | List organizations |
+| `POST` | `/api/organization/` | `OrganizationCreate` | `OrganizationPublic` | Create organization |
+| `GET` | `/api/organization/{org_id}` | — | `OrganizationPublic` | Get organization detail |
+| `PATCH` | `/api/organization/update` | `OrganizationUpdateBody` | `OrganizationPublic` | Update organization |
+| `DELETE` | `/api/organization/delete` | `OrganizationDeleteBody` | — | Delete organization |
 
 ---
 
-## EXCEL (Reports)
+## SURVEY / PARTICIPATION-PER-SPORT
 
-> These appear to be the report-generation endpoints, though only 2 of the 8 planned Khmer reports are present.
+> This domain covers the "survey" flow — federations reporting participation counts per sport.
 
-| Method | Path | Request | Response | Roles |
+| Method | Path | Request | Response | Notes |
 |--------|------|---------|----------|-------|
-| GET | `/api/excel/org-sport` | query params TBD | `OrgSportParticipantFullResponse{org_name, event_name, data[]}` | Admin, Super Admin |
-| GET | `/api/excel/org-sport-participant` | query params TBD | `OrgSportParticipantExcelResponse{org_name, event_name, data[]}` | Admin, Super Admin |
+| `GET` | `/api/participation-per-sport/` | — | `ParticipationPerSportPublicList` | List survey entries |
+| `POST` | `/api/participation-per-sport/` | `ParticipationPerSportCreate` | `ParticipationPerSportPublic` | Submit survey entry |
+| `GET` | `/api/participation-per-sport/{id}` | — | `ParticipationPerSportPublic` | Get single entry |
+| `PATCH` | `/api/participation-per-sport/{id}` | `ParticipationPerSportUpdate` | `ParticipationPerSportPublic` | Update entry |
+| `DELETE` | `/api/participation-per-sport/{id}` | — | `ParticipationPerSportPublic` | Delete entry |
 
 ---
 
-## CLOUDINARY
+## REGISTRATIONS (Participants)
 
-| Method | Path | Request | Response | Roles |
+| Method | Path | Request | Response | Notes |
 |--------|------|---------|----------|-------|
-| GET | `/api/cloudinary/presign-url` | — | `PresignUrlResponse{signature, timestamp, folder, public_id, cloud_name, api_key}` | authenticated |
+| `GET` | `/api/registration/` | — | — | List participants |
+| `POST` | `/api/registration/` | (multipart body) | — | Register participant (with documents) |
+| `GET` | `/api/registration/{enroll_id}` | — | — | Get participant detail |
+| `PATCH` | `/api/registration/update` | `ParticipantUpdateBody` | — | Update participant |
+| `DELETE` | `/api/registration/delete` | `ParticipantDeleteBody` | — | Delete participant |
 
 ---
 
-## MAINTENANCE (Dev-only)
+## REPORTS (Excel)
 
-| Method | Path | Request | Response | Roles |
+| Method | Path | Request | Response | Notes |
 |--------|------|---------|----------|-------|
-| POST | `/api/maintenance/drop` | — | — | Super Admin (dev only) |
-| POST | `/api/maintenance/sync-schema` | — | — | Super Admin (dev only) |
+| `GET` | `/api/excel/org-sport` | — | `OrgSportParticipantFullResponse` | Full participant detail per org+sport |
+| `GET` | `/api/excel/org-sport-participant` | — | `OrgSportParticipantExcelResponse` | Participant counts per org+sport |
+
+---
+
+## CARDS
+
+| Method | Path | Request | Response | Notes |
+|--------|------|---------|----------|-------|
+| `GET` | `/api/card/{p_id}/{org_id}/{event_id}` | — | `CardResponse` | Get single participant card |
+| `GET` | `/api/cards/{org_id}/{event_id}` | — | `PaginatedCardsResponse` | List cards for org in event |
+
+---
+
+## DASHBOARD
+
+| Method | Path | Request | Response | Notes |
+|--------|------|---------|----------|-------|
+| `GET` | `/api/dashboard` | — | `DashboardResponse` | System-wide stats |
+
+---
+
+## UPLOADS
+
+| Method | Path | Request | Response | Notes |
+|--------|------|---------|----------|-------|
+| `GET` | `/api/cloudinary/presign-url` | — | `PresignUrlResponse` | Get Cloudinary presigned upload URL |
+
+---
+
+## MAINTENANCE ⚠️
+
+> **Dangerous — do not expose to any frontend role.**
+
+| Method | Path | Request | Response | Notes |
+|--------|------|---------|----------|-------|
+| `POST` | `/api/maintenance/drop` | — | — | Drops entire DB schema |
+| `POST` | `/api/maintenance/sync-schema` | — | — | Syncs DB schema |
 
 ---
 
 ## ROOT
 
-| Method | Path | Request | Response | Roles |
+| Method | Path | Request | Response | Notes |
 |--------|------|---------|----------|-------|
-| GET | `/api/root/` | — | — | public (health check) |
+| `GET` | `/api/root/` | — | — | Health check / root response |
 
 ---
 
 ## Summary
 
-### Endpoint domains found (12)
-1. **auth** — 3 endpoints
-2. **dashboard** — 1 endpoint
-3. **events** — 14 endpoints
-4. **sports** — 7 endpoints
-5. **organization** — 5 endpoints
-6. **users** — 5 endpoints
-7. **participation-per-sport** — 5 endpoints (likely the survey/headcount module)
-8. **registration** — 5 endpoints (participant registration: athletes + leaders)
-9. **card** — 2 endpoints (out of scope)
-10. **excel** — 2 endpoints (partial reports)
-11. **cloudinary** — 1 endpoint
-12. **maintenance** — 2 endpoints (dev-only)
-13. **root** — 1 endpoint
+**Total: 53 endpoint methods across 42 paths**
 
-**Total: 53 endpoints across 13 domains**
-
----
-
-## Gaps — expected by master plan but MISSING on backend
-
-| Feature | Expected | Status |
-|---------|---------|--------|
-| **Survey system** | 3 survey types (by-sport / by-number / by-category) with FSM (DRAFT → SUBMITTED → APPROVED / REJECTED / FLAGGED → REVISION_REQUESTED) | ❌ Missing — `participation-per-sport` handles headcount submission but has no FSM, no status field, no approval workflow |
-| **Survey review/submissions** | Admin endpoint to list surveys, approve/reject/flag/request revision | ❌ Missing — no submission review queue |
-| **RBAC on OpenAPI** | Endpoints decorated with required roles in the OpenAPI security spec | ❌ Missing — all endpoints show as `public`; roles enforced via middleware only |
-| **Reports (8 Khmer)** | 8 named report endpoints (RPT-SPORT-LIST, RPT-DELEGATION, RPT-NUMBER-LIST, RPT-ALBUM, RPT-ROSTER-ALL, RPT-LEADER-ALL, RPT-COACH-ATHLETE, RPT-DELEGATION-LEADERS) | ❌ Only 2 excel endpoints exist; 6 of 8 reports missing |
-| **Organizers module** | Separate organizer management (leader/coach/asst-coach/staff) via organization | ❌ Not found as distinct domain — may be folded into registration (role=leader + leaderRole) |
-| **Participation module** | Organization registers organizers separately from federation registering athletes | ⚠️ Unclear — registration endpoint handles both via `role` field but no separate route |
-| **Password management** | Change password, reset password endpoints | ❌ Missing from auth domain |
-| **Pagination/filtering params** | Query params for list endpoints (page, limit, search, filter by event/org) | ⚠️ Not documented in OpenAPI — may exist as undocumented query params |
+### Domains found
+1. `auth` — 3 endpoints
+2. `users` — 5 endpoints
+3. `events` — 14 endpoints
+4. `sports` — 7 endpoints
+5. `organizations` — 5 endpoints
+6. `survey/participation-per-sport` — 5 endpoints
+7. `registrations` — 5 endpoints
+8. `reports/excel` — 2 endpoints
+9. `cards` — 2 endpoints
+10. `dashboard` — 1 endpoint
+11. `uploads/cloudinary` — 1 endpoint
+12. `maintenance` — 2 endpoints ⚠️
+13. `root` — 1 endpoint
 
 ---
 
-## Extras — on backend but not in master plan
+## Gap Analysis
 
-| Endpoint | Note |
-|---------|------|
-| `/api/cloudinary/presign-url` | Useful for photo/document uploads in registration flow — use this |
-| `/api/maintenance/*` | Dev-only schema management — do not expose in frontend |
-| `/api/root/` | Health check — use in deploy readiness checks |
-| `/api/events/add-org-to-sport` | Richer than expected — admins can link specific orgs to specific sports within an event |
-| `/api/events/remove-org-completely-from-event` | Bulk unlink — not in master plan but should be surfaced in the events module |
+### Expected by master plan but MISSING on backend
+
+These are endpoints or capabilities the master plan requires that have no backend equivalent:
+
+| Expected capability | Master plan reference | Gap notes |
+|--------------------|-----------------------|-----------|
+| Survey FSM transitions: `DRAFT → SUBMITTED → APPROVED / REJECTED / FLAGGED → REVISION_REQUESTED` | Red Lines #5, Scenario 6 | No status transition endpoints exist. `/api/participation-per-sport/{id}` has PATCH (which may accept `status`) but dedicated FSM endpoints (`/approve`, `/reject`, `/flag`) are absent |
+| Submission review queue (admin reviews federation surveys) | Module 9 — `submissions` | No dedicated submissions/review endpoint; the review flow would need to go through `participation-per-sport` PATCH — semantics unclear |
+| Event status transitions (DRAFT → PUBLISHED etc.) | Scenario 1 | `PATCH /api/events/{event_id}` exists but no dedicated publish/unpublish endpoint; status via PATCH body may violate Red Line #5 |
+| Per-sport quota enforcement | Scenario 1 ("quotas") | `SportsEventCreate` request shape may carry quota — needs verification in `api.types.ts` |
+| Federation-scoped list filtering (`federation_id` param) | Red Line #6 | List endpoints (`/api/registration/`, `/api/participation-per-sport/`, `/api/events/`) show no query param filtering in spec; needs confirmation from teammate |
+| Organization-scoped list filtering (`org_id` param) | Red Line #6 | Same concern as above |
+| Document upload association to participant | Scenario 7 | `/api/registration/` POST body type is `(body)` — unclear if document upload (Cloudinary URL) is part of this body or separate |
+| User role management / role assignment | Module 4 — `users` | `UserCreate`/`UserUpdateBody` shapes need to confirm they carry a `role` field — check `api.types.ts` |
+| Pagination params on list endpoints | Conventions — server-side pagination | No `page`/`limit` query params visible in spec for most list endpoints — needs confirmation |
+| Reports: 6 of 8 Khmer reports | Module 12 — `reports` | Only 2 Excel endpoints exist; RPT-ALBUM, RPT-ROSTER-ALL, RPT-LEADER-ALL, RPT-COACH-ATHLETE, RPT-DELEGATION, RPT-DELEGATION-LEADERS, RPT-SPORT-LIST, RPT-NUMBER-LIST are all absent or unmapped |
+
+### On backend but NOT mentioned in master plan (potential extras)
+
+| Endpoint | Notes |
+|----------|-------|
+| `POST /api/maintenance/drop` | Drops the entire DB — must never be reachable from frontend |
+| `POST /api/maintenance/sync-schema` | Dev-only DDL sync — must never be reachable from frontend |
+| `GET /api/root/` | Health check — useful for monitoring, not a frontend feature |
+| `GET /api/cloudinary/presign-url` | Not in master plan explicitly, but needed for document upload (Scenario 7) — treat as implicit dependency |
+| `DELETE /api/participation-per-sport/{id}` | Master plan doesn't describe deleting survey entries — clarify with teammate whether this is admin-only |
+| `DELETE /api/events/remove-org-completely-from-event` | Powerful bulk delete — verify RBAC: Admin-only |
