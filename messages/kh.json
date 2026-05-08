@@ -525,5 +525,37 @@
     "validation": {
       "nonNegative": "ចំនួនត្រូវតែ ០ ឬច្រើនជាង"
     }
+  },
+  "submissions": {
+    "title": "ការពិនិត្យការស្ទង់មតិ",
+    "description": "ពិនិត្យ និងដំណើរការការដាក់ស្នើរបស់សហព័ន្ធ",
+    "backToList": "ត្រឡប់ទៅបញ្ជី",
+    "noSubmissions": "មិនទាន់មានការដាក់ស្នើ",
+    "detailTitle": "ព័ត៌មានលម្អិតការដាក់ស្នើ",
+    "org": "អង្គការ",
+    "event": "ព្រឹត្តិការណ៍",
+    "sportId": "លេខសម្គាល់កីឡា",
+    "submittedAt": "ដាក់ស្នើនៅ",
+    "counts": "ចំនួន",
+    "athleteMale": "អត្តពលករ (ប)",
+    "athleteFemale": "អត្តពលករ (ស្រ)",
+    "leaderMale": "អ្នកដឹកនាំ (ប)",
+    "leaderFemale": "អ្នកដឹកនាំ (ស្រ)",
+    "fsmGapTitle": "FSM Transitions មិនទាន់ត្រៀម",
+    "fsmGapDetail": "Backend ត្រូវការបន្ថែម endpoint: /approve, /reject, /flag, និង status field នៅក្នុង ParticipationPerSportPublic",
+    "approve": "អនុម័ត",
+    "reject": "បដិសេធ",
+    "flag": "ដាក់ទង់",
+    "actionUnavailable": "ត្រូវការ Backend ថ្មី",
+    "columns": {
+      "org": "អង្គការ",
+      "event": "ព្រឹត្តិការណ៍",
+      "athleteM": "អត្តពលករ (ប)",
+      "athleteF": "អត្តពលករ (ស្រ)",
+      "leaderM": "អ្នកដឹកនាំ (ប)",
+      "leaderF": "អ្នកដឹកនាំ (ស្រ)",
+      "submittedAt": "ថ្ងៃដាក់ស្នើ",
+      "actions": "សកម្មភាព"
+    }
   }
 }

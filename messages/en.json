@@ -525,5 +525,37 @@
     "validation": {
       "nonNegative": "Count must be 0 or greater"
     }
+  },
+  "submissions": {
+    "title": "Survey Review Queue",
+    "description": "Review and process federation survey submissions",
+    "backToList": "Back to Submissions",
+    "noSubmissions": "No submissions yet",
+    "detailTitle": "Submission Detail",
+    "org": "Organization",
+    "event": "Event",
+    "sportId": "Sport ID",
+    "submittedAt": "Submitted At",
+    "counts": "Counts",
+    "athleteMale": "Athletes (M)",
+    "athleteFemale": "Athletes (F)",
+    "leaderMale": "Leaders (M)",
+    "leaderFemale": "Leaders (F)",
+    "fsmGapTitle": "FSM Transitions Not Ready",
+    "fsmGapDetail": "Backend must add endpoints: /approve, /reject, /flag, and a status field on ParticipationPerSportPublic",
+    "approve": "Approve",
+    "reject": "Reject",
+    "flag": "Flag",
+    "actionUnavailable": "Backend required",
+    "columns": {
+      "org": "Organization",
+      "event": "Event",
+      "athleteM": "Athletes (M)",
+      "athleteF": "Athletes (F)",
+      "leaderM": "Leaders (M)",
+      "leaderF": "Leaders (F)",
+      "submittedAt": "Submitted At",
+      "actions": "Actions"
+    }
   }
 }
