@@ -250,18 +250,38 @@
     "role": "តួនាទី",
     "orgIdOptional": "លេខសម្គាល់អង្គការ (មិនចាំបាច់)",
     "deleteConfirm": "តើអ្នកពិតជាចង់លុបអ្នកប្រើប្រាស់នេះ?",
+    "khFamilyName": "នាមត្រកូល (ខ្មែរ)",
+    "khGivenName": "ឈ្មោះ (ខ្មែរ)",
+    "enFamilyName": "នាមត្រកូល (អង់គ្លេស)",
+    "enGivenName": "ឈ្មោះ (អង់គ្លេស)",
+    "isActive": "គណនីសកម្ម",
+    "passwordOptionalHint": "ទុកចំហ ប្រសិនបើមិនចង់ផ្លាស់ប្ដូរពាក្យសម្ងាត់",
+    "notFound": "រកមិនឃើញអ្នកប្រើប្រាស់",
+    "backToList": "ត្រឡប់ទៅបញ្ជីអ្នកប្រើប្រាស់",
     "roles": {
       "admin": "អ្នកគ្រប់គ្រង",
+      "user1": "សហព័ន្ធ",
+      "user2": "អង្គការ",
+      "guest": "ភ្ញៀវ",
       "organization": "អង្គការ (អ្នកប្រើ១)",
       "federation": "សហព័ន្ធ (អ្នកប្រើ២)",
-      "guest": "ភ្ញៀវ",
       "org": "អង្គការ",
       "fed": "សហព័ន្ធ"
+    },
+    "validation": {
+      "khFamilyNameRequired": "សូមបញ្ចូលនាមត្រកូលខ្មែរ",
+      "khGivenNameRequired": "សូមបញ្ចូលឈ្មោះខ្មែរ",
+      "enFamilyNameRequired": "សូមបញ្ចូលនាមត្រកូលអង់គ្លេស",
+      "enGivenNameRequired": "សូមបញ្ចូលឈ្មោះអង់គ្លេស",
+      "emailInvalid": "អ៊ីម៉ែលមិនត្រឹមត្រូវ",
+      "usernameRequired": "សូមបញ្ចូលឈ្មោះអ្នកប្រើ",
+      "passwordTooShort": "ពាក្យសម្ងាត់ត្រូវមានយ៉ាងតិច ៦ តួអក្សរ"
     },
     "columns": {
       "user": "អ្នកប្រើប្រាស់",
       "email": "អ៊ីមែល",
       "role": "តួនាទី",
+      "status": "ស្ថានភាព",
       "orgId": "លេខសម្គាល់អង្គការ"
     }
   },

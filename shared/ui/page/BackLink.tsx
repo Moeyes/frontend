@@ -1,5 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -9,8 +10,11 @@ interface BackLinkProps {
   className?: string;
 }
 
-export function BackLink({ label = 'ត្រឡប់', href, className }: BackLinkProps) {
+export function BackLink({ label, href, className }: BackLinkProps) {
+  const t = useTranslations('common');
   const router = useRouter();
+  const resolvedLabel = label ?? t('back');
+
   return (
     <button
       onClick={() => (href ? router.push(href) : router.back())}
@@ -19,8 +23,8 @@ export function BackLink({ label = 'ត្រឡប់', href, className }: Back
         className
       )}
     >
-      <ChevronLeft className="h-4 w-4" />
-      {label}
+      <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+      {resolvedLabel}
     </button>
   );
 }
