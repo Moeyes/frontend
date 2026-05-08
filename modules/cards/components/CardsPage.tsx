@@ -1,8 +1,8 @@
 'use client';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { PageHeader, QueryBoundary, PageEmptyState, Skeleton } from '@/shared/ui';
-import { useAuth } from '@/core/auth';
+import { PageHeader, QueryBoundary, PageEmptyState, Skeleton, OrgSelectorBanner } from '@/shared/ui';
+import { useAuth, useEffectiveOrgId } from '@/core/auth';
 import { useEvents } from '@/modules/events';
 import { useOrganizations } from '@/modules/organizations';
 import { useCards } from '../hooks/useCards';
@@ -19,15 +19,13 @@ function CardGridSkeleton() {
 }
 
 export function CardsPage() {
-  const t    = useTranslations('cards');
+  const t      = useTranslations('cards');
   const { user } = useAuth();
-
-  // For federation (user1): default to their own org; for admin: let them pick
-  const defaultOrgId = user?.organization_id ?? null;
-  const isAdmin      = user?.role === 'admin';
+  const effectiveOrgId = useEffectiveOrgId();
+  const isAdmin = user?.role === 'admin';
 
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
-  const [selectedOrgId,   setSelectedOrgId]   = useState<number | null>(defaultOrgId);
+  const [selectedOrgId,   setSelectedOrgId]   = useState<number | null>(effectiveOrgId);
 
   const eventsQuery = useEvents({ limit: 100 });
   const orgsQuery   = useOrganizations({ limit: 200 });
@@ -39,6 +37,8 @@ export function CardsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title={t('title')} description={t('description')} />
+
+      {!isAdmin && !effectiveOrgId && <OrgSelectorBanner onOrgSelected={setSelectedOrgId} />}
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-center">

@@ -1,5 +1,5 @@
 export {
   SurveyHomePage, BySportSurveyForm, ByNumberSurveyForm,
-  ByCategorySurveyForm, SurveyAdminTab, OrgIdGapBanner,
+  ByCategorySurveyForm, SurveyAdminTab,
 } from './components';
 export * from './hooks';

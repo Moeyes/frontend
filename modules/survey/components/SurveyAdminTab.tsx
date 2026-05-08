@@ -5,6 +5,7 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { DataTable, QueryBoundary, PageEmptyState, SectionHeader } from '@/shared/ui';
 import { formatDate } from '@/core/lib/format';
 import { useLanguage } from '@/core/i18n';
+import { useEvent } from '@/modules/events';
 import { useSurveyEntries } from '../hooks/useSurveyEntries';
 import type { SurveyEntry } from '../services/survey.service';
 
@@ -16,9 +17,11 @@ export function SurveyAdminTab({ eventId }: SurveyAdminTabProps) {
   const t = useTranslations('survey');
   const { locale } = useLanguage();
 
-  // Gap #5: no server-side event filter — fetch all and show all
-  // Once backend adds events_id filter, pass it here
-  const query = useSurveyEntries();
+  // Gap #5 workaround: fetch all entries, filter client-side by event_name.
+  // When backend adds events_id filter param, replace with: useSurveyEntries({ events_id: eventId })
+  const query      = useSurveyEntries();
+  const eventQuery = useEvent(eventId);
+  const eventName  = eventQuery.data?.name_kh ?? null;
 
   const columns = useMemo<ColumnDef<SurveyEntry>[]>(() => [
     {
@@ -64,9 +67,18 @@ export function SurveyAdminTab({ eventId }: SurveyAdminTabProps) {
         query={query}
         empty={<PageEmptyState message={t('adminNoEntries')} />}
       >
-        {(data) => (
-          <DataTable columns={columns} data={data.data} />
-        )}
+        {(data) => {
+          // Client-side filter by event_name matching this event (gap #5 workaround)
+          const filtered = eventName
+            ? data.data.filter((e) => e.event_name === eventName)
+            : data.data;
+          return (
+            <DataTable
+              columns={columns}
+              data={filtered}
+            />
+          );
+        }}
       </QueryBoundary>
     </section>
   );

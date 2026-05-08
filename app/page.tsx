@@ -1,7 +1,12 @@
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { ROUTES } from '@/core/config';
 
-// Root redirects to /login until auth is wired in Prompt 5 (foundation layer).
-// Auth context will replace this with a role-aware redirect to /dashboard.
-export default function RootPage() {
-  redirect('/login');
+// Smart redirect: authenticated users go to dashboard, unauthenticated to login.
+export default async function RootPage() {
+  const cookieStore = await cookies();
+  if (cookieStore.get('access_token')) {
+    redirect(ROUTES.dashboard);
+  }
+  redirect(ROUTES.login);
 }

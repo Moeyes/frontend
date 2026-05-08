@@ -25,3 +25,5 @@ export { PageNotFound } from './page/PageNotFound';
 export { BackLink } from './page/BackLink';
 export { ContentPanel } from './page/ContentPanel';
 export { DetailHeader } from './page/DetailHeader';
+
+export { OrgSelectorBanner } from './OrgSelectorBanner';

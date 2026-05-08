@@ -47,7 +47,12 @@
     "noDataYet": "No data yet",
     "comingSoon": "Coming soon...",
     "exportAll": "Export All",
-    "pdf": "PDF"
+    "pdf": "PDF",
+    "selectOrganization": "Select Organization",
+    "selectOrganizationRequired": "Please select your organization",
+    "orgIdMissingExplain": "This setting is persisted until the backend is updated",
+    "male": "Male",
+    "female": "Female"
   },
   "nav": {
     "appName": "National Sports Event",
@@ -541,12 +546,6 @@
       "title": "Sport Type List (RPT-SPORT-LIST)",
       "description": "Complete sport type listing"
     }
-  },
-  "bycategory": {
-    "title": "By Category",
-    "description": "View and search registrations organized by category",
-    "comingSoon": "Coming soon...",
-    "comingSoonDesc": "Category-based registration tools will live here."
   },
   "unauthorized": {
     "title": "Access Denied",

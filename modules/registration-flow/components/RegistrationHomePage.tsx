@@ -9,7 +9,7 @@ import {
 } from '@/shared/ui';
 import { formatDate } from '@/core/lib/format';
 import { useLanguage } from '@/core/i18n';
-import { useAuth } from '@/core/auth';
+import { useEffectiveOrgId } from '@/core/auth';
 import { ROUTES } from '@/core/config';
 import { useRegistrations } from '../hooks/useRegistrations';
 import { useDeleteRegistration } from '../hooks/useDeleteRegistration';
@@ -20,14 +20,15 @@ export function RegistrationHomePage() {
   const tc = useTranslations('common');
   const { locale } = useLanguage();
   const router     = useRouter();
-  const { user }   = useAuth();
 
+
+  const orgId = useEffectiveOrgId();
   const [search, setSearch]   = useState('');
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const query = useRegistrations({
     role:            'athlete',
-    organization_id: user?.organization_id ?? undefined,
+    organization_id: orgId ?? undefined,
     search:          search || undefined,
     limit:           100,
   });

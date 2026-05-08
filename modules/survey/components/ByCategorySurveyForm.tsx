@@ -7,12 +7,12 @@ import {
   PageHeader, BackLink, Card, CardContent, Button,
   QueryBoundary, PageEmptyState,
 } from '@/shared/ui';
-import { useAuth } from '@/core/auth';
+import { useEffectiveOrgId } from '@/core/auth';
 import { ROUTES } from '@/core/config';
 import { useEvent, useEventSports } from '@/modules/events';
 import { useCategories } from '@/modules/sports';
 import { useSubmitSurvey } from '../hooks/useSubmitSurvey';
-import { OrgIdGapBanner } from './OrgIdGapBanner';
+import { OrgSelectorBanner } from '@/shared/ui';
 import type { SportsEventPublic } from '@/modules/events';
 
 interface CategoryCountRow {
@@ -123,10 +123,10 @@ interface ByCategorySurveyFormProps {
 
 export function ByCategorySurveyForm({ eventId }: ByCategorySurveyFormProps) {
   const t    = useTranslations('survey');
-  const { user } = useAuth();
+  
   const eventQuery  = useEvent(eventId);
   const sportsQuery = useEventSports(eventId);
-  const organizationId = user?.organization_id ?? null;
+  const organizationId = useEffectiveOrgId();
 
   return (
     <div className="space-y-4">
@@ -141,7 +141,7 @@ export function ByCategorySurveyForm({ eventId }: ByCategorySurveyFormProps) {
         )}
       </QueryBoundary>
 
-      {!organizationId && <OrgIdGapBanner />}
+      {!organizationId && <OrgSelectorBanner />}
 
       <QueryBoundary
         query={sportsQuery}

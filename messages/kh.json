@@ -47,7 +47,12 @@
     "noDataYet": "មិនទាន់មានទិន្នន័យ",
     "comingSoon": "នឹងមកដល់ឆាប់ៗ...",
     "exportAll": "នាំចេញទាំងអស់",
-    "pdf": "PDF"
+    "pdf": "PDF",
+    "selectOrganization": "ជ្រើសរើសអង្គការ",
+    "selectOrganizationRequired": "សូមជ្រើសរើសអង្គការរបស់អ្នក",
+    "orgIdMissingExplain": "ការកំណត់នេះត្រូវបានរក្សាទុករហូតដល់ Backend ត្រូវបានដំឡើង",
+    "male": "ប្រុស",
+    "female": "ស្រី"
   },
   "nav": {
     "appName": "ព្រឹត្តិការណ៍កីឡាជាតិ",
@@ -541,12 +546,6 @@
       "title": "ចុះប្រភេទកីឡា",
       "description": "បញ្ជីប្រភេទកីឡាពេញលេញ"
     }
-  },
-  "bycategory": {
-    "title": "តាមប្រភេទ",
-    "description": "មើល និងស្វែងរកការចុះឈ្មោះដែលរៀបចំតាមប្រភេទ",
-    "comingSoon": "នឹងមកដល់ឆាប់ៗ...",
-    "comingSoonDesc": "ឧបករណ៍ចុះឈ្មោះតាមប្រភេទនឹងមាននៅទីនេះ។"
   },
   "unauthorized": {
     "title": "ការចូលប្រើត្រូវបានបដិសេធ",

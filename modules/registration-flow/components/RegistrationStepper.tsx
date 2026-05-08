@@ -3,9 +3,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { AlertTriangle } from 'lucide-react';
-import { PageHeader, BackLink, StepIndicator } from '@/shared/ui';
-import { useAuth } from '@/core/auth';
+import { PageHeader, BackLink, StepIndicator, OrgSelectorBanner } from '@/shared/ui';
+import { useEffectiveOrgId } from '@/core/auth';
 import { ROUTES } from '@/core/config';
 import { useCreateRegistration } from '../hooks/useCreateRegistration';
 import { EventSportStep }   from './EventSportStep';
@@ -23,9 +22,9 @@ const STEPS: { key: RegistrationStep; label: string }[] = [
 ];
 
 export function RegistrationStepper() {
-  const t       = useTranslations('registration');
-  const { user } = useAuth();
-  const router  = useRouter();
+  const t             = useTranslations('registration');
+  const router        = useRouter();
+  const organizationId = useEffectiveOrgId();
   const mutation = useCreateRegistration();
 
   const steps = [
@@ -59,7 +58,6 @@ export function RegistrationStepper() {
 
   const handleSubmit = () => {
     const { eventSport, personalInfo, documents } = formState;
-    const organizationId = user?.organization_id ?? null;
 
     mutation.mutate({
       ...personalInfo,
@@ -86,12 +84,7 @@ export function RegistrationStepper() {
       <BackLink href={ROUTES.register.home} label={t('backToList')} />
       <PageHeader title={t('createTitle')} />
 
-      {!user?.organization_id && (
-        <div className="flex items-start gap-2 rounded-md border border-yellow-400 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
-          <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
-          {t('orgIdMissing')}
-        </div>
-      )}
+      {!organizationId && <OrgSelectorBanner onOrgSelected={() => {}} />}
 
       <StepIndicator steps={steps} currentStep={currentStep} />
 

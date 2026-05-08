@@ -4,11 +4,11 @@ import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { PageHeader, BackLink, Card, CardContent, Button, QueryBoundary } from '@/shared/ui';
-import { useAuth } from '@/core/auth';
+import { useEffectiveOrgId } from '@/core/auth';
 import { ROUTES } from '@/core/config';
 import { useEvent, useEventSports } from '@/modules/events';
 import { useSubmitSurvey } from '../hooks/useSubmitSurvey';
-import { OrgIdGapBanner } from './OrgIdGapBanner';
+import { OrgSelectorBanner } from '@/shared/ui';
 
 interface ByNumberSurveyFormProps {
   eventId: number;
@@ -17,13 +17,11 @@ interface ByNumberSurveyFormProps {
 export function ByNumberSurveyForm({ eventId }: ByNumberSurveyFormProps) {
   const t    = useTranslations('survey');
   const tc   = useTranslations('common');
-  const { user } = useAuth();
-
   const eventQuery  = useEvent(eventId);
   const sportsQuery = useEventSports(eventId);
   const mutation    = useSubmitSurvey();
 
-  const organizationId = user?.organization_id ?? null;
+  const organizationId = useEffectiveOrgId();
 
   const [counts, setCounts] = useState({
     athlete_male_count:   0,
@@ -65,7 +63,7 @@ export function ByNumberSurveyForm({ eventId }: ByNumberSurveyFormProps) {
         )}
       </QueryBoundary>
 
-      {!organizationId && <OrgIdGapBanner />}
+      {!organizationId && <OrgSelectorBanner />}
 
       <Card>
         <CardContent className="pt-5 space-y-4">

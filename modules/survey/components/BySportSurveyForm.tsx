@@ -7,12 +7,12 @@ import {
   PageHeader, BackLink, Card, CardContent, Button,
   QueryBoundary, PageEmptyState, Badge, Skeleton,
 } from '@/shared/ui';
-import { useAuth } from '@/core/auth';
+import { useEffectiveOrgId } from '@/core/auth';
 import { ROUTES } from '@/core/config';
 import { useEvent, useEventSports } from '@/modules/events';
 import { useSurveyEntries } from '../hooks/useSurveyEntries';
 import { useSubmitSurvey, useUpdateSurveyEntry } from '../hooks/useSubmitSurvey';
-import { OrgIdGapBanner } from './OrgIdGapBanner';
+import { OrgSelectorBanner } from '@/shared/ui';
 import type { SportsEventPublic } from '@/modules/events';
 import type { SurveyEntry } from '../services/survey.service';
 
@@ -121,13 +121,13 @@ interface BySportSurveyFormProps {
 
 export function BySportSurveyForm({ eventId }: BySportSurveyFormProps) {
   const t    = useTranslations('survey');
-  const { user } = useAuth();
+  
 
   const eventQuery  = useEvent(eventId);
   const sportsQuery = useEventSports(eventId);
   const entriesQuery = useSurveyEntries();
 
-  const organizationId = user?.organization_id ?? null;
+  const organizationId = useEffectiveOrgId();
 
   // Client-side filter: entries for this event (gap #5 — no server-side filter)
   const eventEntries = (entriesQuery.data?.data ?? []).filter(
@@ -150,7 +150,7 @@ export function BySportSurveyForm({ eventId }: BySportSurveyFormProps) {
         )}
       </QueryBoundary>
 
-      {!organizationId && <OrgIdGapBanner />}
+      {!organizationId && <OrgSelectorBanner />}
 
       <QueryBoundary
         query={sportsQuery}
