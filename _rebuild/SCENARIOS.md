@@ -1,497 +1,672 @@
-# User Scenarios — Canonical Spec
+# SCENARIOS.md — Canonical User Journey Spec
 
-Every module rebuild references this file. Scenarios are numbered 01–10 matching the master plan.
-
-**Cross-cutting rules embedded in every scenario:**
-- All strings displayed via `t('key')` — no hardcoded strings in JSX
-- Age is computed from the **event date**, not today's date
-- Document type rule: birth certificate if age < 18 at event date; NID or passport if ≥ 18
-- All mutations send `Idempotency-Key` header (uuid v4)
-- FSM transitions are server-side only — client never mutates status locally
-- Every list shows: loading skeleton → empty state → error state with retry
-- RBAC: Federation/Org users see only their own scoped data (org_id from auth context)
-- Tokens stored in HttpOnly cookies — never localStorage
+> **This is the single source of truth for every module rebuild.**  
+> Every Prompt 6 run must read this file and verify all applicable scenarios PASS before committing.  
+> Last updated: based on `_contract/ENDPOINTS.md` + `_contract/api.types.ts` as of 2026-05-08.
 
 ---
 
-## Scenario 01 — Admin creates an event with sports and quotas
+## Cross-Cutting Rules (embedded in every scenario below)
 
-**Actor:** Admin (or Super Admin)
-
-**Precondition:**
-- User is logged in with Admin or Super Admin role
-- At least one sport exists in the system
-
-**Steps:**
-1. Navigate to `/events` — sees event list (empty state if none)
-2. Click "Create Event" button
-3. Fill form: name (Khmer), type (dropdown from `eventType` enum), description, start date, end date, location, open/close registration dates
-4. Submit → optimistic add to list → POST `/api/events/`
-5. On success: redirect to `/events/{event_id}` (event detail page)
-6. On event detail: click "Add Sport" → select from sport list → POST `/api/events/add-sport`
-7. For each sport: set per-sport quota (athlete count M/F, leader count M/F) — this maps to the participation-per-sport headcount system
-8. Optionally: link specific organizations to specific sports via POST `/api/events/add-org-to-sport`
-9. Admin reviews the event summary and considers it "published" (no publish FSM on backend — status is implicit)
-
-**Backend endpoints:**
-- `POST /api/events/` — create event
-- `GET /api/events/` — list events
-- `GET /api/events/{event_id}` — get event detail
-- `PATCH /api/events/{event_id}` — edit event fields
-- `GET /api/sports/` — populate sport picker
-- `POST /api/events/add-sport` — attach sport to event
-- `DELETE /api/events/remove-sport-from-event` — remove sport from event
-- `POST /api/events/add-org-to-sport` — link org to event+sport
-- `DELETE /api/events/delete-event-sport-org-link` — remove specific org-sport link
-- `DELETE /api/events/remove-org-completely-from-event` — remove org from all sports in event
-- `GET /api/events/{event_id}/sports` — list sports attached to event
-- `GET /api/events/{event_id}/sports/{sport_id}/orgs` — list orgs for a sport in event
-- `GET /api/organization/` — populate org picker
-
-**States required:**
-- Event list: loading skeleton (3 rows), empty ("មិនទាន់មានព្រឹត្តិការណ៍"), error with retry
-- Event detail: loading skeleton for sport list section
-- Sport picker modal: loading spinner, empty if no sports exist
-- Add org modal: loading spinner, empty if no orgs
-
-**Success criterion:**
-- Event appears in list with correct name and type
-- Sports are listed on the event detail page
-- Orgs appear under each sport
-
-**Failure modes:**
-- `name_kh` already taken → show inline validation error
-- Invalid date range (end before start) → Zod client-side validation before submit
-- Network error during POST → toast error, keep form open, allow retry
-- Sport already attached → show inline error from backend
-
-**i18n keys (sketch):**
-```
-events.create.title, events.create.name_kh, events.create.type, events.create.description,
-events.create.start_date, events.create.end_date, events.create.location,
-events.create.open_register, events.create.close_register, events.create.submit,
-events.detail.sports_section, events.detail.add_sport, events.detail.add_org,
-events.list.empty, events.list.title, events.error.create_failed,
-events.type.national, events.type.secondary, events.type.middle, events.type.primary
-```
+| Rule | Enforcement |
+|------|-------------|
+| **Khmer-first UI** | All labels, buttons, headings use `t('key')` from `messages/kh.json`. English secondary. |
+| **RBAC scoping** | `admin` sees all. `user1` (Federation) scopes by `organization_id`. `user2` (Organization) scopes by `organization_id`. Pass scope params explicitly — never rely on backend auto-filter. |
+| **Age from event date** | `computeAgeAtEvent(dob, event.start_date)` — **never** `new Date()` |
+| **Document rule** | `age < 18 at event.start_date` → `birthCertificateUrl` required. `age ≥ 18` → `nationalIdUrl` or `passportUrl` required |
+| **FSM via endpoints** | Status transitions call dedicated endpoints. Never PATCH a `status` field directly. ⚠️ See gap notes per scenario. |
+| **Idempotency** | All POST/PUT/PATCH go through `core/api/client.ts` which auto-injects `Idempotency-Key: crypto.randomUUID()`. |
+| **Loading/Empty/Error** | Every list: skeleton while loading, `PageEmptyState` when empty, `QueryBoundary` error + retry. |
+| **Optimistic updates** | Mutations update React Query cache immediately, roll back on error. |
+| **Tokens** | HttpOnly cookies only. Never localStorage. `app/api/auth/login/route.ts` sets them. |
+| **UserRole enum** | `admin` = Admin/Super Admin · `user1` = Federation · `user2` = Organization · `guest` = Organizer |
 
 ---
 
-## Scenario 02 — Admin sends a survey to federations
+## SCENARIO 01 — Admin Creates Event, Attaches Sports, Publishes
 
-**Actor:** Admin (or Super Admin)
+**Actor:** Admin (`role = 'admin'`)  
+**Module:** `events`, `sports`  
+**Week:** 3
 
-**Precondition:**
-- Event exists
-- Federations (organizations of type `province` or `ministry`) exist in the system
-- Sports are attached to the event
+### Preconditions
+- Admin is logged in
+- At least 1 sport exists in the system
+- At least 1 organization exists in the system
 
-**Steps:**
-1. Navigate to `/events/{event_id}/surveys` (or survey management page)
-2. Click "Send Survey"
-3. Select survey type: by-sport | by-number | by-category
-4. Select target federations (multi-select from org list)
-5. Confirm and send → creates survey record(s) in DRAFT/SENT state
+### Steps
+1. Admin navigates to **Events** → clicks **"បង្កើតព្រឹត្តិការណ៍"** (Create Event)
+2. Fills form:
+   - `name_kh` (required) — Khmer event name
+   - `type` (required) — dropdown from `eventType` enum (all values are Khmer strings)
+   - `description` (optional)
+   - `start_date`, `end_date`, `open_register_date`, `close_register_date`, `location` (optional)
+3. Submits → `POST /api/events/` → sees new event in list
+4. Opens event detail page → clicks **"បន្ថែមកីឡា"** (Add Sport)
+5. Selects a sport from dropdown → submits → `POST /api/events/add-sport`  
+   _(Repeat for each sport; `SportsEventCreate` takes `events_id` + `sports_id` only — **no quota field on backend**)_
+6. For each attached sport, clicks **"បន្ថែមមណ្ឌល"** (Link Organization) → selects org → `POST /api/events/add-org-to-sport`
+7. ⚠️ **GAP:** No "Publish" endpoint exists. `EventPublic` has no `status` field.  
+   **Frontend behavior:** After attaching sports, the event is considered "active." Display a status badge computed from `start_date`/`end_date` client-side (UPCOMING / ACTIVE / ENDED). Do NOT PATCH a status field. Coordinate with teammate if a publish FSM is needed.
 
-> ⚠️ **Backend gap:** No survey-send endpoint exists. `participation-per-sport` handles headcount submissions but there is no "send survey to federation" operation. This scenario's admin-initiation step may require a new backend endpoint. For now, treat "sending" as the admin creating a participation-per-sport record on behalf of a federation (pre-populating it), or the federation self-submitting without a formal survey send.
+### Backend Endpoints
+| Step | Method | Path |
+|------|--------|------|
+| Create event | `POST` | `/api/events/` |
+| List events (for nav back) | `GET` | `/api/events/` |
+| Get event detail | `GET` | `/api/events/{event_id}` |
+| List attached sports | `GET` | `/api/events/{event_id}/sports` |
+| Attach sport | `POST` | `/api/events/add-sport` |
+| Remove sport | `DELETE` | `/api/events/remove-sport-from-event` |
+| Link org to sport | `POST` | `/api/events/add-org-to-sport` |
+| Unlink org from sport | `DELETE` | `/api/events/delete-event-sport-org-link` |
+| List orgs in event | `GET` | `/api/events/{event_id}/organizations` |
+| List sports (for picker) | `GET` | `/api/sports/` |
+| List orgs (for picker) | `GET` | `/api/organization/` |
 
-**Backend endpoints (available):**
-- `GET /api/events/{event_id}/sports` — sports in event
-- `GET /api/organization/` — list federations
-- `POST /api/participation-per-sport/` — create headcount record (closest available)
+### Loading / Empty / Error States
+- Events list: skeleton (3 rows) → `PageEmptyState` with CTA "បង្កើតព្រឹត្តិការណ៍" → QueryBoundary error
+- Attached sports sub-list: skeleton → "មិនទាន់មានកីឡា" empty state → error
+- Sport picker dropdown: loading spinner → empty "មិនមានកីឡា" option → error toast
 
-**Backend endpoints (MISSING — gap for teammate):**
-- `POST /api/surveys/send` — send survey to federation(s) with type and target orgs
-- `GET /api/surveys/` — list sent surveys with status
+### Success Criterion
+- Event appears in list with correct Khmer name and type
+- Attached sports visible under event detail
+- Orgs linked to sports visible
+- All date fields formatted in Khmer locale (dd/MM/yyyy)
 
-**States required:**
-- Federation picker: loading, empty, error
-- Survey type selector: required — show error if not selected
+### Failure Modes
+| Failure | Handling |
+|---------|---------|
+| Duplicate event name | Show server error inline on `name_kh` field |
+| Sport already attached | Show toast "កីឡានេះបានភ្ជាប់រួចហើយ" |
+| Org already linked to that sport | Show toast error |
+| Network error on create | Rollback optimistic add; show retry |
+| `start_date` after `end_date` | Client-side Zod validation before submit |
 
-**Success criterion:**
-- Federations receive a survey task (visible in their dashboard)
-
-**Failure modes:**
-- No federations selected → inline validation
-- Backend error → toast with retry
-
-**i18n keys (sketch):**
-```
-survey.send.title, survey.send.type, survey.send.targets, survey.send.confirm,
-survey.type.by_sport, survey.type.by_number, survey.type.by_category,
-survey.send.success, survey.send.error
-```
-
----
-
-## Scenario 03 — Federation submits a by-sport survey response
-
-**Actor:** Federation (province/ministry org)
-
-**Precondition:**
-- Admin has sent a by-sport survey (or survey system allows self-submission)
-- Federation user is logged in; `organization_id` available in auth context
-- Event is in registration-open state
-
-**Steps:**
-1. Navigate to `/surveys` (federation view) — sees pending surveys
-2. Click on the by-sport survey for the event
-3. For each sport in the event: enter athlete count (M / F) and leader count (M / F)
-4. Review totals
-5. Submit → POST `/api/participation-per-sport/` once per sport line
-6. Status transitions to SUBMITTED (if FSM exists on backend)
-
-> ⚠️ **Backend gap:** There is no survey FSM. `participation-per-sport` accepts the headcount but has no `status` field. Submission does not trigger an admin review queue. Frontend should treat a successful POST as "submitted" visually, but the approval workflow UI will need to wait for backend implementation.
-
-**Backend endpoints:**
-- `GET /api/events/` — list events for federation
-- `GET /api/events/{event_id}/sports` — sports to fill out
-- `POST /api/participation-per-sport/` — submit headcount per sport
-- `GET /api/participation-per-sport/` — list existing submissions (to prefill form if editing)
-- `PATCH /api/participation-per-sport/{id}` — edit existing submission
-
-**States required:**
-- Sport list: loading skeleton, empty ("មិនទាន់មានកីឡា"), error
-- Per-sport rows: inline validation for negative numbers, required fields
-- Submit: disabled while pending, spinner in button
-
-**Success criterion:**
-- Each sport row saves successfully
-- Federation sees a "submitted" confirmation
-
-**Failure modes:**
-- Org not linked to sport in event → show which sports are not available to them
-- Submission already exists → PATCH instead of POST (detect on 409 or by pre-fetching)
-- Partial failure (some sports saved, some not) → show per-row status
-
-**i18n keys (sketch):**
-```
-survey.by_sport.title, survey.by_sport.sport_col, survey.by_sport.athlete_m,
-survey.by_sport.athlete_f, survey.by_sport.leader_m, survey.by_sport.leader_f,
-survey.by_sport.total, survey.by_sport.submit, survey.by_sport.success
-```
+### i18n Namespaces
+- `events.createTitle`, `events.editTitle`, `events.form.*`
+- `events.type.*` (map eventType enum values to display labels)
+- `events.sports.*`, `events.orgs.*`
+- `common.save`, `common.cancel`, `common.delete`, `common.confirmDelete`
 
 ---
 
-## Scenario 04 — Federation submits a by-number survey response
+## SCENARIO 02 — Admin Initiates Survey for Federations
 
-**Actor:** Federation
+**Actor:** Admin (`role = 'admin'`)  
+**Module:** `survey` (admin view), `events`  
+**Week:** 4
 
-**Precondition:** Same as Scenario 03, but survey type is by-number (total headcount only, not per sport)
+### Preconditions
+- An event exists with at least 1 sport attached
+- At least 1 federation (`user1`) exists and is linked to the event via `add-org-to-sport`
 
-**Steps:**
-1. Navigate to pending survey (by-number type)
-2. Enter total athlete count (M / F) and total leader count (M / F) — single set of fields
-3. Submit → POST `/api/participation-per-sport/` with a single aggregate record
+### Steps
+1. Admin opens event detail → sees **"ការស្ទង់មតិ"** (Survey) tab
+2. Admin chooses survey type: **by-sport**, **by-number**, or **by-category**  
+   _(These are frontend-only concepts — all map to `POST /api/participation-per-sport/`)_
+3. Admin sees a list of survey submissions for this event — `GET /api/participation-per-sport/?events_id={event_id}` ⚠️ (see gap below)
+4. Admin can see which federations have/haven't submitted
 
-> ⚠️ **Backend gap:** by-number vs by-sport vs by-category distinction is not modeled on the backend. The `participation-per-sport` endpoint exists but all three survey types would use the same endpoint with different data shapes. Frontend must handle the UI difference; backend stores it the same way.
+### ⚠️ Backend Gaps for This Scenario
+- No "send survey" endpoint exists. Surveys are not "dispatched" by admin — they are available to federations by virtue of being linked to the event.
+- `GET /api/participation-per-sport/` only supports `skip`/`limit` — no `events_id` filter param. **Frontend must filter client-side after fetching all entries, or teammate must add filter param.**
+- No survey `status` field — no way to know if federation has submitted (PENDING) vs not.
 
-**Backend endpoints:** Same as Scenario 03
+### Backend Endpoints
+| Step | Method | Path |
+|------|--------|------|
+| List participation entries | `GET` | `/api/participation-per-sport/` |
+| Get event detail | `GET` | `/api/events/{event_id}` |
+| List event orgs | `GET` | `/api/events/{event_id}/organizations` |
 
-**States required:** Same as Scenario 03 (simpler form — single row)
+### Loading / Empty / Error States
+- Survey list: skeleton → "មិនទាន់មានការស្ទង់មតិ" empty state → error + retry
 
-**Success criterion:** Single headcount record saved; federation sees confirmation
+### Success Criterion
+- Admin sees a table of federations for this event
+- Each row shows federation name and survey submission status (submitted count vs 0)
 
-**Failure modes:** Same as Scenario 03
+### Failure Modes
+| Failure | Handling |
+|---------|---------|
+| No orgs linked to event | Show empty state with tip to link orgs first |
+| API error on fetch | QueryBoundary error UI with retry |
 
-**i18n keys (sketch):**
-```
-survey.by_number.title, survey.by_number.total_athletes, survey.by_number.total_leaders,
-survey.by_number.athlete_m, survey.by_number.athlete_f, survey.by_number.submit
-```
-
----
-
-## Scenario 05 — Federation submits a by-category survey response
-
-**Actor:** Federation
-
-**Precondition:** Same as Scenario 03, but survey type is by-category (M/F × age band per sport category)
-
-**Steps:**
-1. Navigate to pending survey (by-category type)
-2. For each sport category in the event (from `GET /api/events/{event_id}/sports/{sport_id}/categories`):
-   - Enter male count and female count for this category
-3. Submit per-category → POST `/api/participation-per-sport/` once per category row
-
-> ⚠️ **Backend gap:** `participation-per-sport` does not have a `category_id` field — it only has aggregate counts. By-category breakdown cannot be stored with the current schema. This scenario requires a backend schema change. Frontend should display the form; submission will be approximate until backend supports it.
-
-**Backend endpoints:**
-- `GET /api/events/{event_id}/sports/{sport_id}/categories` — get categories
-- `POST /api/participation-per-sport/` — best available (no category field)
-
-**Missing backend:**
-- Category-level count storage field on participation-per-sport or a new endpoint
-
-**States required:**
-- Category list: loading, empty, error
-- Per-category inputs: required, non-negative integers
-
-**Success criterion:** All category rows submitted; federation sees confirmation
-
-**i18n keys (sketch):**
-```
-survey.by_category.title, survey.by_category.category_col, survey.by_category.male_count,
-survey.by_category.female_count, survey.by_category.submit
-```
+### i18n Namespaces
+- `survey.adminTab`, `survey.statusLabels.*`, `survey.type.*`
 
 ---
 
-## Scenario 06 — Admin reviews surveys (approve / reject / flag)
+## SCENARIO 03 — Federation Submits "By-Sport" Survey
 
-**Actor:** Admin (or Super Admin)
+**Actor:** Federation (`role = 'user1'`)  
+**Module:** `survey`  
+**Week:** 4
 
-**Precondition:** Federations have submitted survey responses (participation-per-sport records exist)
+### Preconditions
+- Federation user is logged in; `auth.organization_id` is set
+- An event exists with at least 1 sport linked to this federation's org
+- RBAC: federation can only submit for their own `organization_id`
 
-**Steps:**
-1. Navigate to `/submissions` — admin sees list of all survey submissions
-2. Filter by event, status, federation
-3. Click a submission → see detail view with submitted headcounts
-4. Choose action: Approve | Reject (with revision note) | Flag
-5. Confirm → PATCH submission status (FSM transition)
+### Steps
+1. Federation navigates to **"ការស្ទង់មតិ"** tab → sees list of events/sports to fill
+2. Selects an event → sees per-sport form rows (one row per sport the federation is linked to for that event)
+3. For each sport row, fills in:
+   - `athlete_male_count` (ចំនួនអ្នកចូលរួមប្រុស)
+   - `athlete_female_count` (ចំនួនអ្នកចូលរួមស្រី)
+   - `leader_male_count` (ចំនួនមេដឹកនាំប្រុស)
+   - `leader_female_count` (ចំនួនមេដឹកនាំស្រី)
+4. Submits each row → `POST /api/participation-per-sport/` with:
+   ```json
+   {
+     "org_id": <sports_event_org_join_id>,
+     "events_id": <event_id>,
+     "sports_id": <sport_id>,
+     "organization_id": <federation_org_id>,
+     "athlete_male_count": N,
+     "athlete_female_count": N,
+     "leader_male_count": N,
+     "leader_female_count": N
+   }
+   ```
+5. Success → row marked as submitted; counts shown
 
-> ⚠️ **Backend gap:** No FSM on `participation-per-sport`. No status field, no approve/reject endpoints. This entire scenario requires backend implementation. Frontend should build the UI against the anticipated API shape so it can be wired in when backend is ready.
+### RBAC Scoping
+- `organization_id` in request body must equal `auth.user.organization_id`
+- Never allow submitting for a different org
+- Federation sees only their own submissions: filter `GET /api/participation-per-sport/` by `organization_id` client-side (no server-side filter param available)
 
-**Anticipated backend endpoints (MISSING):**
-- `GET /api/participation-per-sport/?status=SUBMITTED&event_id=X` — filter by status
-- `PATCH /api/participation-per-sport/{id}/approve` — approve
-- `PATCH /api/participation-per-sport/{id}/reject` — reject with reason
-- `PATCH /api/participation-per-sport/{id}/flag` — flag for follow-up
+### Backend Endpoints
+| Step | Method | Path |
+|------|--------|------|
+| List existing entries | `GET` | `/api/participation-per-sport/` |
+| Submit entry | `POST` | `/api/participation-per-sport/` |
+| Update entry | `PATCH` | `/api/participation-per-sport/{id}` |
+| List event sports for this org | `GET` | `/api/events/{event_id}/sports/{sport_id}/orgs` |
+| Get event (for start_date, name) | `GET` | `/api/events/{event_id}` |
 
-**Available backend:**
-- `GET /api/participation-per-sport/` — list all (no status filter documented)
-- `PATCH /api/participation-per-sport/{id}` — update fields (can be used as workaround)
+### Loading / Empty / Error States
+- Sports form list: skeleton → "មិនទាន់មានកីឡា" if no sports linked to this federation for this event
+- Submission success: inline toast "រួចរាល់" + row status update
 
-**States required:**
-- Submission list: loading, empty, error; filter controls
-- Submission detail: loading, error
-- FSM status badge: color-coded (DRAFT=gray, SUBMITTED=blue, APPROVED=green, REJECTED=red, FLAGGED=yellow, REVISION_REQUESTED=orange)
-- Action buttons: disabled while pending
+### Success Criterion
+- All sport rows submitted
+- Each submitted row shows the entered counts
+- Federation cannot edit another federation's submission
 
-**Success criterion:**
-- Submission status updates in list immediately (optimistic)
-- Admin can see reason text for rejected submissions
+### Failure Modes
+| Failure | Handling |
+|---------|---------|
+| Negative count | Zod: `z.number().int().min(0)` — inline error |
+| Duplicate submission for same sport | Backend may reject; show field-level error "បានដាក់ស្នើរួចហើយ" |
+| Network error | Rollback optimistic update; show retry button on row |
+| Submitting for wrong org_id | Client-side guard: compare with `auth.user.organization_id` |
 
-**Failure modes:**
-- Transition not allowed by FSM → show "invalid transition" error from backend
-- Network error → rollback optimistic update, show toast
-
-**i18n keys (sketch):**
-```
-submissions.title, submissions.filter.status, submissions.filter.event,
-submissions.detail.title, submissions.action.approve, submissions.action.reject,
-submissions.action.flag, submissions.action.revision,
-submissions.status.draft, submissions.status.submitted, submissions.status.approved,
-submissions.status.rejected, submissions.status.flagged, submissions.status.revision_requested,
-submissions.reject.reason_placeholder
-```
-
----
-
-## Scenario 07 — Federation registers participants (ALONE mode)
-
-**Actor:** Federation user
-
-**Precondition:**
-- Event is in registration-open period (`open_register_date` ≤ today ≤ `close_register_date`)
-- Federation is linked to sports in the event
-- `organization_id` in auth context
-
-**Steps:**
-1. Navigate to `/register` — sees registration dashboard (by-sport quota progress)
-2. Click "Add Participant" → select sport → select category (if athlete)
-3. Fill participant form:
-   - Khmer name (family, given), Latin name (family, given)
-   - Gender (MALE / FEMALE)
-   - Date of birth
-   - Role: Athlete | Leader
-   - If Athlete: select category from sport's categories
-   - If Leader: select leaderRole (coach / asst-coach / staff)
-   - Phone
-   - ID doc type (auto-suggested based on age from event date: birth cert if <18, NID/passport if ≥18)
-   - Upload photo → GET `/api/cloudinary/presign-url` → upload direct to Cloudinary → store URL
-   - Upload ID document → same Cloudinary flow
-4. Submit → POST `/api/registration/`
-5. Participant appears in list with status
-
-**Backend endpoints:**
-- `GET /api/events/{event_id}/sports` — sports for this event
-- `GET /api/events/{event_id}/sports/{sport_id}/categories` — categories for sport
-- `GET /api/cloudinary/presign-url` — get upload credentials
-- `POST /api/registration/` — create participant record
-- `GET /api/registration/` — list participants (filtered by org_id from auth)
-- `GET /api/registration/{enroll_id}` — participant detail
-
-**Age / document rule (critical):**
-```
-age = event.start_date - participant.dateOfBirth (in years)
-if age < 18: idDocType options = ["BirthCertificate"]
-else: idDocType options = ["IDCard", "Passport"]
-```
-
-**States required:**
-- Registration list: loading, empty ("មិនទាន់មានអ្នកចុះឈ្មោះ"), error
-- Form steps: multi-step indicator (personal info → role/sport → documents → review)
-- Photo upload: progress indicator
-- Submit: disabled while uploading or pending
-
-**Success criterion:**
-- Participant appears in list with correct name, sport, role
-- Quota counter decrements (if quota tracking is in UI)
-
-**Failure modes:**
-- Quota exceeded → backend 400, show "quota full" error
-- Document upload fails → keep form open, show upload error per field
-- Required fields missing → Zod inline validation before submit
-- Network error → keep form, allow retry
-
-**i18n keys (sketch):**
-```
-registration.title, registration.add_participant, registration.form.kh_family_name,
-registration.form.kh_given_name, registration.form.en_family_name, registration.form.en_given_name,
-registration.form.gender, registration.form.dob, registration.form.role,
-registration.form.sport, registration.form.category, registration.form.leader_role,
-registration.form.phone, registration.form.id_doc_type, registration.form.photo,
-registration.form.id_doc, registration.doc_type.birth_cert, registration.doc_type.nid,
-registration.doc_type.passport, registration.submit, registration.success,
-registration.error.quota_exceeded, registration.list.empty
-```
+### i18n Namespaces
+- `survey.bySport.*`, `survey.fields.*` (athlete_male, athlete_female, leader_male, leader_female)
+- `survey.submit`, `survey.submitted`, `survey.edit`
 
 ---
 
-## Scenario 08 — Federation registers participants (TEAM mode / bulk)
+## SCENARIO 04 — Federation Submits "By-Number" Survey
 
-**Actor:** Federation user
+**Actor:** Federation (`role = 'user1'`)  
+**Module:** `survey`  
+**Week:** 4
 
-**Precondition:** Same as Scenario 07
+### Preconditions
+- Same as Scenario 03
 
-**Steps:**
-1. On registration page, switch to "Team Mode" tab
-2. Select sport → select category (if athletes)
-3. Add multiple participants in a table UI — each row = one participant
-4. For each row: name fields, gender, DOB, role, doc type
-5. Documents uploaded per participant (same Cloudinary flow)
-6. Submit all → POST `/api/registration/` called once per participant (parallel or sequential)
-7. Show per-row success/failure status
+### Steps
+1. Federation selects "by-number" survey form
+2. Fills in **total counts only** (not broken down by sport):
+   - Total athletes (M + F combined or separate)
+   - Total leaders (M + F combined or separate)
+3. Submits → `POST /api/participation-per-sport/` using totals spread across male/female fields
 
-**Backend endpoints:** Same as Scenario 07
+### ⚠️ Backend Constraint
+- No dedicated "by-number" endpoint. This scenario reuses `POST /api/participation-per-sport/`.
+- The distinction is **frontend-only**: "by-number" form collects totals and maps them to the male/female fields.
+- `sports_id` is still required. For a "by-number" form, the frontend must either:
+  - Submit one entry per sport with equal distribution (not ideal), **or**
+  - Use a special sentinel sport (needs teammate clarification)
+- **Flag to teammate:** Is there a "global" sports_id for by-number surveys, or should by-number be a single-entry survey?
 
-**States required:**
-- Table rows: add/remove row controls
-- Per-row inline validation
-- Batch submit: progress ("3 of 10 submitted"), partial failure handling
+### Backend Endpoints
+Same as Scenario 03.
 
-**Success criterion:**
-- All valid rows submitted; failed rows remain editable with error message
+### Loading / Empty / Error States
+Same as Scenario 03.
 
-**Failure modes:**
-- Row-level errors (quota, validation) shown inline per row
-- Network error → retry failed rows individually
+### Success Criterion
+- Single total-count entry submitted
+- Federation sees confirmation of total participant count
 
-**i18n keys (sketch):**
-```
-registration.team_mode.title, registration.team_mode.add_row, registration.team_mode.remove_row,
-registration.team_mode.submit_all, registration.team_mode.progress,
-registration.team_mode.row_error, registration.team_mode.row_success
-```
+### Failure Modes
+Same as Scenario 03 plus:
+| Failure | Handling |
+|---------|---------|
+| sports_id ambiguity | Show error "Please clarify sport" if no valid sports_id found |
 
----
-
-## Scenario 09 — Organization registers organizers
-
-**Actor:** Organization user (province/ministry org — distinct from federation in context)
-
-**Precondition:**
-- Organization is linked to an event
-- `organization_id` in auth context
-
-**Steps:**
-1. Navigate to `/participation` — sees organizer registration dashboard
-2. Click "Add Organizer"
-3. Fill form:
-   - Khmer name, Latin name, gender, DOB, phone
-   - Role: leader | coach | asst-coach | staff  (maps to `leaderRole` in registration endpoint)
-   - Sport (if applicable)
-   - Upload photo (Cloudinary flow)
-   - Upload ID document
-4. Submit → POST `/api/registration/` with `role: "leader"` and `leaderRole: <selected>`
-5. Organizer appears in list
-
-> **Note:** The backend `registration` endpoint handles both athletes and organizers via the `role` field. Athletes use `role: "Athlete"`, organizers use `role: "leader"` with a `leaderRole` sub-field. The frontend should present these as separate flows (Scenario 07/08 vs Scenario 09) even though they hit the same endpoint.
-
-**Backend endpoints:**
-- `GET /api/cloudinary/presign-url`
-- `POST /api/registration/` (with `role: "leader"`, `leaderRole: "coach"|"staff"|...`)
-- `GET /api/registration/` (filtered by org_id)
-- `PATCH /api/registration/update`
-- `DELETE /api/registration/delete`
-
-**States required:**
-- Organizer list: loading, empty, error
-- Form: same doc-type age rule applies
-- Submit: disabled while pending
-
-**Success criterion:** Organizer appears in list with correct role label
-
-**Failure modes:** Same as Scenario 07
-
-**i18n keys (sketch):**
-```
-participation.title, participation.add_organizer, participation.form.role,
-participation.role.leader, participation.role.coach, participation.role.asst_coach,
-participation.role.staff, participation.list.empty, participation.success
-```
+### i18n Namespaces
+- `survey.byNumber.*`
 
 ---
 
-## Scenario 10 — Admin generates the 8 Khmer reports
+## SCENARIO 05 — Federation Submits "By-Category" Survey
 
-**Actor:** Admin (or Super Admin)
+**Actor:** Federation (`role = 'user1'`)  
+**Module:** `survey`  
+**Week:** 4
 
-**Precondition:**
-- Event has participants registered and surveys approved
-- User is logged in as Admin
+### Preconditions
+- Same as Scenario 03
+- The event's sports have categories defined (`GET /api/events/{event_id}/sports/{sport_id}/categories`)
 
-**Steps:**
-1. Navigate to `/reports`
-2. Select event from dropdown
-3. See list of 8 report types, each with a "Generate" button
-4. Click "Generate" for a report type → call report endpoint → backend generates file
-5. When ready: "Download" button appears → click → follows signed URL to download file
-6. (If async generation): show spinner/progress while generating, poll or SSE for completion
+### Steps
+1. Federation selects "by-category" survey form
+2. For each sport → for each category, fills in M/F counts
+3. Category info available from `GET /api/events/{event_id}/sports/{sport_id}/categories` → `[CategoryPublic]`
+4. Submits per-category breakdowns
 
-> ⚠️ **Backend gap:** Only 2 report endpoints exist (`/api/excel/org-sport` and `/api/excel/org-sport-participant`). 6 of 8 planned Khmer reports are missing. Frontend should build the full 8-report UI; wire available endpoints; show "Coming Soon" or disabled state for missing ones.
+### ⚠️ Backend Constraint
+- `ParticipationPerSportCreate` has no `category_id` or per-category breakdown field.
+- The `AttendedCategory` schema (`category: string, gender: genderEnum`) exists in the spec but is not used in any visible endpoint request body.
+- **Gap:** No backend field for category-level participation counts. Frontend workaround: store category breakdown in a local state, aggregate to male/female totals before submission. OR confirm with teammate that `AttendedCategory` data goes somewhere.
+- **Flag to teammate:** How does by-category data get persisted? Is there a separate endpoint or a nested field we're missing?
 
-**Available backend:**
-- `GET /api/excel/org-sport` → RPT-COACH-ATHLETE (closest match: org+sport+participant data)
-- `GET /api/excel/org-sport-participant` → RPT-NUMBER-LIST (closest match: participant counts)
+### Backend Endpoints
+| Step | Method | Path |
+|------|--------|------|
+| List categories for sport | `GET` | `/api/events/{event_id}/sports/{sport_id}/categories` |
+| Submit (aggregated totals) | `POST` | `/api/participation-per-sport/` |
 
-**Missing backend (6 reports):**
-- RPT-SPORT-LIST — ចុះប្រភេទកីឡា
-- RPT-DELEGATION — តារាងទិន្នន័យក្រុមចូលរួមកីឡា
-- RPT-ALBUM — អាល់ប៊ុមប្រតិភូ
-- RPT-ROSTER-ALL — បញ្ជីរាយនាមរួម
-- RPT-LEADER-ALL — បញ្ជីថ្នាក់ដឹកនាំ
-- RPT-DELEGATION-LEADERS — បញ្ជីប្រតិភូ និងអ្នកដឹកនាំក្រុម
+### Success Criterion
+- Category breakdown displayed to user
+- Aggregated totals submitted successfully
 
-**States required:**
-- Report list: always visible (not gated on loading)
-- Per report: idle → generating (spinner) → ready (download button) → error (retry)
-- Event selector: loading, empty, error
+### i18n Namespaces
+- `survey.byCategory.*`
 
-**Success criterion:**
-- Available reports download successfully as Excel/PDF files
-- Unavailable reports show clear "not yet available" state
+---
 
-**Failure modes:**
-- Backend error during generation → show error per report card with retry
-- Signed URL expired → re-trigger generation
+## SCENARIO 06 — Admin Reviews Surveys (Approve / Reject / Flag)
 
-**i18n keys (sketch):**
+**Actor:** Admin (`role = 'admin'`)  
+**Module:** `submissions`  
+**Week:** 4
+
+### Preconditions
+- At least one federation has submitted a participation-per-sport entry
+- Admin is logged in
+
+### Steps
+1. Admin navigates to **"ការពិនិត្យ"** (Submissions / Review) page
+2. Sees list of submissions → `GET /api/participation-per-sport/` (all entries, no scoping for admin)
+3. Opens a submission to review detail → `GET /api/participation-per-sport/{id}`
+4. Chooses action:
+   - **Approve** → ideally `POST /api/participation-per-sport/{id}/approve` ⚠️ (does not exist)
+   - **Reject** → ideally `POST /api/participation-per-sport/{id}/reject` ⚠️ (does not exist)
+   - **Flag** → ideally `POST /api/participation-per-sport/{id}/flag` ⚠️ (does not exist)
+
+### ⚠️ Critical Backend Gap — FSM Transitions Missing
+- `ParticipationPerSportPublic` has **no `status` field**.
+- No FSM transition endpoints exist (`/approve`, `/reject`, `/flag`).
+- **Current workaround:** Admin can PATCH the entry via `PATCH /api/participation-per-sport/{id}` to update counts, but there is no way to record approval/rejection state.
+- **Frontend behavior until backend adds FSM:**
+  - Show submissions in a read-only review table
+  - Disable approve/reject/flag action buttons with tooltip "ត្រូវការ Backend ថ្មី"
+  - Add a note in the UI: FSM pending teammate implementation
+- **Flag to teammate:** We need `status` field on `ParticipationPerSportPublic` and dedicated transition endpoints.
+
+### Backend Endpoints
+| Step | Method | Path |
+|------|--------|------|
+| List submissions | `GET` | `/api/participation-per-sport/` |
+| Get submission detail | `GET` | `/api/participation-per-sport/{id}` |
+| Update (counts only — no status) | `PATCH` | `/api/participation-per-sport/{id}` |
+
+### Loading / Empty / Error States
+- Submissions list: skeleton → "មិនទាន់មានការដាក់ស្នើ" empty state → error
+- Review detail: skeleton → error with back button
+
+### Success Criterion (with backend gap workaround)
+- Admin can view all submissions
+- Admin can see per-sport counts submitted by each federation
+- Action buttons visible but disabled with tooltip explaining backend gap
+
+### Success Criterion (when backend adds FSM)
+- Admin can approve → submission status shows "អនុម័ត"
+- Admin can reject with reason → federation sees rejection reason
+- Admin can flag → submission goes to flagged queue
+- Transitions are irreversible except FLAGGED → can be reviewed again
+
+### Failure Modes
+| Failure | Handling |
+|---------|---------|
+| Backend returns 422 on PATCH | Show field-level error from RFC7807 |
+| Network error | Show error toast + retry |
+
+### i18n Namespaces
+- `submissions.title`, `submissions.status.*` (pending, approved, rejected, flagged)
+- `submissions.actions.*` (approve, reject, flag, reason)
+- `submissions.reviewDetail.*`
+
+---
+
+## SCENARIO 07 — Federation Registers Participants (ALONE Mode)
+
+**Actor:** Federation (`role = 'user1'`)  
+**Module:** `registration-flow`  
+**Week:** 5
+
+### Preconditions
+- Federation user is logged in; `auth.user.organization_id` is set
+- An event exists with start_date set (needed for age computation)
+- Cloudinary presign URL is available
+
+### Steps
+1. Federation navigates to **"ចុះឈ្មោះ"** (Register) → selects event → selects sport
+2. Clicks **"បន្ថែមអ្នកចូលរួម"** (Add Participant)
+3. Multi-step form:
+   - **Step 1 — Personal Info:**
+     - `kh_family_name`, `kh_given_name` (required, Khmer)
+     - `en_family_name`, `en_given_name` (required, Latin)
+     - `gender` (MALE / FEMALE from `genderEnum`)
+     - `date_of_birth` (required — drives document rule)
+     - `phone`, `address` (optional)
+   - **Step 2 — Sport/Category:**
+     - `sport_id` (from event's attached sports)
+     - `category_id` (optional, from sport's categories)
+     - `leader_role` (only if `role = 'leader'`)
+   - **Step 3 — Documents (age-gated):**
+     - Compute `age = computeAgeAtEvent(dob, event.start_date)` — **RED LINE #3**
+     - `age < 18`: **birthCertificateUrl required** (photoUrl optional)
+     - `age ≥ 18`: **nationalIdUrl OR passportUrl required** (photoUrl required)
+     - Upload flow: `GET /api/cloudinary/presign-url` → upload to Cloudinary → get URL → store in form
+   - **Step 4 — Review & Submit:**
+     - Show summary of all fields
+     - Submit → `POST /api/registration/` with JSON body inferred from `ParticipantUpdateRequest` shape:
+       ```json
+       {
+         "kh_family_name": "...", "kh_given_name": "...",
+         "en_family_name": "...", "en_given_name": "...",
+         "gender": "MALE",
+         "date_of_birth": "YYYY-MM-DD",
+         "phone": "...", "address": "...",
+         "photoUrl": "...",
+         "birthCertificateUrl": "..." (if age < 18),
+         "nationalIdUrl": "..." (if age ≥ 18),
+         "passportUrl": "..." (alternative to nationalId if ≥ 18),
+         "sport_id": N,
+         "organization_id": N,
+         "category_id": N,
+         "role": "athlete"
+       }
+       ```
+
+### RBAC Scoping
+- `organization_id` in body must equal `auth.user.organization_id`
+- Participant list query: `GET /api/registration/?role=athlete&organization_id={auth.user.organization_id}`
+- Federation cannot see registrations from other organizations
+
+### Age Rule (Red Line #3)
+```ts
+const age = computeAgeAtEvent(participant.date_of_birth, event.start_date);
+// NOT: differenceInYears(new Date(), participant.date_of_birth)
 ```
-reports.title, reports.select_event, reports.generate, reports.download,
-reports.generating, reports.ready, reports.error, reports.not_available,
-reports.rpt_sport_list, reports.rpt_delegation, reports.rpt_number_list,
-reports.rpt_album, reports.rpt_roster_all, reports.rpt_leader_all,
-reports.rpt_coach_athlete, reports.rpt_delegation_leaders
+
+### Document Rule
+```ts
+if (age < 18) {
+  required: ['birthCertificateUrl']
+  optional: ['photoUrl']
+} else {
+  required: ['photoUrl', 'nationalIdUrl OR passportUrl']
+}
 ```
+
+### Backend Endpoints
+| Step | Method | Path |
+|------|--------|------|
+| Get event (for start_date) | `GET` | `/api/events/{event_id}` |
+| List event sports | `GET` | `/api/events/{event_id}/sports` |
+| List sport categories | `GET` | `/api/events/{event_id}/sports/{sport_id}/categories` |
+| Get presign URL | `GET` | `/api/cloudinary/presign-url` |
+| Register participant | `POST` | `/api/registration/` |
+| List participants (for org) | `GET` | `/api/registration/?role=athlete&organization_id=N` |
+| Get participant detail | `GET` | `/api/registration/{enroll_id}` |
+| Update participant | `PATCH` | `/api/registration/update` |
+| Delete participant | `DELETE` | `/api/registration/delete` |
+
+### Loading / Empty / Error States
+- Participants list: skeleton → "មិនទាន់មានអ្នកចូលរួម" empty state with CTA → error
+- Upload progress: spinner on file input while uploading to Cloudinary
+- Step indicator: `StepIndicator` component showing 4 steps
+
+### Success Criterion
+- Participant appears in list after submit
+- Age rule enforced: under-18 without birth certificate cannot submit
+- Over-18 without NID/passport cannot submit
+- Organization scoping: federation can only see own participants
+
+### Failure Modes
+| Failure | Handling |
+|---------|---------|
+| Cloudinary upload fails | Show "ការផ្ទុកឯកសារបរាជ័យ" with retry on file input |
+| Missing required document | Zod validation inline before step 3 advance |
+| Backend 422 on submit | Map RFC7807 errors to form fields |
+| Age computed incorrectly | If `event.start_date` is null, show warning and block submission |
+| Duplicate registration (same person, same sport) | Show server error inline |
+
+### i18n Namespaces
+- `registration.steps.*` (personal, sport, documents, review)
+- `registration.fields.*` (all field labels in Khmer)
+- `registration.documents.*` (birthCert, nationalId, passport, photo)
+- `registration.ageWarning`, `registration.documentRule.*`
+- `registration.success`, `registration.error.*`
+
+---
+
+## SCENARIO 08 — Federation Registers Participants (TEAM Mode / Bulk)
+
+**Actor:** Federation (`role = 'user1'`)  
+**Module:** `registration-flow`  
+**Week:** 5 (team mode added W7)
+
+### Preconditions
+- Same as Scenario 07
+- Federation has a CSV/Excel roster prepared
+
+### Steps
+1. Federation opens registration → clicks **"ចុះឈ្មោះជាក្រុម"** (Register as Team)
+2. Downloads CSV template (client-generated, no backend endpoint)
+3. Fills template with multiple participants
+4. Uploads CSV → frontend parses client-side
+5. Table preview shows all rows with validation state (age-rule, document-rule per row)
+6. Rows failing validation highlighted in red; user fixes before submit
+7. Submit → loop `POST /api/registration/` for each valid row sequentially  
+   _(No batch endpoint exists; use sequential calls with individual Idempotency-Keys)_
+8. Progress bar shows N/M submissions complete
+9. Any failed rows shown with error reason; user can retry individual rows
+
+### ⚠️ Backend Gap
+- No bulk registration endpoint. Frontend must loop individual `POST /api/registration/` calls.
+- On network error mid-batch, already-submitted rows must not be resubmitted (Idempotency-Key per row, stored in session until confirmed).
+
+### Backend Endpoints
+Same as Scenario 07 (POST /api/registration/ called N times).
+
+### Failure Modes
+| Failure | Handling |
+|---------|---------|
+| CSV parse error | Show line-number errors in preview table |
+| Age/document rule fails on row | Block that row; allow submitting valid rows |
+| Partial batch failure | Show which rows succeeded, which failed; retry failed only |
+
+### i18n Namespaces
+- `registration.teamMode.*`, `registration.csvTemplate.*`, `registration.batchProgress.*`
+
+---
+
+## SCENARIO 09 — Organization Registers Organizers
+
+**Actor:** Organization (`role = 'user2'`)  
+**Module:** `participation` (organizer registration)  
+**Week:** 5–6
+
+### Preconditions
+- Organization user is logged in; `auth.user.organization_id` is set
+- An event exists
+- RBAC: organization can only register organizers under their own `organization_id`
+
+### Steps
+1. Organization navigates to **"ចុះឈ្មោះអ្នករៀបចំ"** (Register Organizer)
+2. Fills form:
+   - Same personal info fields as Scenario 07
+   - `role` = `'leader'` (from `RoleEnum`)
+   - `leader_role` = one of `['coach', 'manager', 'delegate', 'team_lead', 'coach_trainer', 'teacher_assistant']` from `LeaderRole` enum
+   - `sport_id`, `organization_id`, `category_id` (optional)
+   - Documents: same age-based document rule applies (**Red Line #3 applies here too**)
+3. Uploads photo + document → Cloudinary presign flow
+4. Submits → `POST /api/registration/` with `role: 'leader'`
+5. Success → organizer appears in list `GET /api/registration/?role=leader&organization_id=N`
+
+### RBAC Scoping
+- `GET /api/registration/?role=leader&organization_id={auth.user.organization_id}`
+- `role` query param is **required** (validated by backend)
+- `organization_id` query param scopes to this organization's organizers
+
+### Backend Endpoints
+| Step | Method | Path |
+|------|--------|------|
+| Get presign URL | `GET` | `/api/cloudinary/presign-url` |
+| Register organizer | `POST` | `/api/registration/` |
+| List organizers | `GET` | `/api/registration/?role=leader&organization_id=N` |
+| Update organizer | `PATCH` | `/api/registration/update` |
+| Delete organizer | `DELETE` | `/api/registration/delete` |
+
+### Loading / Empty / Error States
+- Organizer list: skeleton → "មិនទាន់មានអ្នករៀបចំ" empty state with CTA → error
+
+### Success Criterion
+- Organizer appears in list filtered by `role=leader` + `organization_id`
+- `leader_role` badge shown (Coach / Manager / Delegate / etc.)
+- Age/document rules enforced identically to participant registration
+- Organization cannot see organizers from other organizations
+
+### Failure Modes
+Same as Scenario 07, plus:
+| Failure | Handling |
+|---------|---------|
+| Invalid `leader_role` value | Zod enum validation inline |
+| Missing `role=leader` in query | Ensure hook always passes `role` param |
+
+### i18n Namespaces
+- `participation.leaderRoles.*` (coach, manager, delegate, team_lead, coach_trainer, teacher_assistant)
+- `participation.form.*`, `participation.list.*`
+- `participation.success`, `participation.error.*`
+
+---
+
+## SCENARIO 10 — Admin Generates Khmer Reports
+
+**Actor:** Admin (`role = 'admin'`)  
+**Module:** `reports`  
+**Week:** 6–7
+
+### Preconditions
+- Admin is logged in
+- At least one event has registered participants
+- `org_id` and `event_id` are known
+
+### Steps
+1. Admin navigates to **"របាយការណ៍"** (Reports)
+2. Selects event and organization from dropdowns
+3. Selects report type from the 8 report options
+4. Clicks **"ទាញយករបាយការណ៍"** (Generate Report)
+5. Downloads Excel file
+
+### ⚠️ Critical Backend Gap — Only 2 of 8 Reports Exist
+
+| Report | Status | Backend Endpoint |
+|--------|--------|-----------------|
+| RPT-SPORT-LIST (ចុះប្រភេទកីឡា) | ⚠️ **MISSING** | No endpoint |
+| RPT-DELEGATION (តារាងទិន្នន័យក្រុម) | ⚠️ **MISSING** | No endpoint |
+| RPT-NUMBER-LIST (បញ្ជីចំនួន) | ⚠️ **MISSING** | No endpoint |
+| RPT-ALBUM (អាល់ប៊ុមប្រតិភូ) | ⚠️ **MISSING** | No endpoint |
+| RPT-ROSTER-ALL (បញ្ជីរាយនាមរួម) | ✅ **EXISTS** | `GET /api/excel/org-sport` |
+| RPT-LEADER-ALL (បញ្ជីថ្នាក់ដឹកនាំ) | ⚠️ **MISSING** | No endpoint |
+| RPT-COACH-ATHLETE (គ្រូបង្វឹក + កីឡាករ) | ⚠️ **MISSING** | No endpoint |
+| RPT-DELEGATION-LEADERS (ប្រតិភូ + អ្នកដឹកនាំ) | ⚠️ **MISSING** | No endpoint |
+
+_Note: `GET /api/excel/org-sport-participant` returns counts per org+sport and may map to RPT-NUMBER-LIST._
+
+### Backend Endpoints (existing)
+| Step | Method | Path |
+|------|--------|------|
+| RPT-ROSTER-ALL (full detail) | `GET` | `/api/excel/org-sport` |
+| RPT-NUMBER-LIST (counts) | `GET` | `/api/excel/org-sport-participant` |
+| List events (for picker) | `GET` | `/api/events/` |
+| List orgs (for picker) | `GET` | `/api/organization/` |
+
+### Query Parameters (to confirm with teammate)
+Both Excel endpoints need `org_id` and `event_id` — confirm exact param names before implementing.
+
+### Loading / Empty / Error States
+- Report list page: skeleton → "មិនទាន់មានរបាយការណ៍" → error
+- Missing-backend reports: show "ត្រូវការ Backend — មិនទាន់ត្រៀម" badge per report row
+- Download in progress: spinner → toast on success/failure
+
+### Success Criterion
+- RPT-ROSTER-ALL: Excel downloads with correct Khmer column headers
+- RPT-NUMBER-LIST: Excel downloads with participant counts per sport
+- Khmer text renders correctly in Excel (UTF-8 BOM if needed for Windows)
+- Missing reports: clearly communicated to admin as "coming soon"
+
+### Failure Modes
+| Failure | Handling |
+|---------|---------|
+| Report endpoint missing | Show "ត្រូវការ Backend" label; disable download button |
+| Empty event/org selection | Disable generate button until both selected |
+| Download fails | Toast error + retry |
+| Khmer rendering broken | Use UTF-8 BOM; surface as known issue |
+
+### i18n Namespaces
+- `reports.title`, `reports.types.*` (all 8 report names in Khmer)
+- `reports.generate`, `reports.download`, `reports.loading`, `reports.empty`
+- `reports.backendGap` — message for missing reports
+
+---
+
+## Cards (bonus, Week 8)
+
+**Actor:** Admin or Federation  
+**Module:** `cards`  
+**Week:** 8
+
+Card generation uses:
+- `GET /api/cards/{org_id}/{event_id}` — paginated list
+- `GET /api/card/{p_id}/{org_id}/{event_id}` — single card
+
+Cards display: `name`, `gender`, `sport`, `role`, `org_name`, `card_type`, `profile_image`.
+
+No separate scenario written — this is MVP-only scope in Week 8.
+
+---
+
+## Backend Gap Summary (for teammate coordination)
+
+| # | Gap | Impact | Scenario(s) |
+|---|-----|--------|-------------|
+| 1 | No `status` field on `EventPublic` / no publish endpoint | Admin cannot formally publish events | 01 |
+| 2 | No quota field on `SportsEventPublic` | Per-sport quotas cannot be stored | 01 |
+| 3 | No survey status / FSM (approve/reject/flag) | Admin cannot review surveys formally | 06 |
+| 4 | `ParticipationPerSportCreate` lacks `category_id` | By-category survey cannot store breakdown | 05 |
+| 5 | `GET /api/participation-per-sport/` lacks event/org filter params | Frontend must filter client-side | 02, 03, 06 |
+| 6 | No batch registration endpoint | Team mode uses N sequential POSTs | 08 |
+| 7 | 6 of 8 Khmer report endpoints missing | Only 2 reports downloadable at W6 | 10 |
+| 8 | `POST /api/registration/` body schema undocumented | Inferred from `ParticipantUpdateRequest`; needs confirmation | 07, 08, 09 |
+| 9 | `federation_id` scoping absent on most list endpoints | Client-side scoping by `organization_id` used as fallback | 03, 06, 07 |
