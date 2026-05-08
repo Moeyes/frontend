@@ -201,33 +201,34 @@
     "description_field": "Description",
     "backToSports": "Back to Sports",
     "sportNotFound": "Sport not found",
-    "sportDiscipline": "Sport Discipline",
+    "sportType": "Type",
+    "deleteNotSupported": "Sport deletion is not yet supported by the backend",
+    "editNotSupported": "Sport editing is not yet supported by the backend",
+    "validation": {
+      "nameRequired": "Sport name is required",
+      "typeRequired": "Sport type is required",
+      "categoryNameRequired": "Category name is required",
+      "genderRequired": "Please select a gender"
+    },
     "columns": {
       "sportName": "Sport Name",
       "type": "Type",
-      "categoryCount": "Category Count"
+      "createdAt": "Created"
     },
     "categories": {
-      "title": "Sport Categories",
+      "title": "Categories",
+      "selectEvent": "Select an event to view categories",
       "addCategory": "Add Category",
       "editCategory": "Edit Category",
       "categoryName": "Category Name",
       "gender": "Gender",
-      "ageRange": "Age Range",
-      "noAgeLimit": "No age limit",
-      "years": "years",
-      "noCategories": "No categories defined for this sport.",
-      "failedToLoad": "Failed to load categories.",
+      "noCategories": "No categories for this event & sport.",
+      "noEventSelected": "Select an event first",
       "deleteCategoryConfirm": "Are you sure you want to delete this category?",
       "genders": {
-        "male": "Male",
-        "female": "Female",
-        "other": "Other",
-        "mixed": "None / Mixed",
-        "any": "Mixed / Any"
-      },
-      "minAge": "Min Age (Optional)",
-      "maxAge": "Max Age (Optional)"
+        "MALE": "Male",
+        "FEMALE": "Female"
+      }
     }
   },
   "organizations": {
