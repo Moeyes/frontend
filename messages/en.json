@@ -478,15 +478,21 @@
   },
   "cards": {
     "title": "Participant Cards",
-    "description": "Generate and manage participant cards for National Primary School Games 2026.",
-    "event": "Event",
-    "organization": "Organization",
-    "search": "Search",
-    "searchPlaceholder": "Search by name...",
+    "description": "View participant identity cards",
+    "selectBoth": "Please select both an event and an organization",
     "selectEvent": "Select Event",
     "selectOrganization": "Select Organization",
-    "noCardsFound": "No cards found for this selection.",
-    "page": "Page {page} of {total}"
+    "noCardsFound": "No cards found for this selection",
+    "total": "{count} cards total",
+    "name": "Name",
+    "sport": "Sport",
+    "role": "Role",
+    "cardType": "Card Type",
+    "orgName": "Organization",
+    "gender": "Gender",
+    "noPhoto": "No photo",
+    "viewCard": "View Card",
+    "backToCards": "Back to Cards"
   },
   "reports": {
     "title": "Reports",
