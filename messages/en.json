@@ -489,23 +489,51 @@
     "page": "Page {page} of {total}"
   },
   "reports": {
-    "title": "Excel Reports",
-    "description": "Export registration data and summaries to Excel files",
-    "filters": "Report Filters",
+    "title": "Reports",
+    "description": "Download Khmer-language Excel reports",
+    "filters": "Select Event & Organization",
     "selectEvent": "Select Event",
     "selectOrganization": "Select Organization",
-    "chooseEvent": "-- Choose Event --",
-    "allOrganizations": "-- All Organizations (Admin) --",
-    "pleaseSelectEvent": "Please select an event",
-    "orgSportReport": {
-      "title": "Organization Sport Report",
-      "description": "Summary of registrations grouped by organization and sport. Includes total counts and gender distribution.",
-      "download": "Download Excel"
+    "selectBoth": "Please select both an event and an organization",
+    "download": "Download Excel",
+    "downloading": "Downloading...",
+    "downloadSuccess": "Downloaded successfully",
+    "downloadError": "Download failed — please try again",
+    "preview": "Preview",
+    "backendGap": "Backend required — not yet available",
+    "backendGapDetail": "This endpoint has not been implemented",
+    "noData": "No data",
+    "sport": "Sport",
+    "male": "Male",
+    "female": "Female",
+    "leader": "Leader",
+    "total": "Total",
+    "org": "Organization",
+    "event": "Event",
+    "category": "Category",
+    "gender": "Gender",
+    "rptRosterAll": {
+      "title": "Full Roster (RPT-ROSTER-ALL)",
+      "description": "Complete participant list organized by org and sport",
+      "filename": "RPT-ROSTER-ALL"
     },
-    "participantReport": {
-      "title": "Participant Details Report",
-      "description": "Exhaustive list of all registered participants including personal details, roles, and document status.",
-      "download": "Download Excel"
+    "rptNumberList": {
+      "title": "Participant Counts (RPT-NUMBER-LIST)",
+      "description": "Summary participant counts by sport (M/F/Leader)",
+      "filename": "RPT-NUMBER-LIST",
+      "colSport": "Sport",
+      "colMale": "M",
+      "colFemale": "F",
+      "colLeader": "Ldr",
+      "colTotal": "Total"
+    },
+    "rptDelegation": {
+      "title": "Delegation Table (RPT-DELEGATION)",
+      "description": "Delegation data"
+    },
+    "rptSportList": {
+      "title": "Sport Type List (RPT-SPORT-LIST)",
+      "description": "Complete sport type listing"
     }
   },
   "bycategory": {

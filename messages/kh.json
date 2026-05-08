@@ -489,23 +489,51 @@
     "page": "ទំព័រ {page} នៃ {total}"
   },
   "reports": {
-    "title": "របាយការណ៍ Excel",
-    "description": "នាំចេញទិន្នន័យការចុះឈ្មោះ និងសង្ខេបទៅជាឯកសារ Excel",
-    "filters": "តម្រងរបាយការណ៍",
+    "title": "របាយការណ៍",
+    "description": "ទាញយករបាយការណ៍ Excel ជាភាសាខ្មែរ",
+    "filters": "ជ្រើសរើសព្រឹត្តិការណ៍ និងអង្គការ",
     "selectEvent": "ជ្រើសរើសព្រឹត្តិការណ៍",
     "selectOrganization": "ជ្រើសរើសអង្គការ",
-    "chooseEvent": "-- ជ្រើសរើសព្រឹត្តិការណ៍ --",
-    "allOrganizations": "-- អង្គការទាំងអស់ (អ្នកគ្រប់គ្រង) --",
-    "pleaseSelectEvent": "សូមជ្រើសរើសព្រឹត្តិការណ៍",
-    "orgSportReport": {
-      "title": "របាយការណ៍កីឡាអង្គការ",
-      "description": "សង្ខេបការចុះឈ្មោះដែលបែងចែកតាមអង្គការ និងកីឡា។ រួមមានចំនួនសរុប និងការបែងចែកតាមភេទ។",
-      "download": "ទាញយក Excel"
+    "selectBoth": "សូមជ្រើសរើសព្រឹត្តិការណ៍ និងអង្គការ",
+    "download": "ទាញយក Excel",
+    "downloading": "កំពុងទាញយក...",
+    "downloadSuccess": "ទាញយកបានជោគជ័យ",
+    "downloadError": "ការទាញយកបានបរាជ័យ — ព្យាយាមមើលម្តងទៀត",
+    "preview": "មើលជាមុន",
+    "backendGap": "ត្រូវការ Backend ថ្មី — មិនទាន់ត្រៀម",
+    "backendGapDetail": "endpoint នេះមិនទាន់ត្រូវបានអនុវត្ត",
+    "noData": "គ្មានទិន្នន័យ",
+    "sport": "កីឡា",
+    "male": "ប្រុស",
+    "female": "ស្រី",
+    "leader": "អ្នកដឹកនាំ",
+    "total": "សរុប",
+    "org": "អង្គការ",
+    "event": "ព្រឹត្តិការណ៍",
+    "category": "ប្រភេទ",
+    "gender": "ភេទ",
+    "rptRosterAll": {
+      "title": "បញ្ជីរាយនាមរួម",
+      "description": "បញ្ជីអ្នកចូលរួមពេញលេញ រៀបចំតាមអង្គការ និងកីឡា",
+      "filename": "RPT-ROSTER-ALL"
     },
-    "participantReport": {
-      "title": "របាយការណ៍ព័ត៌មានលម្អិតអ្នកចូលរួម",
-      "description": "បញ្ជីពេញលេញនៃអ្នកចូលរួមដែលបានចុះឈ្មោះទាំងអស់ រួមមានព័ត៌មានផ្ទាល់ខ្លួន តួនាទី និងស្ថានភាពឯកសារ។",
-      "download": "ទាញយក Excel"
+    "rptNumberList": {
+      "title": "បញ្ជីចំនួន",
+      "description": "ចំនួនអ្នកចូលរួមសង្ខេបតាមកីឡា (ប/ស/អ្នកដឹកនាំ)",
+      "filename": "RPT-NUMBER-LIST",
+      "colSport": "ប្រភេទកីឡា",
+      "colMale": "ប",
+      "colFemale": "ស",
+      "colLeader": "អ.ដ",
+      "colTotal": "សរុប"
+    },
+    "rptDelegation": {
+      "title": "តារាងទិន្នន័យក្រុម",
+      "description": "ទិន្នន័យប្រតិភូ"
+    },
+    "rptSportList": {
+      "title": "ចុះប្រភេទកីឡា",
+      "description": "បញ្ជីប្រភេទកីឡាពេញលេញ"
     }
   },
   "bycategory": {
