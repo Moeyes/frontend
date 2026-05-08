@@ -1,24 +1,26 @@
-import Link from 'next/link';
+'use client';
+import { useRouter } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
-import { cn } from '@/shared/utils/cn';
+import { cn } from '@/lib/utils';
 
 interface BackLinkProps {
-    href: string;
-    label: string;
-    className?: string;
+  label?: string;
+  href?: string;
+  className?: string;
 }
 
-export function BackLink({ href, label, className }: BackLinkProps) {
-    return (
-        <Link
-            href={href}
-            className={cn(
-                'flex w-fit items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground transition-all hover:text-primary hover:translate-x-[-4px]',
-                className
-            )}
-        >
-            <ChevronLeft className="h-4 w-4 stroke-[3px]" />
-            {label}
-        </Link>
-    );
+export function BackLink({ label = 'ត្រឡប់', href, className }: BackLinkProps) {
+  const router = useRouter();
+  return (
+    <button
+      onClick={() => (href ? router.push(href) : router.back())}
+      className={cn(
+        'flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4',
+        className
+      )}
+    >
+      <ChevronLeft className="h-4 w-4" />
+      {label}
+    </button>
+  );
 }

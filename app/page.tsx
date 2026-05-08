@@ -1,10 +1,7 @@
-import { HomePage } from '@/modules/home';
-import { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-  title: 'Home',
-};
-
-export default function Page() {
-    return <HomePage />;
+// Root redirects to /login until auth is wired in Prompt 5 (foundation layer).
+// Auth context will replace this with a role-aware redirect to /dashboard.
+export default function RootPage() {
+  redirect('/login');
 }

@@ -1,50 +1,53 @@
-import type { Metadata } from "next";
-import { Kantumruy_Pro } from "next/font/google";
+import type { Metadata } from 'next';
+import { Battambang, Inter } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, getLocale } from 'next-intl/server';
-import { QueryProvider } from "./providers/QueryProvider";
-import { AppAuthProvider } from "./providers/AuthProvider";
-import "./globals.css";
+import { getLocale, getMessages } from 'next-intl/server';
+import { Toaster } from 'sonner';
+import { QueryProvider } from './providers/QueryProvider';
+import { AuthProvider } from '@/core/auth';
+import { LanguageProvider } from '@/core/i18n';
+import './globals.css';
 
-const kantumruyPro = Kantumruy_Pro({
-    subsets: ["khmer", "latin"],
-    weight: ["100", "300", "400", "500", "600", "700"],
-    variable: "--font-kantumruy-pro",
-    display: "swap",
+const battambang = Battambang({
+  weight: ['400', '700'],
+  subsets: ['khmer'],
+  variable: '--font-battambang',
+  display: 'swap',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-    title: {
-        template: "%s | Moeys Sports",
-        default: "Moeys Sports - Event Management",
-    },
-    description: "Professional sports event and registration platform",
-    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  title: 'ប្រព័ន្ធគ្រប់គ្រងព្រឹត្តិការណ៍កីឡាជាតិ',
+  description: 'Cambodia Ministry of Education, Youth and Sport — National Sports Event Management',
 };
 
 export default async function RootLayout({
-    children,
-}: Readonly<{
-    children: React.ReactNode;
-}>) {
-    const locale = await getLocale();
-    const messages = await getMessages();
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const locale = await getLocale();
+  const messages = await getMessages();
 
-    return (
-        <html
-            lang={locale}
-            className={`h-full antialiased light ${kantumruyPro.variable}`}
-            suppressHydrationWarning
-        >
-            <body className="min-h-full flex flex-col bg-background text-foreground">
-                <NextIntlClientProvider messages={messages}>
-                    <AppAuthProvider>
-                        <QueryProvider>
-                            {children}
-                        </QueryProvider>
-                    </AppAuthProvider>
-                </NextIntlClientProvider>
-            </body>
-        </html>
-    );
+  return (
+    <html lang={locale} className={`${battambang.variable} ${inter.variable}`}>
+      <body className="font-sans antialiased">
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <QueryProvider>
+            <AuthProvider>
+              <LanguageProvider initialLocale={locale as 'kh' | 'en'}>
+                {children}
+                <Toaster richColors position="top-right" />
+              </LanguageProvider>
+            </AuthProvider>
+          </QueryProvider>
+        </NextIntlClientProvider>
+      </body>
+    </html>
+  );
 }

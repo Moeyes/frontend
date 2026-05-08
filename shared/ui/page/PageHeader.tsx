@@ -1,36 +1,23 @@
-import { ReactNode } from 'react';
-import type { LucideIcon } from 'lucide-react';
-import { cn } from '@/shared/utils/cn';
+import type { ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 
 interface PageHeaderProps {
-    title: string;
-    description?: string;
-    icon?: LucideIcon;
-    action?: ReactNode;
-    className?: string;
+  title: string;
+  description?: string;
+  action?: ReactNode;
+  className?: string;
 }
 
-export function PageHeader({
-    title,
-    description,
-    icon: Icon,
-    action,
-    className,
-}: PageHeaderProps) {
-    return (
-        <div className={cn('flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between', className)}>
-            <div className="flex items-center gap-4">
-                {Icon && (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                        <Icon className="h-6 w-6 text-primary" />
-                    </div>
-                )}
-                <div>
-                    <h1 className="text-2xl font-black text-foreground">{title}</h1>
-                    {description && <p className="text-sm font-medium text-muted-foreground">{description}</p>}
-                </div>
-            </div>
-            {action && <div className="flex items-center gap-3">{action}</div>}
-        </div>
-    );
+export function PageHeader({ title, description, action, className }: PageHeaderProps) {
+  return (
+    <div className={cn('flex items-center justify-between mb-6', className)}>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        {description && (
+          <p className="text-sm text-muted-foreground mt-1">{description}</p>
+        )}
+      </div>
+      {action && <div className="flex items-center gap-2">{action}</div>}
+    </div>
+  );
 }

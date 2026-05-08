@@ -1,46 +1,37 @@
-import { ReactNode } from 'react';
-import type { LucideIcon } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { BackLink } from './BackLink';
+import { cn } from '@/lib/utils';
 
 interface DetailHeaderProps {
-    backHref: string;
-    backLabel: string;
-    eyebrow?: string;
-    eyebrowIcon?: LucideIcon;
-    title: string;
-    description?: string;
-    meta?: ReactNode;
-    action?: ReactNode;
+  title: string;
+  subtitle?: string;
+  badge?: ReactNode;
+  action?: ReactNode;
+  backHref?: string;
+  className?: string;
 }
 
 export function DetailHeader({
-    backHref,
-    backLabel,
-    eyebrow,
-    eyebrowIcon: EyebrowIcon,
-    title,
-    description,
-    meta,
-    action,
+  title,
+  subtitle,
+  badge,
+  action,
+  backHref,
+  className,
 }: DetailHeaderProps) {
-    return (
-        <div className="flex flex-col gap-4">
-            <BackLink href={backHref} label={backLabel} />
-
-            <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm md:flex-row md:items-end md:justify-between">
-                <div className="space-y-1">
-                    {eyebrow && (
-                        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary">
-                            {EyebrowIcon && <EyebrowIcon className="h-4 w-4" />}
-                            {eyebrow}
-                        </div>
-                    )}
-                    <h1 className="text-2xl font-black text-foreground">{title}</h1>
-                    {description && <p className="text-sm font-medium text-muted-foreground">{description}</p>}
-                    {meta && <div className="pt-2 flex flex-wrap gap-3">{meta}</div>}
-                </div>
-                {action && <div className="flex items-center gap-3">{action}</div>}
-            </div>
+  return (
+    <div className={cn('mb-6', className)}>
+      <BackLink href={backHref} />
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-semibold">{title}</h1>
+            {badge}
+          </div>
+          {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
         </div>
-    );
+        {action && <div className="flex-shrink-0">{action}</div>}
+      </div>
+    </div>
+  );
 }

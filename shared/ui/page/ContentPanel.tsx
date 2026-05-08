@@ -1,22 +1,15 @@
-import { ReactNode } from 'react';
-import { cn } from '@/shared/utils/cn';
+import type { ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 
 interface ContentPanelProps {
-    children: ReactNode;
-    className?: string;
-    dashed?: boolean;
+  children: ReactNode;
+  className?: string;
 }
 
-export function ContentPanel({ children, className, dashed = false }: ContentPanelProps) {
-    return (
-        <div
-            className={cn(
-                'rounded-xl border border-border bg-card p-6 shadow-sm transition-all',
-                dashed && 'border-dashed border-2',
-                className
-            )}
-        >
-            {children}
-        </div>
-    );
+export function ContentPanel({ children, className }: ContentPanelProps) {
+  return (
+    <div className={cn('rounded-lg border bg-card p-6', className)}>
+      {children}
+    </div>
+  );
 }

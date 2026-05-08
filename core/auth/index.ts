@@ -1,4 +1,4 @@
-export * from './context';
-export * from './hooks';
-export * from './services';
-export * from './types';
+export { AuthProvider, useAuthContext, type AuthUser, type UserRole } from './context/AuthContext';
+export { ProtectedRoute } from './components/ProtectedRoute';
+export { useAuth } from './hooks/useAuth';
+export { useRequireRole } from './hooks/useRequireRole';

@@ -1,97 +1,134 @@
 'use client';
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  type ColumnDef,
+  type PaginationState,
+  type OnChangeFn,
+} from '@tanstack/react-table';
+import { Button } from './Button';
+import { Skeleton } from './Skeleton';
+import { cn } from '@/lib/utils';
 
-import React, { ReactNode } from 'react';
-import { cn } from '@/shared/utils/cn';
-
-interface DataTableProps<T> {
-    data: T[];
-    columns: {
-        header: string;
-        accessor: keyof T | ((item: T, index: number) => ReactNode);
-        className?: string;
-        align?: 'left' | 'center' | 'right';
-    }[];
-    onRowClick?: (item: T) => void;
-    emptyMessage?: string;
-    className?: string;
-    isLoading?: boolean;
+interface DataTableProps<TData> {
+  columns: ColumnDef<TData>[];
+  data: TData[];
+  isLoading?: boolean;
+  // Server-side pagination
+  pageCount?: number;
+  pagination?: PaginationState;
+  onPaginationChange?: OnChangeFn<PaginationState>;
+  className?: string;
 }
 
-export function DataTable<T>({
+export function DataTable<TData>({
+  columns,
+  data,
+  isLoading,
+  pageCount,
+  pagination,
+  onPaginationChange,
+  className,
+}: DataTableProps<TData>) {
+  const table = useReactTable({
     data,
     columns,
-    onRowClick,
-    emptyMessage = 'No data available',
-    className,
-    isLoading,
-}: DataTableProps<T>) {
-    return (
-        <div className={cn('w-full overflow-hidden', className)}>
-            <table className="w-full text-left border-collapse">
-                <thead>
-                    <tr className="border-b border-border bg-muted/30">
-                        {columns.map((col, i) => (
-                            <th
-                                key={i}
-                                className={cn(
-                                    'p-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground',
-                                    col.align === 'right' && 'text-right',
-                                    col.align === 'center' && 'text-center',
-                                    col.className
-                                )}
-                            >
-                                {col.header}
-                            </th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                    {isLoading ? (
-                        Array.from({ length: 3 }).map((_, i) => (
-                            <tr key={i} className="animate-pulse">
-                                {columns.map((_, j) => (
-                                    <td key={j} className="p-4 py-4">
-                                        <div className="h-4 bg-muted rounded w-3/4" />
-                                    </td>
-                                ))}
-                            </tr>
-                        ))
-                    ) : data.length === 0 ? (
-                        <tr>
-                            <td colSpan={columns.length} className="p-12 text-center text-sm font-medium text-muted-foreground italic">
-                                {emptyMessage}
-                            </td>
-                        </tr>
-                    ) : (
-                        data.map((item, i) => (
-                            <tr
-                                key={i}
-                                onClick={() => onRowClick?.(item)}
-                                className={cn(
-                                    'transition-colors',
-                                    onRowClick ? 'cursor-pointer hover:bg-secondary/30' : 'hover:bg-secondary/10'
-                                )}
-                            >
-                                {columns.map((col, j) => (
-                                    <td
-                                        key={j}
-                                        className={cn(
-                                            'p-4 py-3 text-sm font-medium text-foreground',
-                                            col.align === 'right' && 'text-right',
-                                            col.align === 'center' && 'text-center',
-                                            col.className
-                                        )}
-                                    >
-                                        {typeof col.accessor === 'function'
-                                            ? col.accessor(item, i)
-                                            : (item[col.accessor] as ReactNode)}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
+    getCoreRowModel: getCoreRowModel(),
+    manualPagination: !!pageCount,
+    pageCount: pageCount ?? -1,
+    state: pagination ? { pagination } : undefined,
+    onPaginationChange,
+  });
+
+  return (
+    <div className={cn('space-y-2', className)}>
+      <div className="rounded-md border overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            {table.getHeaderGroups().map((hg) => (
+              <tr key={hg.id} className="border-b bg-muted/50">
+                {hg.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    className="px-4 py-3 text-left font-medium text-muted-foreground"
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="border-b">
+                  {columns.map((_, j) => (
+                    <td key={j} className="px-4 py-3">
+                      <Skeleton className="h-4 w-full" />
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : table.getRowModel().rows.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={columns.length}
+                  className="px-4 py-8 text-center text-muted-foreground"
+                >
+                  —
+                </td>
+              </tr>
+            ) : (
+              table.getRowModel().rows.map((row) => (
+                <tr key={row.id} className="border-b hover:bg-muted/30 transition-colors">
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className="px-4 py-3">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {pageCount && pagination && onPaginationChange && (
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">
+            {pagination.pageIndex + 1} / {pageCount}
+          </span>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                onPaginationChange((p) =>
+                  typeof p === 'function' ? p : { ...pagination, pageIndex: pagination.pageIndex - 1 }
+                )
+              }
+              disabled={pagination.pageIndex === 0}
+            >
+              ‹
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                onPaginationChange((p) =>
+                  typeof p === 'function' ? p : { ...pagination, pageIndex: pagination.pageIndex + 1 }
+                )
+              }
+              disabled={pagination.pageIndex >= pageCount - 1}
+            >
+              ›
+            </Button>
+          </div>
         </div>
-    );
+      )}
+    </div>
+  );
 }

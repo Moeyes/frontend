@@ -1,8 +1,4 @@
-/**
- * Application Configuration
- * 
- * Central place for app-level configuration
- */
-
-export { routes } from './routes';
-export { constants } from './constants';
+// env is at the repo root — re-export from there
+export { env } from '@/env';
+export * from './constants';
+export * from './routes';

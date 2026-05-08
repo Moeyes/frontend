@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '@/core/auth';
+// import { useAuth } from '@/core/auth'; // uncomment for Federation/Org scoping
 import { listDOMAIN } from '../services/example.service';
 import { DOMAIN_keys } from '../services/keys';
 

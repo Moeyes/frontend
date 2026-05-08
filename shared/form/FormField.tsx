@@ -1,41 +1,54 @@
-import { ReactNode } from 'react';
+'use client';
+import type { ReactNode } from 'react';
+import type { FieldError } from 'react-hook-form';
+import { useTranslations } from 'next-intl';
+import { Label } from '@/shared/ui/Label';
+import { cn } from '@/lib/utils';
 
 interface FormFieldProps {
-    label: string;
-    required?: boolean;
-    error?: string;
-    hint?: string;
-    htmlFor: string;
-    children: ReactNode;
+  label?: string;
+  labelKey?: string;
+  error?: FieldError | { message?: string };
+  required?: boolean;
+  children: ReactNode;
+  className?: string;
+  hint?: string;
 }
 
-/**
- * Form field wrapper with label, error, and hint text
- */
 export function FormField({
-    label,
-    required = false,
-    error,
-    hint,
-    htmlFor,
-    children,
+  label,
+  labelKey,
+  error,
+  required,
+  children,
+  className,
+  hint,
 }: FormFieldProps) {
-    return (
-        <div className="space-y-1.5">
-            <label
-                htmlFor={htmlFor}
-                className="block text-sm font-medium text-foreground"
-            >
-                {label}
-                {required && <span className="ml-1 text-destructive">*</span>}
-            </label>
-            {children}
-            {hint && !error && (
-                <p className="text-xs text-muted-foreground">{hint}</p>
-            )}
-            {error && (
-                <p className="text-xs text-destructive font-medium">{error}</p>
-            )}
-        </div>
-    );
+  const t = useTranslations();
+  const resolvedLabel = label ?? (labelKey ? t(labelKey) : undefined);
+  const errorMsg = error?.message
+    ? error.message.includes('.')
+      ? t(error.message as Parameters<typeof t>[0])
+      : error.message
+    : undefined;
+
+  return (
+    <div className={cn('space-y-1.5', className)}>
+      {resolvedLabel && (
+        <Label>
+          {resolvedLabel}
+          {required && <span className="text-destructive ml-1">*</span>}
+        </Label>
+      )}
+      {children}
+      {hint && !errorMsg && (
+        <p className="text-xs text-muted-foreground">{hint}</p>
+      )}
+      {errorMsg && (
+        <p className="text-xs text-destructive" role="alert">
+          {errorMsg}
+        </p>
+      )}
+    </div>
+  );
 }

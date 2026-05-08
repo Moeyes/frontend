@@ -1,6 +1,6 @@
 // Replace DOMAIN and paths with actual endpoints from _contract/ENDPOINTS.md
 // All types come from _contract/api.types.ts — never hand-write backend types (Red Line #2)
-import { client } from '@/core/api/client';
+import { api as client } from '@/core/api/client';
 import type { components } from '@/_contract/api.types';
 
 // Re-export the types this module uses from the contract

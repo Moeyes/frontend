@@ -1,84 +1,15 @@
-/**
- * Application Constants
- * 
- * Global constants used throughout the application
- */
+export const APP_NAME_KH = 'ប្រព័ន្ធគ្រប់គ្រងព្រឹត្តិការណ៍កីឡាជាតិ';
+export const APP_NAME_EN = 'National Sports Event Management';
 
-import { env } from '@/env';
-import { UserRole } from '@/core/auth/types';
+export const DEFAULT_PAGE_SIZE = 20;
+export const MAX_PAGE_SIZE = 100;
 
-export { routes } from './routes';
-export type { RouteKey } from './routes';
+export const SUPPORTED_LOCALES = ['kh', 'en'] as const;
+export const DEFAULT_LOCALE = 'kh' as const;
 
-export const constants = {
-    app: {
-        name: 'Moeys Sports',
-        version: '1.0.0',
-    },
-    api: {
-        baseUrl: env.NEXT_PUBLIC_API_URL,
-    },
-    pagination: {
-        defaultPageSize: 10,
-        maxPageSize: 100,
-    },
-    registration: {
-        minPhoneLength: 7,
-        maxPhoneLength: 15,
-        minIdDocumentLength: 6,
-        maxIdDocumentLength: 20,
-        maxImageSize: 2 * 1024 * 1024, // 2MB
-    },
-} as const;
+export const CLOUDINARY_UPLOAD_ENDPOINT = 'https://api.cloudinary.com/v1_1';
 
-/**
- * Role-based default redirect after login
- */
-export const ROLE_DEFAULT_ROUTE: Record<UserRole, string> = {
-    [UserRole.ADMIN]: '/dashboard',
-    [UserRole.ORGANIZATION]: '/dashboard',
-    [UserRole.FEDERATION]: '/bycategory',
-    [UserRole.GUEST]: '/register',
-};
+export const REGISTRATION_STEPS = ['personal', 'sport', 'documents', 'review'] as const;
 
-// Registration Form Constants
-export const FORM_STEPS = ['event', 'personal', 'documents', 'review'] as const;
-export const FORM_STEP_LABELS = {
-    event: 'Event',
-    personal: 'Personal',
-    documents: 'Documents',
-    review: 'Review',
-} as const;
-
-export const GENDER_OPTIONS = [
-    { value: 'MALE', label: 'Male' },
-    { value: 'FEMALE', label: 'Female' },
-    { value: 'OTHER', label: 'Other' },
-];
-
-export const ID_DOCUMENT_OPTIONS = [
-    { value: 'IDCARD', label: 'ID Card' },
-    { value: 'BIRTHCERTIFICATE', label: 'Birth Certificate' },
-    { value: 'PASSPORT', label: 'Passport' },
-    { value: 'FAMILYBOOK', label: 'Family Book' },
-    { value: 'OTHER', label: 'Other' },
-];
-
-export const ROLE_OPTIONS = [
-    { value: 'athlete', label: 'Athlete' },
-    { value: 'leader', label: 'Leader' },
-];
-
-export const LEADER_ROLE_OPTIONS = [
-    { value: 'coach', label: 'Coach' },
-    { value: 'manager', label: 'Manager' },
-    { value: 'delegate', label: 'Delegate' },
-    { value: 'team_lead', label: 'Team Lead' },
-    { value: 'coach_trainer', label: 'Coach Trainer' },
-    { value: 'teacher_assistant', label: 'Teacher Assistant' },
-] as const;
-
-export const CLOUDINARY_FOLDERS = {
-    photos: 'domrov-pictures',
-    documents: 'domrov-documents',
-} as const;
+// Age boundary for document rules (Red Line #3 — computed from event date)
+export const MINOR_AGE_THRESHOLD = 18;

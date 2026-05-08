@@ -1,279 +1,88 @@
-/**
- * FileUploadField Component
- * 
- * User-friendly file upload with drag-drop, progress tracking, and validation
- * Follows 10 UX Principles: clarity, feedback, constraints, consistency,
- * error prevention, error recovery, user control, aesthetics, recognition, flexibility
- */
-
 'use client';
-
-import { Controller, Control, FieldValues, Path } from 'react-hook-form';
-import { useState, useRef } from 'react';
-import {
-    Cloud,
-    CheckCircle2,
-    AlertCircle,
-    Loader,
-    X,
-    RotateCcw,
-    HardDrive,
-    Info,
-} from 'lucide-react';
+import { type Control, Controller, type FieldValues, type Path } from 'react-hook-form';
+import { useRef, useState } from 'react';
 import { FormField } from './FormField';
+import { Button } from '@/shared/ui/Button';
+import { Spinner } from '@/shared/ui/Spinner';
+import { cn } from '@/lib/utils';
 
 interface FileUploadFieldProps<T extends FieldValues> {
-    control: Control<T>;
-    name: Path<T>;
-    label: string;
-    required?: boolean;
-    accept?: string;
-    maxSize?: number; // in MB
-    hint?: string;
-    error?: string;
-    onUpload: (file: File) => Promise<string>;
+  control: Control<T>;
+  name: Path<T>;
+  labelKey?: string;
+  label?: string;
+  required?: boolean;
+  accept?: string;
+  // Called with the uploaded file URL after successful upload to Cloudinary
+  onUpload: (file: File) => Promise<string>;
 }
 
-/**
- * Enhanced file upload field with better UX/UI
- */
 export function FileUploadField<T extends FieldValues>({
-    control,
-    name,
-    label,
-    required = false,
-    accept = 'image/*',
-    maxSize = 5,
-    hint,
-    error,
-    onUpload,
+  control,
+  name,
+  labelKey,
+  label,
+  required,
+  accept = 'image/*,.pdf',
+  onUpload,
 }: FileUploadFieldProps<T>) {
-    const [uploading, setUploading] = useState(false);
-    const [uploadError, setUploadError] = useState<string | undefined>(undefined);
-    const [fileName, setFileName] = useState<string | null>(null);
-    const [fileSize, setFileSize] = useState<string | null>(null);
-    const [dragActive, setDragActive] = useState(false);
-    const inputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-    // Get readable file type from accept parameter
-    const getFileTypeLabel = (acceptStr: string) => {
-        if (acceptStr.includes('image')) return 'JPG, PNG, WebP';
-        if (acceptStr.includes('pdf')) return 'PDF, JPG, PNG';
-        return 'Documents';
-    };
-
-    // Format file size for display
-    const formatFileSize = (bytes: number) => {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-    };
-
-    // Handle drag events
-    const handleDrag = (e: React.DragEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.type === 'dragenter' || e.type === 'dragover') {
-            setDragActive(true);
-        } else if (e.type === 'dragleave') {
-            setDragActive(false);
-        }
-    };
-
-    // Handle drop event
-    const handleDrop = async (e: React.DragEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setDragActive(false);
-
-        const file = e.dataTransfer.files?.[0];
-        if (file) {
-            // Note: processFile needs field.onChange callback from Controller render
-        }
-    };
-
-    // Process file upload
-    const processFile = async (file: File, onFileProcessed: (url: string) => void) => {
-        setUploadError(undefined);
-        setFileName(file.name);
-        setFileSize(formatFileSize(file.size));
-
-        // Validate file size
-        if (file.size > maxSize * 1024 * 1024) {
-            setUploadError(`File size (${formatFileSize(file.size)}) exceeds ${maxSize}MB limit`);
-            return;
-        }
-
-        // Upload file
-        setUploading(true);
-        try {
-            const url = await onUpload(file);
-            onFileProcessed(url);
-            setUploadError(undefined);
-        } catch (err) {
-            const errorMsg = err instanceof Error ? err.message : 'Upload failed. Please try again.';
-            setUploadError(errorMsg);
-        } finally {
-            setUploading(false);
-        }
-    };
-
-    return (
-        <Controller
-            control={control}
-            name={name}
-            render={({ field }) => (
-                <FormField
-                    label={label}
-                    required={required}
-                    error={error || uploadError}
-                    hint={hint}
-                    htmlFor={name as string}
-                >
-                    <div className="space-y-3">
-                        {/* Main Upload Area */}
-                        <div
-                            onDragEnter={handleDrag}
-                            onDragLeave={handleDrag}
-                            onDragOver={handleDrag}
-                            onDrop={handleDrop}
-                            className={`relative rounded-xl border-2 border-dashed transition-all duration-200 overflow-hidden ${dragActive
-                                    ? 'border-primary bg-primary/5 scale-[1.02]'
-                                    : uploadError || error
-                                        ? 'border-destructive bg-destructive/5'
-                                        : field.value
-                                            ? 'border-green-300 bg-green-50'
-                                            : 'border-muted-foreground/25 bg-gradient-to-br from-muted/30 to-muted/10 hover:border-primary/50 hover:bg-primary/5'
-                                }`}
-                        >
-                            <input
-                                ref={inputRef}
-                                id={name as string}
-                                type="file"
-                                accept={accept}
-                                disabled={uploading}
-                                onChange={async (e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) {
-                                        await processFile(file, field.onChange);
-                                    }
-                                }}
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-                            />
-
-                            <div className="flex flex-col items-center justify-center py-10 px-6">
-                                {/* State: Uploading */}
-                                {uploading ? (
-                                    <>
-                                        <div className="relative w-12 h-12 mb-3">
-                                            <Loader className="w-12 h-12 text-primary animate-spin" />
-                                        </div>
-                                        <p className="text-sm font-semibold text-foreground">Uploading...</p>
-                                        <p className="text-xs text-muted-foreground mt-1">{fileName}</p>
-                                    </>
-                                ) : /* State: Success */ field.value ? (
-                                    <>
-                                        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-100 mb-3">
-                                            <CheckCircle2 className="w-6 h-6 text-green-600" />
-                                        </div>
-                                        <p className="text-sm font-semibold text-green-700">Uploaded Successfully</p>
-                                        <p className="text-xs text-muted-foreground mt-1">{fileName}</p>
-                                        {fileSize && (
-                                            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-2">
-                                                <HardDrive className="w-3 h-3" /> {fileSize}
-                                            </p>
-                                        )}
-                                    </>
-                                ) : /* State: Idle/Ready */ (
-                                    <>
-                                        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-3">
-                                            <Cloud className="w-6 h-6 text-primary" />
-                                        </div>
-                                        <p className="text-sm font-semibold text-foreground">Upload {label}</p>
-                                        <p className="text-xs text-muted-foreground mt-1 text-center">
-                                            Click to browse or drag and drop your file
-                                        </p>
-                                        <div className="flex items-center gap-1 mt-3 px-3 py-1.5 rounded-full bg-muted/50 border border-muted-foreground/10">
-                                            <Info className="w-3 h-3 text-muted-foreground" />
-                                            <span className="text-xs text-muted-foreground">
-                                                {getFileTypeLabel(accept)} • Max {maxSize}MB
-                                            </span>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* File Info when uploaded */}
-                        {field.value && !uploadError && (
-                            <div className="flex items-center justify-between rounded-lg bg-green-50 border border-green-200 p-3">
-                                <div className="flex items-center gap-2 flex-1 min-w-0">
-                                    <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
-                                    <div className="min-w-0 flex-1">
-                                        <p className="text-xs font-medium text-green-700 truncate">{fileName}</p>
-                                        {fileSize && (
-                                            <p className="text-xs text-green-600 mt-0.5">{fileSize}</p>
-                                        )}
-                                    </div>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        field.onChange(undefined);
-                                        setFileName(null);
-                                        setFileSize(null);
-                                        setUploadError(undefined);
-                                        if (inputRef.current) {
-                                            inputRef.current.value = '';
-                                        }
-                                    }}
-                                    className="flex-shrink-0 ml-2 p-1.5 hover:bg-green-100 rounded-lg transition-colors"
-                                    title="Remove file"
-                                >
-                                    <X className="w-4 h-4 text-green-600" />
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Error Alert */}
-                        {(error || uploadError) && (
-                            <div className="flex items-start gap-3 rounded-lg bg-destructive/10 border border-destructive/20 p-3">
-                                <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
-                                <div className="flex-1">
-                                    <p className="text-sm font-medium text-destructive">{error || uploadError}</p>
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                        Make sure your file is {getFileTypeLabel(accept).toLowerCase()} and under {maxSize}MB
-                                    </p>
-                                    {uploadError && (
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setUploadError(undefined);
-                                                if (inputRef.current) {
-                                                    inputRef.current.click();
-                                                }
-                                            }}
-                                            className="text-xs font-semibold text-destructive hover:underline mt-2 flex items-center gap-1"
-                                        >
-                                            <RotateCcw className="w-3 h-3" /> Try again
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Helpful hint if provided */}
-                        {hint && !error && !uploadError && !field.value && (
-                            <div className="flex items-start gap-2 rounded-lg bg-blue-50 border border-blue-200 p-2.5">
-                                <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                                <p className="text-xs text-blue-700">{hint}</p>
-                            </div>
-                        )}
-                    </div>
-                </FormField>
+  return (
+    <Controller
+      control={control}
+      name={name}
+      render={({ field, fieldState }) => (
+        <FormField
+          labelKey={labelKey}
+          label={label}
+          error={fieldState.error}
+          required={required}
+        >
+          <div className="flex items-center gap-3">
+            <input
+              ref={inputRef}
+              type="file"
+              accept={accept}
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setIsUploading(true);
+                try {
+                  const url = await onUpload(file);
+                  field.onChange(url);
+                } catch {
+                  field.onChange('');
+                } finally {
+                  setIsUploading(false);
+                }
+              }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isUploading}
+              onClick={() => inputRef.current?.click()}
+            >
+              {isUploading && <Spinner className="mr-2 h-4 w-4" />}
+              {isUploading ? 'កំពុងផ្ទុក...' : 'ជ្រើសឯកសារ'}
+            </Button>
+            {field.value && (
+              <span
+                className={cn(
+                  'text-sm truncate max-w-[200px]',
+                  isUploading ? 'text-muted-foreground' : 'text-green-600'
+                )}
+              >
+                {isUploading ? 'កំពុងផ្ទុក...' : '✓ ផ្ទុករួច'}
+              </span>
             )}
-        />
-    );
+          </div>
+        </FormField>
+      )}
+    />
+  );
 }
