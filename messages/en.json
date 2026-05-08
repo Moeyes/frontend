@@ -74,7 +74,10 @@
     "accessDenied": "Access Denied",
     "noPermission": "You don't have permission to view this page.",
     "signedInAs": "Signed in as",
-    "goToDashboard": "Go to Dashboard"
+    "goToDashboard": "Go to Dashboard",
+    "usernameRequired": "Username is required",
+    "passwordRequired": "Password is required",
+    "invalidCredentials": "Invalid username or password"
   },
   "dashboard": {
     "title": "Dashboard",

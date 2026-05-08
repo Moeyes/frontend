@@ -74,7 +74,10 @@
     "accessDenied": "ការចូលប្រើត្រូវបានបដិសេធ",
     "noPermission": "អ្នកមិនមានសិទ្ធិមើលទំព័រនេះទេ។",
     "signedInAs": "ចូលក្នុងឈ្មោះ",
-    "goToDashboard": "ទៅផ្ទាំងគ្រប់គ្រង"
+    "goToDashboard": "ទៅផ្ទាំងគ្រប់គ្រង",
+    "usernameRequired": "សូមបញ្ចូលឈ្មោះអ្នកប្រើ",
+    "passwordRequired": "សូមបញ្ចូលពាក្យសម្ងាត់",
+    "invalidCredentials": "ឈ្មោះអ្នកប្រើ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ"
   },
   "dashboard": {
     "title": "ផ្ទាំងគ្រប់គ្រង",

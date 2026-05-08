@@ -1,4 +1,5 @@
 'use client';
+import type { ReactNode } from 'react';
 import { type Control, Controller, type FieldValues, type Path } from 'react-hook-form';
 import { Input } from '@/shared/ui/Input';
 import { FormField } from './FormField';
@@ -13,6 +14,9 @@ interface TextInputFieldProps<T extends FieldValues> {
   required?: boolean;
   disabled?: boolean;
   hint?: string;
+  autoComplete?: string;
+  autoFocus?: boolean;
+  rightElement?: ReactNode;
 }
 
 export function TextInputField<T extends FieldValues>({
@@ -25,6 +29,9 @@ export function TextInputField<T extends FieldValues>({
   required,
   disabled,
   hint,
+  autoComplete,
+  autoFocus,
+  rightElement,
 }: TextInputFieldProps<T>) {
   return (
     <Controller
@@ -38,13 +45,33 @@ export function TextInputField<T extends FieldValues>({
           required={required}
           hint={hint}
         >
-          <Input
-            {...field}
-            type={type}
-            placeholder={placeholder}
-            disabled={disabled}
-            aria-invalid={!!fieldState.error}
-          />
+          {rightElement ? (
+            <div className="relative">
+              <Input
+                {...field}
+                type={type}
+                placeholder={placeholder}
+                disabled={disabled}
+                autoComplete={autoComplete}
+                autoFocus={autoFocus}
+                aria-invalid={!!fieldState.error}
+                className="pr-10"
+              />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                {rightElement}
+              </div>
+            </div>
+          ) : (
+            <Input
+              {...field}
+              type={type}
+              placeholder={placeholder}
+              disabled={disabled}
+              autoComplete={autoComplete}
+              autoFocus={autoFocus}
+              aria-invalid={!!fieldState.error}
+            />
+          )}
         </FormField>
       )}
     />

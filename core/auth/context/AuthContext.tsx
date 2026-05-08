@@ -7,19 +7,16 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import type { components } from '@/_contract/api.types';
 
-export type UserRole = 'admin' | 'user1' | 'user2' | 'guest';
+// Use contract types as the source of truth (Red Line #2).
+// organization_id is a frontend extension pending backend support (gap #9 in SCENARIOS.md).
+type UserPublicContract = components['schemas']['UserPublic'];
+export type UserRole = components['schemas']['UserRole'];
 
-export interface AuthUser {
-  id: string;
+export interface AuthUser extends Omit<UserPublicContract, 'role'> {
   role: UserRole;
   organization_id: number | null;
-  kh_family_name: string;
-  kh_given_name: string;
-  en_family_name: string;
-  en_given_name: string;
-  is_active: boolean;
-  is_superuser: boolean;
 }
 
 interface AuthContextValue {
@@ -39,16 +36,20 @@ function getUserIdFromCookie(): string | null {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // Only enter loading state if there's a userId cookie to resolve
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(
     () => typeof document !== 'undefined' && !!getUserIdFromCookie()
   );
 
-  const fetchSession = useCallback(async (userId: string) => {
+  const fetchSession = useCallback(async (userId: string): Promise<AuthUser | null> => {
     const res = await fetch(`/api/auth/session/${userId}`);
     if (!res.ok) return null;
-    return (await res.json()) as AuthUser;
+    const data = (await res.json()) as UserPublicContract;
+    return {
+      ...data,
+      role: (data.role as UserRole) || 'guest',
+      organization_id: null, // backend gap — UserPublic doesn't include organization_id yet
+    };
   }, []);
 
   useEffect(() => {
