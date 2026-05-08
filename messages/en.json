@@ -38,6 +38,9 @@
     "to": "to",
     "total": "Total",
     "connectionError": "Please check your connection and try again",
+    "selectFile": "Select File",
+    "uploading": "Uploading...",
+    "fileUploaded": "✓ Uploaded",
     "retry": "Try Again",
     "loadError": "Error loading data",
     "somethingWentWrong": "Something went wrong",
@@ -398,6 +401,46 @@
       "pagination": {
         "showing": "Showing {from} to {to} of {total} participants"
       }
+    },
+    "createTitle": "Register Participant",
+    "backToList": "Back to List",
+    "addParticipant": "Add Participant",
+    "selectEvent": "Select Event",
+    "selectSport": "Select Sport",
+    "selectCategory": "Select Category (Optional)",
+    "noCategory": "No categories",
+    "noEvents": "No events available",
+    "noSports": "No sports available",
+    "roles": {
+      "athlete": "Athlete",
+      "leader": "Leader"
+    },
+    "leaderRoles": {
+      "coach": "Coach",
+      "manager": "Manager",
+      "delegate": "Delegate",
+      "team_lead": "Team Lead",
+      "coach_trainer": "Coach Trainer",
+      "teacher_assistant": "Teacher Assistant"
+    },
+    "documentRule": {
+      "minor": "Birth certificate required (age < 18)",
+      "adult": "National ID or Passport + photo required (age ≥ 18)",
+      "ageAtEvent": "Age at event: {age} years"
+    },
+    "ageWarning": "Note: Cannot compute age — check event start date",
+    "orgIdMissing": "organization_id missing — registration may not be scoped correctly",
+    "validation": {
+      "eventRequired": "Please select an event",
+      "sportRequired": "Please select a sport",
+      "khFamilyNameRequired": "Khmer family name is required",
+      "khGivenNameRequired": "Khmer given name is required",
+      "enFamilyNameRequired": "English family name is required",
+      "enGivenNameRequired": "English given name is required",
+      "genderRequired": "Please select a gender",
+      "dobRequired": "Date of birth is required",
+      "birthCertRequired": "Birth certificate required (participant is under 18)",
+      "idOrPassportRequired": "National ID or Passport is required"
     }
   },
   "participation": {

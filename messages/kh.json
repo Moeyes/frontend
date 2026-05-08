@@ -38,6 +38,9 @@
     "to": "ដល់",
     "total": "សរុប",
     "connectionError": "សូមពិនិត្យការតភ្ជាប់ហើយព្យាយាមម្តងទៀត",
+    "selectFile": "ជ្រើសរើសឯកសារ",
+    "uploading": "កំពុងផ្ទុក...",
+    "fileUploaded": "✓ ផ្ទុករួចរាល់",
     "retry": "ព្យាយាមម្ដងទៀត",
     "loadError": "មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ",
     "somethingWentWrong": "មានបញ្ហាមួយ",
@@ -398,6 +401,46 @@
       "pagination": {
         "showing": "បង្ហាញ {from} ដល់ {to} នៃ {total} អ្នកចូលរួម"
       }
+    },
+    "createTitle": "ចុះឈ្មោះអ្នកចូលរួម",
+    "backToList": "ត្រឡប់ទៅបញ្ជី",
+    "addParticipant": "បន្ថែមអ្នកចូលរួម",
+    "selectEvent": "ជ្រើសរើសព្រឹត្តិការណ៍",
+    "selectSport": "ជ្រើសរើសកីឡា",
+    "selectCategory": "ជ្រើសរើសប្រភេទ (មិនចាំបាច់)",
+    "noCategory": "មិនមានប្រភេទ",
+    "noEvents": "មិនទាន់មានព្រឹត្តិការណ៍",
+    "noSports": "មិនទាន់មានកីឡា",
+    "roles": {
+      "athlete": "អត្តពលករ",
+      "leader": "អ្នកដឹកនាំ"
+    },
+    "leaderRoles": {
+      "coach": "គ្រូបង្វឹក",
+      "manager": "អ្នកគ្រប់គ្រង",
+      "delegate": "ប្រតិភូ",
+      "team_lead": "ប្រធានក្រុម",
+      "coach_trainer": "គ្រូបង្វឹកជំនាញ",
+      "teacher_assistant": "ជំនួយការ"
+    },
+    "documentRule": {
+      "minor": "ត្រូវការសំបុត្រកំណើត (អាយុ < ១៨ ឆ្នាំ)",
+      "adult": "ត្រូវការអត្តសញ្ញាណប័ណ្ណ ឬលិខិតឆ្លងដែន + រូបថត (អាយុ ≥ ១៨ ឆ្នាំ)",
+      "ageAtEvent": "អាយុនៅថ្ងៃសម្ពោធ: {age} ឆ្នាំ"
+    },
+    "ageWarning": "ចំណាំ: មិនអាចគណនាអាយុ — ពិនិត្យកាលបរិច្ឆេទចាប់ផ្ដើមព្រឹត្តិការណ៍",
+    "orgIdMissing": "organization_id មិនទាន់ — ការចុះឈ្មោះប្រហែលជាមិនត្រូវ Scope",
+    "validation": {
+      "eventRequired": "សូមជ្រើសរើសព្រឹត្តិការណ៍",
+      "sportRequired": "សូមជ្រើសរើសកីឡា",
+      "khFamilyNameRequired": "សូមបញ្ចូលនាមត្រកូលខ្មែរ",
+      "khGivenNameRequired": "សូមបញ្ចូលឈ្មោះខ្មែរ",
+      "enFamilyNameRequired": "សូមបញ្ចូលនាមត្រកូលអង់គ្លេស",
+      "enGivenNameRequired": "សូមបញ្ចូលឈ្មោះអង់គ្លេស",
+      "genderRequired": "សូមជ្រើសរើសភេទ",
+      "dobRequired": "សូមបញ្ចូលថ្ងៃខែឆ្នាំកំណើត",
+      "birthCertRequired": "ត្រូវការសំបុត្រកំណើត (អ្នកចូលរួមមានអាយុក្រោម ១៨ ឆ្នាំ)",
+      "idOrPassportRequired": "ត្រូវការអត្តសញ្ញាណប័ណ្ណ ឬលិខិតឆ្លងដែន"
     }
   },
   "participation": {

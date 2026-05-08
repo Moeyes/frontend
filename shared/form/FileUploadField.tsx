@@ -1,6 +1,7 @@
 'use client';
 import { type Control, Controller, type FieldValues, type Path } from 'react-hook-form';
 import { useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { FormField } from './FormField';
 import { Button } from '@/shared/ui/Button';
 import { Spinner } from '@/shared/ui/Spinner';
@@ -13,19 +14,13 @@ interface FileUploadFieldProps<T extends FieldValues> {
   label?: string;
   required?: boolean;
   accept?: string;
-  // Called with the uploaded file URL after successful upload to Cloudinary
   onUpload: (file: File) => Promise<string>;
 }
 
 export function FileUploadField<T extends FieldValues>({
-  control,
-  name,
-  labelKey,
-  label,
-  required,
-  accept = 'image/*,.pdf',
-  onUpload,
+  control, name, labelKey, label, required, accept = 'image/*,.pdf', onUpload,
 }: FileUploadFieldProps<T>) {
+  const t = useTranslations('common');
   const [isUploading, setIsUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -34,12 +29,7 @@ export function FileUploadField<T extends FieldValues>({
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormField
-          labelKey={labelKey}
-          label={label}
-          error={fieldState.error}
-          required={required}
-        >
+        <FormField labelKey={labelKey} label={label} error={fieldState.error} required={required}>
           <div className="flex items-center gap-3">
             <input
               ref={inputRef}
@@ -60,24 +50,15 @@ export function FileUploadField<T extends FieldValues>({
                 }
               }}
             />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={isUploading}
-              onClick={() => inputRef.current?.click()}
-            >
+            <Button type="button" variant="outline" size="sm" disabled={isUploading}
+              onClick={() => inputRef.current?.click()}>
               {isUploading && <Spinner className="mr-2 h-4 w-4" />}
-              {isUploading ? 'កំពុងផ្ទុក...' : 'ជ្រើសឯកសារ'}
+              {isUploading ? t('uploading') : t('selectFile')}
             </Button>
             {field.value && (
-              <span
-                className={cn(
-                  'text-sm truncate max-w-[200px]',
-                  isUploading ? 'text-muted-foreground' : 'text-green-600'
-                )}
-              >
-                {isUploading ? 'កំពុងផ្ទុក...' : '✓ ផ្ទុករួច'}
+              <span className={cn('text-sm truncate max-w-[200px]',
+                isUploading ? 'text-muted-foreground' : 'text-green-600')}>
+                {isUploading ? t('uploading') : t('fileUploaded')}
               </span>
             )}
           </div>
