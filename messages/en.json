@@ -38,6 +38,10 @@
     "to": "to",
     "total": "Total",
     "connectionError": "Please check your connection and try again",
+    "retry": "Try Again",
+    "loadError": "Error loading data",
+    "somethingWentWrong": "Something went wrong",
+    "noDataYet": "No data yet",
     "comingSoon": "Coming soon...",
     "exportAll": "Export All",
     "pdf": "PDF"
@@ -98,7 +102,18 @@
     "members": "Members",
     "male": "Male",
     "female": "Female",
-    "other": "Other"
+    "other": "Other",
+    "federationWelcome": {
+      "title": "Welcome",
+      "subtitle": "Use the left menu to access your work",
+      "goToSurveys": "Go to Surveys",
+      "goToRegister": "Go to Registration"
+    },
+    "orgWelcome": {
+      "title": "Welcome",
+      "subtitle": "Use the left menu to access your work",
+      "goToParticipation": "Go to Organizer Registration"
+    }
   },
   "events": {
     "title": "Events",

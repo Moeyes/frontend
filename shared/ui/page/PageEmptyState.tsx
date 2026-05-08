@@ -2,9 +2,7 @@ import Link from 'next/link';
 import { Button } from '../Button';
 
 interface PageEmptyStateProps {
-  messageKey: string;
-  message?: string;
-  ctaKey?: string;
+  message: string;
   ctaLabel?: string;
   ctaHref?: string;
   ctaOnClick?: () => void;
@@ -18,8 +16,8 @@ export function PageEmptyState({
 }: PageEmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
-      <div className="text-4xl">📭</div>
-      <p className="text-muted-foreground">{message ?? 'មិនទាន់មានទិន្នន័យ'}</p>
+      <div className="text-4xl" aria-hidden="true">📭</div>
+      <p className="text-muted-foreground">{message}</p>
       {ctaLabel && ctaHref && (
         <Button asChild variant="default">
           <Link href={ctaHref}>{ctaLabel}</Link>

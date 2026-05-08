@@ -25,3 +25,17 @@ Deviations from the original stencil, documented per CONVENTIONS.md.
 The `shared/layout/` versions are kept to avoid breaking any import that may reference them from outside the portal (e.g., storybook, tests). They are functionally identical to the common module versions.
 
 **Module that requested it:** `common`.
+
+---
+
+## shared/ui/QueryBoundary.tsx, shared/ui/page/PageErrorState.tsx, shared/ui/page/PageEmptyState.tsx
+
+**Change:** Replaced hardcoded Khmer/English strings with `useTranslations('common')`.
+
+**Why:** Red Line #7 — all user-facing text must come from messages. Pre-existing violations in foundation code fixed before dashboard module.
+
+**Keys added:** `common.retry`, `common.loadError`, `common.somethingWentWrong`, `common.noDataYet`
+
+**Also fixed:** `app/(auth)/login/error.tsx` — "Something went wrong" and "Try again" replaced with `t('common.somethingWentWrong')` and `t('common.retry')`.
+
+**Module that requested the fix:** `dashboard` (discovered during dashboard build prep).

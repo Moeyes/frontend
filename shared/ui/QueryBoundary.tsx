@@ -1,6 +1,7 @@
 'use client';
 import type { ReactNode } from 'react';
 import type { UseQueryResult } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { Skeleton } from './Skeleton';
 import { Button } from './Button';
 
@@ -27,6 +28,8 @@ export function QueryBoundary<TData>({
   loadingFallback,
   children,
 }: QueryBoundaryProps<TData>) {
+  const t = useTranslations('common');
+
   if (query.isLoading || query.isPending) {
     return <>{loadingFallback ?? <DefaultSkeleton />}</>;
   }
@@ -35,10 +38,10 @@ export function QueryBoundary<TData>({
     return (
       <div className="flex flex-col items-center justify-center py-12 gap-4 text-center">
         <p className="text-destructive text-sm">
-          {(query.error as Error)?.message ?? 'Something went wrong'}
+          {(query.error as Error)?.message ?? t('loadError')}
         </p>
         <Button variant="outline" size="sm" onClick={() => query.refetch()}>
-          ព្យាយាមម្ដងទៀត
+          {t('retry')}
         </Button>
       </div>
     );
