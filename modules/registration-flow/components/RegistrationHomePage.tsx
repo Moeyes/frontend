@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { type ColumnDef } from '@tanstack/react-table';
-import { Plus, Eye, Trash2 } from 'lucide-react';
+import { Plus, Eye, Trash2, Users } from 'lucide-react';
 import {
   DataTable, QueryBoundary, PageHeader, PageEmptyState, Button, Modal, Input, Badge,
 } from '@/shared/ui';
@@ -93,10 +93,16 @@ export function RegistrationHomePage() {
       <PageHeader
         title={t('title')}
         action={
-          <Button onClick={() => router.push(ROUTES.register.new)}>
-            <Plus className="h-4 w-4 mr-1" aria-hidden="true" />
-            {t('addParticipant')}
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => router.push(ROUTES.register.team)} className="gap-2">
+              <Users className="h-4 w-4" aria-hidden="true" />
+              {t('teamMode.title')}
+            </Button>
+            <Button onClick={() => router.push(ROUTES.register.new)}>
+              <Plus className="h-4 w-4 mr-1" aria-hidden="true" />
+              {t('addParticipant')}
+            </Button>
+          </div>
         }
       />
 

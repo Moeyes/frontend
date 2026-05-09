@@ -52,7 +52,9 @@
     "selectOrganizationRequired": "សូមជ្រើសរើសអង្គការរបស់អ្នក",
     "orgIdMissingExplain": "ការកំណត់នេះត្រូវបានរក្សាទុករហូតដល់ Backend ត្រូវបានដំឡើង",
     "male": "ប្រុស",
-    "female": "ស្រី"
+    "female": "ស្រី",
+    "note": "ចំណាំ",
+    "failed": "បរាជ័យ"
   },
   "nav": {
     "appName": "ព្រឹត្តិការណ៍កីឡាជាតិ",
@@ -446,6 +448,47 @@
       "dobRequired": "សូមបញ្ចូលថ្ងៃខែឆ្នាំកំណើត",
       "birthCertRequired": "ត្រូវការសំបុត្រកំណើត (អ្នកចូលរួមមានអាយុក្រោម ១៨ ឆ្នាំ)",
       "idOrPassportRequired": "ត្រូវការអត្តសញ្ញាណប័ណ្ណ ឬលិខិតឆ្លងដែន"
+    },
+    "teamMode": {
+      "title": "ចុះឈ្មោះជាក្រុម (CSV)",
+      "subtitle": "ទាញយកគំរូ CSV, បំពេញ, រួចបង្ហោះ",
+      "downloadTemplate": "ទាញយកគំរូ CSV",
+      "uploadCsv": "បង្ហោះឯកសារ CSV",
+      "uploadHint": "ជ្រើសរើសឯកសារ CSV ដែលបានបំពេញដោយប្រើគំរូ",
+      "parseError": "មិនអាចអានឯកសារ CSV: {error}",
+      "noRows": "គ្មានទិន្នន័យ — ឯកសារ CSV ត្រូវការយ៉ាងហោចណាស់ ១ ជួរ",
+      "previewTitle": "ការត្រួតពិនិត្យ ({count} ជួរ)",
+      "validRows": "{count} ជួរត្រឹមត្រូវ",
+      "invalidRows": "{count} ជួរមានបញ្ហា",
+      "submitBatch": "ដាក់ស្នើ {count} ជួរ",
+      "submitting": "កំពុងដាក់ស្នើ {done}/{total}...",
+      "done": "រួចរាល់: {success} ជោគជ័យ, {failed} បរាជ័យ",
+      "backToSetup": "ត្រឡប់ការតំឡើង",
+      "newBatch": "ក្រុមមួយទៀត",
+      "invalidDob": "ទម្រង់ថ្ងៃខែឆ្នាំកំណើតខុស (ត្រូវការ YYYY-MM-DD)",
+      "docNoteTitle": "ចំណាំអំពីឯកសារ",
+      "docNoteBody": "ឯកសារ (សំបុត្រកំណើត, អត្តសញ្ញាណប័ណ្ណ) មិនអាចបង្ហោះក្នុងទម្រង់ CSV — ត្រូវបន្ថែមក្រោយ ដោយចូលកែប្រែព័ត៌មានអ្នកចូលរួមមួយៗ",
+      "columns": {
+        "row": "#",
+        "name": "ឈ្មោះ",
+        "gender": "ភេទ",
+        "dob": "ថ្ងៃខែឆ្នាំកំណើត",
+        "ageAtEvent": "អាយុ (ព្រឹត្តិការណ៍)",
+        "docRequired": "ឯកសារ (ជូនដំណឹង)",
+        "status": "ស្ថានភាព"
+      },
+      "docNote": {
+        "birthCert": "សំបុត្រកំណើត (ត្រូវ)",
+        "idOrPassport": "អត្តសញ្ញាណប័ណ្ណ/លិខិតឆ្លងដែន (ត្រូវ)",
+        "canAddLater": "ត្រូវបន្ថែមនៅពេលក្រោយ"
+      },
+      "status": {
+        "valid": "ត្រឹមត្រូវ",
+        "error": "មានកំហុស",
+        "pending": "រង់ចាំ",
+        "success": "ជោគជ័យ",
+        "failed": "បរាជ័យ"
+      }
     }
   },
   "participation": {

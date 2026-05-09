@@ -1,4 +1,4 @@
-export { RegistrationHomePage, RegistrationStepper } from './components';
+export { RegistrationHomePage, RegistrationStepper, TeamRegistrationPage } from './components';
 export * from './hooks';
 // Service-level types needed by participation module
 export type {

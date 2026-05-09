@@ -52,7 +52,9 @@
     "selectOrganizationRequired": "Please select your organization",
     "orgIdMissingExplain": "This setting is persisted until the backend is updated",
     "male": "Male",
-    "female": "Female"
+    "female": "Female",
+    "note": "Note",
+    "failed": "Failed"
   },
   "nav": {
     "appName": "National Sports Event",
@@ -446,6 +448,47 @@
       "dobRequired": "Date of birth is required",
       "birthCertRequired": "Birth certificate required (participant is under 18)",
       "idOrPassportRequired": "National ID or Passport is required"
+    },
+    "teamMode": {
+      "title": "Team Registration (CSV)",
+      "subtitle": "Download template, fill it in, then upload",
+      "downloadTemplate": "Download CSV Template",
+      "uploadCsv": "Upload CSV File",
+      "uploadHint": "Select the filled CSV file using the template",
+      "parseError": "Could not read CSV file: {error}",
+      "noRows": "No data — CSV file needs at least 1 data row",
+      "previewTitle": "Preview ({count} rows)",
+      "validRows": "{count} valid rows",
+      "invalidRows": "{count} rows with errors",
+      "submitBatch": "Submit {count} rows",
+      "submitting": "Submitting {done}/{total}...",
+      "done": "Done: {success} succeeded, {failed} failed",
+      "backToSetup": "Back to Setup",
+      "newBatch": "Register another batch",
+      "invalidDob": "Invalid date of birth format (required: YYYY-MM-DD)",
+      "docNoteTitle": "Note about documents",
+      "docNoteBody": "Documents (birth certificate, national ID) cannot be uploaded via CSV — they must be added individually by editing each participant's record",
+      "columns": {
+        "row": "#",
+        "name": "Name",
+        "gender": "Gender",
+        "dob": "Date of Birth",
+        "ageAtEvent": "Age (at event)",
+        "docRequired": "Document (notice)",
+        "status": "Status"
+      },
+      "docNote": {
+        "birthCert": "Birth certificate (required)",
+        "idOrPassport": "National ID / Passport (required)",
+        "canAddLater": "Must be added later"
+      },
+      "status": {
+        "valid": "Valid",
+        "error": "Error",
+        "pending": "Pending",
+        "success": "Success",
+        "failed": "Failed"
+      }
     }
   },
   "participation": {
