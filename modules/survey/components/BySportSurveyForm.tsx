@@ -12,7 +12,6 @@ import { ROUTES } from '@/core/config';
 import { useEvent, useEventSports } from '@/modules/events';
 import { useSurveyEntries } from '../hooks/useSurveyEntries';
 import { useSubmitSurvey, useUpdateSurveyEntry } from '../hooks/useSubmitSurvey';
-import { OrgSelectorBanner } from '@/shared/ui';
 import type { SportsEventPublic } from '@/modules/events';
 import type { SurveyEntry } from '../services/survey.service';
 
@@ -149,8 +148,6 @@ export function BySportSurveyForm({ eventId }: BySportSurveyFormProps) {
           />
         )}
       </QueryBoundary>
-
-      {!organizationId && <OrgSelectorBanner />}
 
       <QueryBoundary
         query={sportsQuery}

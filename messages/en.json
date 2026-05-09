@@ -212,8 +212,9 @@
     "backToSports": "Back to Sports",
     "sportNotFound": "Sport not found",
     "sportType": "Type",
-    "deleteNotSupported": "Sport deletion is not yet supported by the backend",
-    "editNotSupported": "Sport editing is not yet supported by the backend",
+    "deleteConfirm": "Are you sure you want to delete this sport?",
+    "deleteSuccess": "Sport deleted successfully",
+    "updateSuccess": "Sport updated successfully",
     "validation": {
       "nameRequired": "Sport name is required",
       "typeRequired": "Sport type is required",
@@ -583,11 +584,33 @@
     },
     "rptDelegation": {
       "title": "Delegation Table (RPT-DELEGATION)",
-      "description": "Delegation data"
+      "description": "Full list of participants + leaders per org",
+      "filename": "RPT-DELEGATION"
     },
     "rptSportList": {
       "title": "Sport Type List (RPT-SPORT-LIST)",
-      "description": "Complete sport type listing"
+      "description": "Total participant counts by sport (whole event)",
+      "filename": "RPT-SPORT-LIST"
+    },
+    "rptAlbum": {
+      "title": "Participant Album (RPT-ALBUM)",
+      "description": "Participant list with photo URLs",
+      "filename": "RPT-ALBUM"
+    },
+    "rptLeaderAll": {
+      "title": "All Leaders (RPT-LEADER-ALL)",
+      "description": "All leaders across all organizations for the event",
+      "filename": "RPT-LEADER-ALL"
+    },
+    "rptCoachAthlete": {
+      "title": "Coach + Athlete (RPT-COACH-ATHLETE)",
+      "description": "Coaches paired with their athletes by sport",
+      "filename": "RPT-COACH-ATHLETE"
+    },
+    "rptDelegationLeaders": {
+      "title": "Delegation Leaders (RPT-DELEGATION-LEADERS)",
+      "description": "Team leaders for this organization",
+      "filename": "RPT-DELEGATION-LEADERS"
     }
   },
   "unauthorized": {
@@ -667,12 +690,21 @@
     "athleteFemale": "Athletes (F)",
     "leaderMale": "Leaders (M)",
     "leaderFemale": "Leaders (F)",
-    "fsmGapTitle": "FSM Transitions Not Ready",
-    "fsmGapDetail": "Backend must add endpoints: /approve, /reject, /flag, and a status field on ParticipationPerSportPublic",
     "approve": "Approve",
     "reject": "Reject",
     "flag": "Flag",
-    "actionUnavailable": "Backend required",
+    "approveSuccess": "Survey approved",
+    "rejectSuccess": "Survey rejected",
+    "flagSuccess": "Survey flagged for review",
+    "actionFailed": "Action failed — please try again",
+    "currentStatus": "Current status",
+    "status": {
+      "pending":   "Pending",
+      "submitted": "Submitted",
+      "approved":  "Approved",
+      "rejected":  "Rejected",
+      "flagged":   "Flagged"
+    },
     "columns": {
       "org": "Organization",
       "event": "Event",
@@ -681,6 +713,7 @@
       "leaderM": "Leaders (M)",
       "leaderF": "Leaders (F)",
       "submittedAt": "Submitted At",
+      "status": "Status",
       "actions": "Actions"
     }
   }

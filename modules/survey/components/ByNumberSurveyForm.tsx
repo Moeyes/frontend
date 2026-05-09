@@ -8,8 +8,6 @@ import { useEffectiveOrgId } from '@/core/auth';
 import { ROUTES } from '@/core/config';
 import { useEvent, useEventSports } from '@/modules/events';
 import { useSubmitSurvey } from '../hooks/useSubmitSurvey';
-import { OrgSelectorBanner } from '@/shared/ui';
-
 interface ByNumberSurveyFormProps {
   eventId: number;
 }
@@ -62,8 +60,6 @@ export function ByNumberSurveyForm({ eventId }: ByNumberSurveyFormProps) {
           />
         )}
       </QueryBoundary>
-
-      {!organizationId && <OrgSelectorBanner />}
 
       <Card>
         <CardContent className="pt-5 space-y-4">

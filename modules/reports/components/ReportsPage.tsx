@@ -22,34 +22,64 @@ export function ReportsPage() {
 
   const REPORTS = [
     {
-      // RPT-ROSTER-ALL — EXISTS
-      titleKey:    'rptRosterAll.title',
-      descKey:     'rptRosterAll.description',
-      available:   true,
-      downloadPath: '/api/excel/org-sport',
-      filenameKey: 'rptRosterAll.filename',
-      preview:     <RosterReportPreview params={params} />,
+      titleKey:     'rptRosterAll.title',
+      descKey:      'rptRosterAll.description',
+      available:    true,
+      downloadPath: '/api/excel/org-sport/download',
+      filenameKey:  'rptRosterAll.filename',
+      preview:      <RosterReportPreview params={params} />,
     },
     {
-      // RPT-NUMBER-LIST — EXISTS
-      titleKey:    'rptNumberList.title',
-      descKey:     'rptNumberList.description',
-      available:   true,
-      downloadPath: '/api/excel/org-sport-participant',
-      filenameKey: 'rptNumberList.filename',
-      preview:     <NumbersReportPreview params={params} />,
+      titleKey:     'rptNumberList.title',
+      descKey:      'rptNumberList.description',
+      available:    true,
+      downloadPath: '/api/excel/org-sport-participant/download',
+      filenameKey:  'rptNumberList.filename',
+      preview:      <NumbersReportPreview params={params} />,
     },
     {
-      // RPT-DELEGATION — BACKEND GAP
-      titleKey:    'rptDelegation.title',
-      descKey:     'rptDelegation.description',
-      available:   false,
+      titleKey:     'rptDelegation.title',
+      descKey:      'rptDelegation.description',
+      available:    true,
+      downloadPath: '/api/excel/delegation',
+      filenameKey:  'rptDelegation.filename',
     },
     {
-      // RPT-SPORT-LIST — BACKEND GAP
-      titleKey:    'rptSportList.title',
-      descKey:     'rptSportList.description',
-      available:   false,
+      titleKey:     'rptSportList.title',
+      descKey:      'rptSportList.description',
+      available:    true,
+      downloadPath: '/api/excel/sport-list',
+      filenameKey:  'rptSportList.filename',
+      requiresOrgId: false,
+    },
+    {
+      titleKey:     'rptAlbum.title',
+      descKey:      'rptAlbum.description',
+      available:    true,
+      downloadPath: '/api/excel/album',
+      filenameKey:  'rptAlbum.filename',
+    },
+    {
+      titleKey:     'rptLeaderAll.title',
+      descKey:      'rptLeaderAll.description',
+      available:    true,
+      downloadPath: '/api/excel/leader-all',
+      filenameKey:  'rptLeaderAll.filename',
+      requiresOrgId: false,
+    },
+    {
+      titleKey:     'rptCoachAthlete.title',
+      descKey:      'rptCoachAthlete.description',
+      available:    true,
+      downloadPath: '/api/excel/coach-athlete',
+      filenameKey:  'rptCoachAthlete.filename',
+    },
+    {
+      titleKey:     'rptDelegationLeaders.title',
+      descKey:      'rptDelegationLeaders.description',
+      available:    true,
+      downloadPath: '/api/excel/delegation-leaders',
+      filenameKey:  'rptDelegationLeaders.filename',
     },
   ] as const;
 

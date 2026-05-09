@@ -431,9 +431,17 @@ export interface paths {
          * @description Get core details for a specific sport by ID.
          */
         get: operations["sports-get_sport"];
-        put?: never;
+        /**
+         * Update Sport
+         * @description Update a sport's name or type.
+         */
+        put: operations["sports-update_sport"];
         post?: never;
-        delete?: never;
+        /**
+         * Delete Sport
+         * @description Permanently delete a sport.
+         */
+        delete: operations["sports-delete_sport"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1034,17 +1042,7 @@ export interface paths {
         };
         /**
          * Org Sport Participant
-         * @description **Export Detailed Participant List for specific Organization.**
-         *
-         *     **Scenario:**
-         *     Requested by an organization (e.g., a specific Province) to generate a detailed breakdown of all their athletes and leaders registered for an event. This data is often used for final validation or to populate high-fidelity spreadsheets.
-         *
-         *     **Success Response:**
-         *     - `200 OK`: Returns nested JSON containing personal data and role info.
-         *
-         *     **Error Cases:**
-         *     - `404 Not Found`: Organization or Event does not exist.
-         *     - `422 Unprocessable Entity`: Missing required query parameters (`org_id` or `events_id`).
+         * @description RPT-ROSTER-ALL — JSON data for preview table.
          */
         get: operations["excel-org_sport_participant"];
         put?: never;
@@ -1064,18 +1062,169 @@ export interface paths {
         };
         /**
          * Org Sport Participant Counts
-         * @description **Summarized Registration Count by Organization.**
-         *
-         *     **Scenario:**
-         *     Used by event organizers to get quick totals (how many Athletes/Coaches?) for each province or federation in specific sports categories. This is typically used for general reporting.
-         *
-         *     **Success Response:**
-         *     - `200 OK`: Returns an object with aggregated registration counts.
-         *
-         *     **Error Cases:**
-         *     - `404 Not Found`: Organization or Event does not exist.
+         * @description RPT-NUMBER-LIST — JSON data for preview table.
          */
         get: operations["excel-org_sport_participant_counts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/excel/org-sport/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Org Sport Download
+         * @description RPT-ROSTER-ALL — Download as real Excel file.
+         */
+        get: operations["excel-org_sport_download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/excel/org-sport-participant/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Org Sport Participant Download
+         * @description RPT-NUMBER-LIST — Download as real Excel file.
+         */
+        get: operations["excel-org_sport_participant_download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/excel/delegation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Delegation Report
+         * @description RPT-DELEGATION — Full delegation list (athletes + leaders).
+         */
+        get: operations["excel-delegation_report"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/excel/sport-list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sport List Report
+         * @description RPT-SPORT-LIST — Sports summary with participant counts.
+         */
+        get: operations["excel-sport_list_report"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/excel/album": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Album Report
+         * @description RPT-ALBUM — Photo album list.
+         */
+        get: operations["excel-album_report"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/excel/leader-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Leader All Report
+         * @description RPT-LEADER-ALL — All leaders for an event.
+         */
+        get: operations["excel-leader_all_report"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/excel/coach-athlete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Coach Athlete Report
+         * @description RPT-COACH-ATHLETE — Coaches paired with athletes.
+         */
+        get: operations["excel-coach_athlete_report"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/excel/delegation-leaders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Delegation Leaders Report
+         * @description RPT-DELEGATION-LEADERS — All leaders for a specific org.
+         */
+        get: operations["excel-delegation_leaders_report"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1133,32 +1282,13 @@ export interface paths {
         };
         /**
          * List Participation Per Sport
-         * @description **Retrieve a list of all participation status.**
-         *
-         *     **Scenario:**
-         *     Used by event organizers to see which organizations have signed up for which sports. Supports pagination.
-         *
-         *     **Success Response:**
-         *     - `200 OK`: Returns the JSON list and the record count.
-         *
-         *     **Error Cases:**
-         *     - `422 Unprocessable Entity`: Invalid query parameters.
+         * @description List participation entries with optional event and organization filters.
          */
         get: operations["participation-per-sport-list_participation_per_sport"];
         put?: never;
         /**
          * Create Participation Per Sport
-         * @description **Register an Organization's intent to partcipate in a Sport.**
-         *
-         *     **Scenario:**
-         *     Used by a Federation or Province to officially state they will send athletes for a specific sport in an event (e.g., "Siem Reap Province will partake in Basketball for the 2024 National Games").
-         *
-         *     **Success Response:**
-         *     - `201 Created`: The record of participation intent is successfully stored.
-         *
-         *     **Error Cases:**
-         *     - `400 Bad Request`: If the organization is already registered for this sport-event combo (duplicate entry).
-         *     - `404 Not Found`: If Sport, Event, or Organization IDs are invalid.
+         * @description Register an organization's survey entry for a sport in an event.
          */
         post: operations["participation-per-sport-create_participation_per_sport"];
         delete?: never;
@@ -1176,50 +1306,83 @@ export interface paths {
         };
         /**
          * Get Participation Per Sport
-         * @description **Retrieve participation details by ID.**
-         *
-         *     **Scenario:**
-         *     Requested when the UI needs to show which sport an organization has signed up for. Uses the unique record ID.
-         *
-         *     **Success Response:**
-         *     - `200 OK`: Returns the record details.
-         *
-         *     **Error Cases:**
-         *     - `404 Not Found`: Participation ID does not exist.
+         * @description Retrieve a single participation entry by ID.
          */
         get: operations["participation-per-sport-get_participation_per_sport"];
         put?: never;
         post?: never;
         /**
          * Delete Participation Per Sport
-         * @description **Withdraw a participation request.**
-         *
-         *     **Scenario:**
-         *     Requested when an organization decides to cancel their participation in a specific sport. This is a permanent removal from the list.
-         *
-         *     **Success Response:**
-         *     - `200 OK`: Record successfully deleted.
-         *
-         *     **Error Cases:**
-         *     - `404 Not Found`: Record ID does not exist.
+         * @description Delete a participation entry.
          */
         delete: operations["participation-per-sport-delete_participation_per_sport"];
         options?: never;
         head?: never;
         /**
          * Patch Participation Per Sport
-         * @description **Modify an existing participation request.**
-         *
-         *     **Scenario:**
-         *     Used when an organization needs to update their participation status or linked details. It supports partial updates.
-         *
-         *     **Success Response:**
-         *     - `200 OK`: Record patched successfully.
-         *
-         *     **Error Cases:**
-         *     - `404 Not Found`: Record ID not found.
+         * @description Update counts on a participation entry.
          */
         patch: operations["participation-per-sport-patch_participation_per_sport"];
+        trace?: never;
+    };
+    "/api/participation-per-sport/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Approve Participation
+         * @description Approve a survey submission. Sets status → APPROVED.
+         */
+        post: operations["participation-per-sport-approve_participation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/participation-per-sport/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reject Participation
+         * @description Reject a survey submission. Sets status → REJECTED.
+         */
+        post: operations["participation-per-sport-reject_participation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/participation-per-sport/{id}/flag": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Flag Participation
+         * @description Flag a survey submission for review. Sets status → FLAGGED.
+         */
+        post: operations["participation-per-sport-flag_participation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/cloudinary/presign-url": {
@@ -1675,6 +1838,12 @@ export interface components {
             org_name?: string | null;
             /** Event Name */
             event_name?: string | null;
+            /** Events Id */
+            events_id?: number | null;
+            /** Sports Id */
+            sports_id?: number | null;
+            /** Organization Id */
+            organization_id?: number | null;
             /** Sports Events Id */
             sports_Events_id?: number | null;
             /** Athlete Female Count */
@@ -1685,6 +1854,11 @@ export interface components {
             athlete_male_count: number | null;
             /** Leader Male Count */
             leader_male_count: number | null;
+            /**
+             * Status
+             * @default PENDING
+             */
+            status: string | null;
             /**
              * Created At
              * Format: date-time
@@ -1754,6 +1928,11 @@ export interface components {
              * Format: date-time
              */
             createdAt: string;
+        };
+        /** RejectRequest */
+        RejectRequest: {
+            /** Reason */
+            reason?: string | null;
         };
         /** RemoveOrgCompletelyFromEventBody */
         RemoveOrgCompletelyFromEventBody: {
@@ -1835,6 +2014,13 @@ export interface components {
              */
             created_at: string;
         };
+        /** SportUpdate */
+        SportUpdate: {
+            /** Name Kh */
+            name_kh?: string | null;
+            /** Sport Type */
+            sport_type?: string | null;
+        };
         /** SportsEventCreate */
         SportsEventCreate: {
             /** Events Id */
@@ -1862,6 +2048,8 @@ export interface components {
         SportsEventPublic: {
             /** Id */
             id?: number | null;
+            /** Sports Id */
+            sports_id?: number | null;
             /** Event Name */
             event_name?: string | null;
             /** Sport Name */
@@ -2000,6 +2188,8 @@ export interface components {
             is_active: boolean;
             /** Is Superuser */
             is_superuser: boolean;
+            /** Organization Id */
+            organization_id?: number | null;
             /**
              * Created At
              * Format: date-time
@@ -2640,6 +2830,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SportPublic"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "sports-update_sport": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sport_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SportUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SportPublic"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "sports-delete_sport": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sport_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -3415,9 +3671,7 @@ export interface operations {
     "excel-org_sport_participant": {
         parameters: {
             query: {
-                /** @description Organization ID */
                 org_id: number;
-                /** @description Event ID */
                 events_id: number;
             };
             header?: never;
@@ -3449,9 +3703,7 @@ export interface operations {
     "excel-org_sport_participant_counts": {
         parameters: {
             query: {
-                /** @description Organization ID */
                 org_id: number;
-                /** @description Event ID */
                 events_id: number;
             };
             header?: never;
@@ -3467,6 +3719,260 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OrgSportParticipantExcelResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "excel-org_sport_download": {
+        parameters: {
+            query: {
+                org_id: number;
+                events_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "excel-org_sport_participant_download": {
+        parameters: {
+            query: {
+                org_id: number;
+                events_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "excel-delegation_report": {
+        parameters: {
+            query: {
+                org_id: number;
+                events_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "excel-sport_list_report": {
+        parameters: {
+            query: {
+                events_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "excel-album_report": {
+        parameters: {
+            query: {
+                org_id: number;
+                events_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "excel-leader_all_report": {
+        parameters: {
+            query: {
+                events_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "excel-coach_athlete_report": {
+        parameters: {
+            query: {
+                org_id: number;
+                events_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "excel-delegation_leaders_report": {
+        parameters: {
+            query: {
+                org_id: number;
+                events_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -3604,6 +4110,10 @@ export interface operations {
             query?: {
                 skip?: number;
                 limit?: number;
+                /** @description Filter by event ID */
+                events_id?: number | null;
+                /** @description Filter by organization ID */
+                organization_id?: number | null;
             };
             header?: never;
             path?: never;
@@ -3740,6 +4250,103 @@ export interface operations {
                 "application/json": components["schemas"]["ParticipationPerSportUpdate"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParticipationPerSportPublic"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "participation-per-sport-approve_participation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParticipationPerSportPublic"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "participation-per-sport-reject_participation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["RejectRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParticipationPerSportPublic"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "participation-per-sport-flag_participation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {

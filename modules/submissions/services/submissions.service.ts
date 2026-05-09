@@ -30,17 +30,26 @@ export async function getSubmission(id: number): Promise<SubmissionEntry> {
   return data;
 }
 
-// ⚠️ FSM transition endpoints (approve/reject/flag) do not exist yet.
-// These are placeholders for when the backend adds dedicated FSM endpoints.
-// DO NOT use PATCH to change status — that would violate Red Line #5.
-// Kept here as documentation of what the backend needs to add.
-//
-// export async function approveSubmission(id: number): Promise<SubmissionEntry> {
-//   return api.POST('/api/participation-per-sport/{id}/approve', ...)
-// }
-// export async function rejectSubmission(id: number, reason: string): Promise<SubmissionEntry> {
-//   return api.POST('/api/participation-per-sport/{id}/reject', ...)
-// }
-// export async function flagSubmission(id: number): Promise<SubmissionEntry> {
-//   return api.POST('/api/participation-per-sport/{id}/flag', ...)
-// }
+export async function approveSubmission(id: number): Promise<SubmissionEntry> {
+  const { data, error } = await api.POST('/api/participation-per-sport/{id}/approve', {
+    params: { path: { id } },
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function rejectSubmission(id: number): Promise<SubmissionEntry> {
+  const { data, error } = await api.POST('/api/participation-per-sport/{id}/reject', {
+    params: { path: { id } },
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function flagSubmission(id: number): Promise<SubmissionEntry> {
+  const { data, error } = await api.POST('/api/participation-per-sport/{id}/flag', {
+    params: { path: { id } },
+  });
+  if (error) throw error;
+  return data;
+}

@@ -12,7 +12,6 @@ import { ROUTES } from '@/core/config';
 import { useEvent, useEventSports } from '@/modules/events';
 import { useCategories } from '@/modules/sports';
 import { useSubmitSurvey } from '../hooks/useSubmitSurvey';
-import { OrgSelectorBanner } from '@/shared/ui';
 import type { SportsEventPublic } from '@/modules/events';
 
 interface CategoryCountRow {
@@ -140,8 +139,6 @@ export function ByCategorySurveyForm({ eventId }: ByCategorySurveyFormProps) {
           />
         )}
       </QueryBoundary>
-
-      {!organizationId && <OrgSelectorBanner />}
 
       <QueryBoundary
         query={sportsQuery}

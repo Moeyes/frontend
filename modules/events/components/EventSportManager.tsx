@@ -36,11 +36,11 @@ export function EventSportManager({ eventId }: EventSportManagerProps) {
   const addMutation   = useAddSportToEvent(eventId);
   const removeMutation = useRemoveSportFromEvent(eventId);
 
-  const attachedNames = new Set(
-    (sportsQuery.data ?? []).map((s) => s.sport_name).filter(Boolean)
+  const attachedSportIds = new Set(
+    (sportsQuery.data ?? []).map((s) => s.sports_id).filter(Boolean)
   );
   const availableSports = (catalogueQuery.data ?? []).filter(
-    (s) => !attachedNames.has(s.name_kh)
+    (s) => !attachedSportIds.has(s.id)
   );
 
   const handleAdd = () => {
@@ -61,30 +61,24 @@ export function EventSportManager({ eventId }: EventSportManagerProps) {
               const associationId = sport.id ?? null;
               const sportName     = sport.sport_name ?? '—';
               const isExpanded    = expandedSport === sportName;
-              // Resolve sport_id by matching name — needed for org-linking (backend gap workaround)
-              const sportId = catalogueQuery.data?.find((s) => s.name_kh === sportName)?.id ?? null;
+              const sportId       = sport.sports_id ?? null;
 
               return (
                 <li key={associationId ?? sportName} className="px-4 py-3">
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-sm font-medium">{sportName}</span>
                     <div className="flex items-center gap-1">
-                      {sportId ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setExpandedSport(isExpanded ? null : sportName)}
-                          aria-expanded={isExpanded}
-                        >
-                          {isExpanded
-                            ? <ChevronUp className="h-4 w-4" />
-                            : <ChevronDown className="h-4 w-4" />}
-                        </Button>
-                      ) : (
-                        <span className="text-xs text-muted-foreground px-2">
-                          {t('backendGap')}
-                        </span>
-                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setExpandedSport(isExpanded ? null : sportName)}
+                        aria-expanded={isExpanded}
+                        disabled={!sportId}
+                      >
+                        {isExpanded
+                          ? <ChevronUp className="h-4 w-4" />
+                          : <ChevronDown className="h-4 w-4" />}
+                      </Button>
                       {associationId && (
                         <Button
                           variant="ghost"

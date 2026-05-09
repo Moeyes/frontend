@@ -65,7 +65,10 @@ export function SubmissionDetail({ submissionId }: SubmissionDetailProps) {
               </CardContent>
             </Card>
 
-            <ReviewActions />
+            <ReviewActions
+              submissionId={submissionId}
+              currentStatus={entry.status}
+            />
           </div>
         )}
       </QueryBoundary>

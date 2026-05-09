@@ -11,6 +11,7 @@ import { formatDate } from '@/core/lib/format';
 import { useLanguage } from '@/core/i18n';
 import { ROUTES } from '@/core/config';
 import { useSubmissions } from '../hooks/useSubmissions';
+import { StatusBadge } from './ReviewActions';
 import type { SubmissionEntry } from '../services/submissions.service';
 
 export function SubmissionList() {
@@ -57,6 +58,11 @@ export function SubmissionList() {
       accessorKey: 'leader_female_count',
       header: t('columns.leaderF'),
       cell: ({ getValue }) => <span className="tabular-nums">{String(getValue() ?? 0)}</span>,
+    },
+    {
+      accessorKey: 'status',
+      header: t('columns.status'),
+      cell: ({ getValue }) => <StatusBadge status={String(getValue() ?? 'PENDING')} />,
     },
     {
       accessorKey: 'created_at',

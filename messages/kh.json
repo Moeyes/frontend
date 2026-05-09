@@ -212,8 +212,9 @@
     "backToSports": "ត្រឡប់ទៅកីឡា",
     "sportNotFound": "រកមិនឃើញកីឡា",
     "sportType": "ប្រភេទ",
-    "deleteNotSupported": "ការលុបកីឡាមិនទាន់ត្រូវបានគាំទ្រដោយ Backend",
-    "editNotSupported": "ការកែប្រែកីឡាមិនទាន់ត្រូវបានគាំទ្រដោយ Backend",
+    "deleteConfirm": "តើអ្នកពិតជាចង់លុបកីឡានេះ?",
+    "deleteSuccess": "កីឡាត្រូវបានលុបដោយជោគជ័យ",
+    "updateSuccess": "កីឡាត្រូវបានកែប្រែដោយជោគជ័យ",
     "validation": {
       "nameRequired": "សូមបញ្ចូលឈ្មោះកីឡា",
       "typeRequired": "សូមបញ្ចូលប្រភេទកីឡា",
@@ -583,11 +584,33 @@
     },
     "rptDelegation": {
       "title": "តារាងទិន្នន័យក្រុម",
-      "description": "ទិន្នន័យប្រតិភូ"
+      "description": "ព័ត៌មានលំអិតអ្នកចូលរួម + អ្នកដឹកនាំ",
+      "filename": "RPT-DELEGATION"
     },
     "rptSportList": {
       "title": "ចុះប្រភេទកីឡា",
-      "description": "បញ្ជីប្រភេទកីឡាពេញលេញ"
+      "description": "ចំនួនអ្នកចូលរួមសរុបតាមប្រភេទកីឡា (ព្រឹត្តិការណ៍ទាំងមូល)",
+      "filename": "RPT-SPORT-LIST"
+    },
+    "rptAlbum": {
+      "title": "អាល់ប៊ុមប្រតិភូ",
+      "description": "បញ្ជីអ្នកចូលរួមជាមួយ URL រូបថត",
+      "filename": "RPT-ALBUM"
+    },
+    "rptLeaderAll": {
+      "title": "បញ្ជីថ្នាក់ដឹកនាំ",
+      "description": "អ្នកដឹកនាំទាំងអស់ (គ្រប់ស្ថាប័ន) សម្រាប់ព្រឹត្តិការណ៍",
+      "filename": "RPT-LEADER-ALL"
+    },
+    "rptCoachAthlete": {
+      "title": "គ្រូបង្វឹក + កីឡាករ",
+      "description": "គ្រូបង្វឹករួមជាមួយអ្នកចូលរួមតាមកីឡា",
+      "filename": "RPT-COACH-ATHLETE"
+    },
+    "rptDelegationLeaders": {
+      "title": "ប្រតិភូ + អ្នកដឹកនាំក្រុម",
+      "description": "អ្នកដឹកនាំក្រុមសម្រាប់ស្ថាប័ននេះ",
+      "filename": "RPT-DELEGATION-LEADERS"
     }
   },
   "unauthorized": {
@@ -667,12 +690,21 @@
     "athleteFemale": "អត្តពលករ (ស្រ)",
     "leaderMale": "អ្នកដឹកនាំ (ប)",
     "leaderFemale": "អ្នកដឹកនាំ (ស្រ)",
-    "fsmGapTitle": "FSM Transitions មិនទាន់ត្រៀម",
-    "fsmGapDetail": "Backend ត្រូវការបន្ថែម endpoint: /approve, /reject, /flag, និង status field នៅក្នុង ParticipationPerSportPublic",
     "approve": "អនុម័ត",
     "reject": "បដិសេធ",
     "flag": "ដាក់ទង់",
-    "actionUnavailable": "ត្រូវការ Backend ថ្មី",
+    "approveSuccess": "ការស្ទង់មតិត្រូវបានអនុម័ត",
+    "rejectSuccess": "ការស្ទង់មតិត្រូវបានបដិសេធ",
+    "flagSuccess": "ការស្ទង់មតិត្រូវបានដាក់ទង់",
+    "actionFailed": "សកម្មភាពបានបរាជ័យ — ព្យាយាមមើលម្តងទៀត",
+    "currentStatus": "ស្ថានភាពបច្ចុប្បន្ន",
+    "status": {
+      "pending":   "រង់ចាំ",
+      "submitted": "បានដាក់ស្នើ",
+      "approved":  "អនុម័ត",
+      "rejected":  "បដិសេធ",
+      "flagged":   "ដាក់ទង់"
+    },
     "columns": {
       "org": "អង្គការ",
       "event": "ព្រឹត្តិការណ៍",
@@ -681,6 +713,7 @@
       "leaderM": "អ្នកដឹកនាំ (ប)",
       "leaderF": "អ្នកដឹកនាំ (ស្រ)",
       "submittedAt": "ថ្ងៃដាក់ស្នើ",
+      "status": "ស្ថានភាព",
       "actions": "សកម្មភាព"
     }
   }

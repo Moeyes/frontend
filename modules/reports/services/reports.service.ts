@@ -35,7 +35,7 @@ export async function downloadExcelBlob(
   params: ReportParams,
   filename: string
 ): Promise<void> {
-  const qs = new URLSearchParams({
+  const qs  = new URLSearchParams({
     org_id:    String(params.org_id),
     events_id: String(params.events_id),
   });

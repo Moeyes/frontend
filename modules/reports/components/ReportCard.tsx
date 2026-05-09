@@ -8,13 +8,14 @@ import { downloadExcelBlob, type ReportParams } from '../services/reports.servic
 import type { ReactNode } from 'react';
 
 interface ReportCardProps {
-  titleKey:    string;
-  descKey:     string;
-  available:   boolean;
+  titleKey:      string;
+  descKey:       string;
+  available:     boolean;
   downloadPath?: string;
-  filenameKey?: string;
-  params:      ReportParams | null;
-  preview?:    ReactNode;
+  filenameKey?:  string;
+  params:        ReportParams | null;
+  preview?:      ReactNode;
+  requiresOrgId?: boolean;
 }
 
 export function ReportCard({

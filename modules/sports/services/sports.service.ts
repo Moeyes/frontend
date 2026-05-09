@@ -3,6 +3,7 @@ import type { components } from '@/_contract/api.types';
 
 export type SportPublic       = components['schemas']['SportPublic'];
 export type SportCreate       = components['schemas']['SportCreate'];
+export type SportUpdate       = components['schemas']['SportUpdate'];
 export type SportsPublic      = components['schemas']['SportsPublic'];
 export type CategoryPublic    = components['schemas']['CategoryPublic'];
 export type AddCategoryBody   = components['schemas']['AddCategoryBody'];
@@ -32,6 +33,22 @@ export async function createSport(body: SportCreate): Promise<SportPublic> {
   const { data, error } = await api.POST('/api/sports/', { body });
   if (error) throw error;
   return data;
+}
+
+export async function updateSport(sportId: number, body: SportUpdate): Promise<SportPublic> {
+  const { data, error } = await api.PUT('/api/sports/{sport_id}', {
+    params: { path: { sport_id: sportId } },
+    body,
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteSport(sportId: number): Promise<void> {
+  const { error } = await api.DELETE('/api/sports/{sport_id}', {
+    params: { path: { sport_id: sportId } },
+  });
+  if (error) throw error;
 }
 
 // --- Category management (categories are per event+sport) ---

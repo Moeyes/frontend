@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { PageHeader, QueryBoundary, PageEmptyState, Skeleton, OrgSelectorBanner } from '@/shared/ui';
+import { PageHeader, QueryBoundary, PageEmptyState, Skeleton } from '@/shared/ui';
 import { useAuth, useEffectiveOrgId } from '@/core/auth';
 import { useEvents } from '@/modules/events';
 import { useOrganizations } from '@/modules/organizations';
@@ -37,8 +37,6 @@ export function CardsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title={t('title')} description={t('description')} />
-
-      {!isAdmin && !effectiveOrgId && <OrgSelectorBanner onOrgSelected={setSelectedOrgId} />}
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-center">

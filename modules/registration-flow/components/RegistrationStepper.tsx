@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { PageHeader, BackLink, StepIndicator, OrgSelectorBanner } from '@/shared/ui';
+import { PageHeader, BackLink, StepIndicator } from '@/shared/ui';
 import { useEffectiveOrgId } from '@/core/auth';
 import { ROUTES } from '@/core/config';
 import { useCreateRegistration } from '../hooks/useCreateRegistration';
@@ -83,8 +83,6 @@ export function RegistrationStepper() {
     <div className="space-y-6 max-w-xl">
       <BackLink href={ROUTES.register.home} label={t('backToList')} />
       <PageHeader title={t('createTitle')} />
-
-      {!organizationId && <OrgSelectorBanner onOrgSelected={() => {}} />}
 
       <StepIndicator steps={steps} currentStep={currentStep} />
 

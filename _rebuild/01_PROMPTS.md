@@ -696,15 +696,15 @@ These gaps are currently worked around in the frontend. Each row shows: the gap,
 
 | # | Gap | Workaround file(s) | What teammate must add |
 |---|-----|--------------------|------------------------|
-| 1 | `UserPublic.organization_id` field missing | `core/auth/hooks/useOrgOverride.ts`, `useEffectiveOrgId.ts` — cookie override | Add `organization_id: int \| null` to `UserPublic` schema |
-| 2 | `SportsEventPublic.sports_id` field missing | `modules/events/components/EventSportManager.tsx` — name-match workaround | Add `sports_id: int` to `SportsEventPublic` schema |
+| 1 | ✅ CLOSED 2026-05-09 `UserPublic.organization_id` | ~~cookie override~~ — `useEffectiveOrgId` now reads from session | Done |
+| 2 | ✅ CLOSED 2026-05-09 `SportsEventPublic.sports_id` | ~~name-match workaround~~ — `sport.sports_id` used directly | Done |
 | 3 | No event `status` field / no publish endpoint | `modules/events/components/EventList.tsx` — computed badge from dates | Add `status` to `EventPublic`; add `POST /api/events/{event_id}/publish` |
 | 4 | No sport quota field on `SportsEventPublic` | (quota UI never built — silently omitted) | Add `quota: int \| null` to `SportsEventPublic` |
-| 5 | No `status` on `ParticipationPerSportPublic`; no FSM endpoints | `modules/submissions/components/ReviewActions.tsx` — disabled buttons | Add `status` field; add `POST /api/participation-per-sport/{id}/approve`, `/reject`, `/flag` |
+| 5 | ✅ CLOSED 2026-05-09 FSM transitions | ~~disabled buttons~~ — approve/reject/flag buttons enabled, status badge shown | Done |
 | 6 | `ParticipationPerSportCreate` has no `category_id` | `modules/survey/components/ByCategorySurveyForm.tsx` — aggregates to totals | Add `category_id: int \| null` to create schema |
-| 7 | `GET /api/participation-per-sport/` has no filter params | `modules/survey/components/SurveyAdminTab.tsx` — client-side filter by event name | Add `events_id` and `organization_id` query params to the list endpoint |
-| 8 | Sport `PUT`/`DELETE` endpoints missing | `modules/sports/components/SportForm.tsx` — update/delete buttons disabled | Add `PUT /api/sports/{sport_id}` and `DELETE /api/sports/{sport_id}` |
-| 9 | 6 of 8 report endpoints missing | `modules/reports/components/ReportCard.tsx` — disabled with "backend needed" label | Add: `GET /api/excel/delegation`, `/sport-list`, `/album`, `/leader-all`, `/coach-athlete`, `/delegation-leaders` |
+| 7 | ✅ CLOSED 2026-05-09 participation-per-sport filter params | ~~client-side event_name filter~~ — server-side `events_id` param used | Done |
+| 8 | ✅ CLOSED 2026-05-09 Sport `PUT`/`DELETE` endpoints | ~~disabled buttons~~ — edit modal + delete on SportDetailPage and SportList | Done |
+| 9 | ✅ CLOSED 2026-05-09 6 of 8 report endpoints | ~~disabled cards~~ — all 8 reports enabled with real `.xlsx` downloads | Done |
 | 10 | `POST /api/registration/` body undocumented in OpenAPI | `modules/registration-flow/services/registration.service.ts` — body cast to `Record<string, unknown>` | Document the request body schema in OpenAPI |
 | 11 | No `federation_id`/`organization_id` scoping on list endpoints | All module list hooks — pass params but backend may ignore | Add query param filtering to: `/api/registration/`, `/api/participation-per-sport/`, `/api/events/`, `/api/organization/` |
 
