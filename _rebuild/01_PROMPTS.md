@@ -686,6 +686,109 @@ git push origin v1.0
 
 ---
 
+## PROMPT 13 — Wire up backend fixes (run when teammate delivers a gap)
+
+This prompt is **not scheduled** — run it each time the backend teammate closes one or more of the documented gaps below. One run per batch of related fixes is fine.
+
+### Full backend gap registry
+
+These gaps are currently worked around in the frontend. Each row shows: the gap, which file contains the workaround, and what needs to happen to remove it.
+
+| # | Gap | Workaround file(s) | What teammate must add |
+|---|-----|--------------------|------------------------|
+| 1 | `UserPublic.organization_id` field missing | `core/auth/hooks/useOrgOverride.ts`, `useEffectiveOrgId.ts` — cookie override | Add `organization_id: int \| null` to `UserPublic` schema |
+| 2 | `SportsEventPublic.sports_id` field missing | `modules/events/components/EventSportManager.tsx` — name-match workaround | Add `sports_id: int` to `SportsEventPublic` schema |
+| 3 | No event `status` field / no publish endpoint | `modules/events/components/EventList.tsx` — computed badge from dates | Add `status` to `EventPublic`; add `POST /api/events/{event_id}/publish` |
+| 4 | No sport quota field on `SportsEventPublic` | (quota UI never built — silently omitted) | Add `quota: int \| null` to `SportsEventPublic` |
+| 5 | No `status` on `ParticipationPerSportPublic`; no FSM endpoints | `modules/submissions/components/ReviewActions.tsx` — disabled buttons | Add `status` field; add `POST /api/participation-per-sport/{id}/approve`, `/reject`, `/flag` |
+| 6 | `ParticipationPerSportCreate` has no `category_id` | `modules/survey/components/ByCategorySurveyForm.tsx` — aggregates to totals | Add `category_id: int \| null` to create schema |
+| 7 | `GET /api/participation-per-sport/` has no filter params | `modules/survey/components/SurveyAdminTab.tsx` — client-side filter by event name | Add `events_id` and `organization_id` query params to the list endpoint |
+| 8 | Sport `PUT`/`DELETE` endpoints missing | `modules/sports/components/SportForm.tsx` — update/delete buttons disabled | Add `PUT /api/sports/{sport_id}` and `DELETE /api/sports/{sport_id}` |
+| 9 | 6 of 8 report endpoints missing | `modules/reports/components/ReportCard.tsx` — disabled with "backend needed" label | Add: `GET /api/excel/delegation`, `/sport-list`, `/album`, `/leader-all`, `/coach-athlete`, `/delegation-leaders` |
+| 10 | `POST /api/registration/` body undocumented in OpenAPI | `modules/registration-flow/services/registration.service.ts` — body cast to `Record<string, unknown>` | Document the request body schema in OpenAPI |
+| 11 | No `federation_id`/`organization_id` scoping on list endpoints | All module list hooks — pass params but backend may ignore | Add query param filtering to: `/api/registration/`, `/api/participation-per-sport/`, `/api/events/`, `/api/organization/` |
+
+```
+Working directory: ~/moeys/final
+
+The backend teammate has delivered one or more fixes. Before doing anything:
+1. Tell me which gap number(s) from the registry above are now fixed (I will confirm)
+2. Run: pnpm contract:sync
+   This re-fetches openapi.json from http://localhost:8000/openapi.json and regenerates _contract/api.types.ts
+3. Diff the new api.types.ts against the previous version — print every changed type
+4. For each closed gap, find the workaround in the file(s) listed in the registry and remove it:
+
+   Gap 1 — UserPublic.organization_id now present:
+   - Delete core/auth/hooks/useOrgOverride.ts and useEffectiveOrgId.ts
+   - Replace all useEffectiveOrgId() calls with useAuth().user?.organization_id directly
+   - Remove OrgSelectorBanner from all pages that show it
+
+   Gap 2 — SportsEventPublic.sports_id now present:
+   - In modules/events/components/EventSportManager.tsx, remove the name-match workaround
+   - Use s.sports_id directly instead of resolving by name
+
+   Gap 3 — EventPublic.status + publish endpoint:
+   - Add status badge using the contract enum (do NOT hand-write the enum)
+   - Add a Publish button in EventDetailPage → POST /api/events/{event_id}/publish
+   - Remove the computed-from-dates status badge
+
+   Gap 5 — ParticipationPerSportPublic.status + FSM endpoints:
+   - Enable ReviewActions.tsx buttons: each calls POST .../approve, .../reject, .../flag
+   - Remove the yellow "FSM gap" banner from ReviewActions.tsx
+   - Add status badge to SubmissionList and SubmissionDetail
+   - Invalidate React Query cache on transition success
+
+   Gap 6 — ParticipationPerSportCreate.category_id:
+   - Update ByCategorySurveyForm.tsx to send category_id per row instead of aggregating to totals
+   - Remove the aggregation workaround comment
+
+   Gap 7 — Filter params on participation-per-sport list:
+   - In SurveyAdminTab.tsx, replace client-side event_name filter with server-side events_id param
+   - Remove the "gap #5 workaround" comment
+   - Pass organization_id param from auth context
+
+   Gap 8 — Sport PUT/DELETE:
+   - Enable edit/delete in SportForm.tsx and SportList.tsx
+   - Add useUpdateSport and useDeleteSport hooks
+   - Add PUT /api/sports/{sport_id} and DELETE /api/sports/{sport_id} calls to sports.service.ts
+
+   Gap 9 — Missing report endpoints (one or more):
+   - For each newly available endpoint, update modules/reports/services/reports.service.ts
+   - Add a hook in modules/reports/hooks/
+   - Enable the corresponding ReportCard (remove disabled state and "backend needed" label)
+   - Verify Khmer column headers match the ministry template exactly
+
+   Gap 10 — Registration body schema documented:
+   - Remove the Record<string,unknown> cast in registration.service.ts
+   - Use the proper typed body from _contract/api.types.ts
+
+   Gap 11 — Server-side scoping:
+   - Remove client-side filter comments; confirm backend actually filters
+   - Verify with a test call: pass organization_id for org A, confirm org B's data is absent
+
+5. After each workaround is removed:
+   - pnpm tsc --noEmit (must be clean)
+   - pnpm lint (must be clean)
+   - pnpm build (must succeed)
+   - Walk through the affected scenario(s) from SCENARIOS.md — print PASS / FAIL
+
+6. Update the gap registry in this file: mark closed gaps as ✅ CLOSED with the date.
+
+7. Commit:
+   git add -A
+   git commit -m "fix: wire up backend gap(s) <list gap numbers>
+
+   Gaps closed: #N, #N
+   Contract regenerated: pnpm contract:sync
+   Workarounds removed: (list files)
+   Scenarios now passing: (list)
+   "
+
+Do NOT fix more than one gap batch per session. If the teammate delivers 3 gaps at once, still run pnpm contract:sync once, then fix all 3 in one commit.
+```
+
+---
+
 ## How to use this file
 
 1. Run the **Evening Kickoff prompt** at the start of every session
