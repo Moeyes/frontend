@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { SelectField } from '@/shared/form';
 import { Button } from '@/shared/ui';
+import { useAuth } from '@/core/auth';
 import { useEvents, useEventSports } from '@/modules/events';
 import { eventSportStepSchema, type EventSportStepValues } from '../services/schema';
 import { LEADER_ROLES, type LeaderRole } from '../services/registration.service';
@@ -25,7 +26,13 @@ export function EventSportStep({ defaultValues, onNext }: EventSportStepProps) {
   const selectedEventId = form.watch('event_id');
   const selectedRole    = form.watch('role');
 
-  const eventsQuery = useEvents({ limit: 100 });
+  // Gap #11: federation users only see published events they are linked to
+  const { user } = useAuth();
+  const eventsQuery = useEvents({
+    limit:           100,
+    organization_id: user?.organization_id ?? undefined,
+    status:          user?.role === 'admin' ? undefined : 'PUBLISHED',
+  });
   const sportsQuery = useEventSports(selectedEventId ?? 0);
 
   const eventOptions = (eventsQuery.data?.data ?? []).map((e) => ({

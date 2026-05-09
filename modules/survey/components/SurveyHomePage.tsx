@@ -3,13 +3,20 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { ClipboardList } from 'lucide-react';
 import { PageHeader, QueryBoundary, PageEmptyState, Card, CardContent } from '@/shared/ui';
+import { useAuth } from '@/core/auth';
 import { useEvents } from '@/modules/events';
 import { ROUTES } from '@/core/config';
 
 export function SurveyHomePage() {
-  const t = useTranslations('survey');
-  const tc = useTranslations('common');
-  const eventsQuery = useEvents({ limit: 100 });
+  const t   = useTranslations('survey');
+  const tc  = useTranslations('common');
+  const { user } = useAuth();
+  // Gap #11: pass organization_id for federation scoping; status=PUBLISHED for federation view
+  const eventsQuery = useEvents({
+    limit:           100,
+    organization_id: user?.organization_id ?? undefined,
+    status:          user?.role === 'admin' ? undefined : 'PUBLISHED',
+  });
 
   const surveyTypes = [
     { key: 'bySport',    label: t('bySport'),    desc: t('bySportDesc'),    route: (id: number) => ROUTES.surveys.bySport(id) },

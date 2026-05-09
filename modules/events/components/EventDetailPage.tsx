@@ -6,7 +6,10 @@ import { QueryBoundary, PageHeader, BackLink, Card, CardContent, Button } from '
 import { formatDate } from '@/core/lib/format';
 import { useLanguage } from '@/core/i18n';
 import { ROUTES } from '@/core/config';
+import { toast } from 'sonner';
 import { useEvent } from '../hooks/useEvent';
+import { usePublishEvent } from '../hooks/usePublishEvent';
+import { useArchiveEvent } from '../hooks/useArchiveEvent';
 import { EventStatusBadge } from './EventStatusBadge';
 import { EventForm } from './EventForm';
 import { EventSportManager } from './EventSportManager';
@@ -22,7 +25,21 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const { locale }  = useLanguage();
   const router      = useRouter();
   const [editing, setEditing] = useState(false);
-  const query       = useEvent(eventId);
+  const query      = useEvent(eventId);
+  const publishMut = usePublishEvent(eventId);
+  const archiveMut = useArchiveEvent(eventId);
+
+  const handlePublish = () =>
+    publishMut.mutate(undefined, {
+      onSuccess: () => toast.success(t('publishSuccess')),
+      onError:   () => toast.error(tc('somethingWentWrong')),
+    });
+
+  const handleArchive = () =>
+    archiveMut.mutate(undefined, {
+      onSuccess: () => toast.success(t('archiveSuccess')),
+      onError:   () => toast.error(tc('somethingWentWrong')),
+    });
 
   const renderInfo = (event: EventPublic) => (
     <Card>
@@ -52,10 +69,29 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
           ))}
         </dl>
 
-        <div className="flex gap-2 pt-2">
+        <div className="flex gap-2 pt-2 flex-wrap">
           <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
             {tc('edit')}
           </Button>
+          {event.status !== 'PUBLISHED' && (
+            <Button
+              size="sm"
+              loading={publishMut.isPending}
+              onClick={handlePublish}
+            >
+              {t('publish')}
+            </Button>
+          )}
+          {event.status === 'PUBLISHED' && (
+            <Button
+              variant="outline"
+              size="sm"
+              loading={archiveMut.isPending}
+              onClick={handleArchive}
+            >
+              {t('archive')}
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

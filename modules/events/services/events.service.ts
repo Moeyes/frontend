@@ -25,8 +25,10 @@ export const EVENT_TYPE_KEY: Record<EventType, string> = {
 export const EVENT_TYPES = Object.keys(EVENT_TYPE_KEY) as EventType[];
 
 export interface ListEventsParams {
-  skip?: number;
-  limit?: number;
+  skip?:            number;
+  limit?:           number;
+  organization_id?: number | null;
+  status?:          string | null;
 }
 
 export async function listEvents(params?: ListEventsParams): Promise<EventsPublic> {
@@ -127,4 +129,20 @@ export async function listAllOrgs(): Promise<OrganizationPublic[]> {
   });
   if (error) throw error;
   return (data as { data: OrganizationPublic[] }).data;
+}
+
+export async function publishEvent(eventId: number): Promise<EventPublic> {
+  const { data, error } = await api.POST('/api/events/{event_id}/publish', {
+    params: { path: { event_id: eventId } },
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function archiveEvent(eventId: number): Promise<EventPublic> {
+  const { data, error } = await api.POST('/api/events/{event_id}/archive', {
+    params: { path: { event_id: eventId } },
+  });
+  if (error) throw error;
+  return data;
 }

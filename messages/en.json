@@ -151,11 +151,18 @@
       "primarySchool": "Primary School Games"
     },
     "status": {
-      "upcoming": "Upcoming",
-      "active": "Active",
-      "ended": "Ended",
-      "unknown": "Unknown"
+      "draft":     "Draft",
+      "published": "Published",
+      "archived":  "Archived",
+      "upcoming":  "Upcoming",
+      "active":    "Active",
+      "ended":     "Ended",
+      "unknown":   "Unknown"
     },
+    "publish":        "Publish",
+    "archive":        "Archive",
+    "publishSuccess": "Event published successfully",
+    "archiveSuccess": "Event archived successfully",
     "addSport": "Add Sport",
     "selectSportPlaceholder": "Select sport...",
     "noSportSelected": "Please select a sport first",
@@ -174,7 +181,9 @@
       "title": "Event Sports",
       "selectSport": "Select sport...",
       "noSportsAssigned": "No sports assigned to this event yet.",
-      "removeSportConfirm": "Are you sure you want to remove this sport from the event?"
+      "removeSportConfirm": "Are you sure you want to remove this sport from the event?",
+      "quota": "Quota",
+      "quotaPlaceholder": "Quota (optional)"
     },
     "validation": {
       "nameRequired": "Event name is required",

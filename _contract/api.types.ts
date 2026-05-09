@@ -516,7 +516,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Events */
+        /**
+         * List Events
+         * @description Retrieve a paginated list of events.
+         *
+         *     - **organization_id**: Return only events where this organization is linked (for federation/org scoping).
+         *     - **status**: Filter by status — DRAFT, PUBLISHED, or ARCHIVED.
+         */
         get: operations["events-list_events"];
         put?: never;
         /**
@@ -583,6 +589,46 @@ export interface paths {
         patch: operations["events-update_event"];
         trace?: never;
     };
+    "/api/events/{event_id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Publish Event
+         * @description Publish an event. Transitions status DRAFT → PUBLISHED.
+         */
+        post: operations["events-publish_event"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/events/{event_id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Archive Event
+         * @description Archive an event. Transitions status PUBLISHED → ARCHIVED.
+         */
+        post: operations["events-archive_event"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/events/delete": {
         parameters: {
             query?: never;
@@ -608,6 +654,23 @@ export interface paths {
          *     - `404 Not Found`: Event ID does not exist in the database.
          */
         delete: operations["events-delete_event"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/events/events/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Events V2 */
+        get: operations["events-list_events_v2"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -887,9 +950,7 @@ export interface paths {
          * List Organizations
          * @description Retrieve a paginated list of all organizations.
          *
-         *     - **skip**: Number of records to skip for pagination. Default is 0.
-         *     - **limit**: Maximum number of records to return. Default is 100.
-         *     - **name**: Optional filter to search organizations by their Khmer name.
+         *     - **organization_id**: Return only the specific organization with this ID (for scoped access).
          */
         get: operations["organization-list_organizations"];
         put?: never;
@@ -1599,6 +1660,11 @@ export interface components {
             /** Close Register Date */
             close_register_date?: string | null;
             /**
+             * Status
+             * @default DRAFT
+             */
+            status: string | null;
+            /**
              * Created At
              * Format: date-time
              */
@@ -2075,6 +2141,8 @@ export interface components {
             events_id?: number | null;
             /** Sports Id */
             sports_id?: number | null;
+            /** Quota */
+            quota?: number | null;
         };
         /** SportsEventOrgPublic */
         SportsEventOrgPublic: {
@@ -2102,6 +2170,8 @@ export interface components {
             event_name?: string | null;
             /** Sport Name */
             sport_name?: string | null;
+            /** Quota */
+            quota?: number | null;
             /**
              * Created At
              * Format: date-time
@@ -3091,6 +3161,10 @@ export interface operations {
                 skip?: number;
                 limit?: number;
                 name?: string | null;
+                /** @description Filter events where this org is participating */
+                organization_id?: number | null;
+                /** @description Filter by event status (DRAFT, PUBLISHED, ARCHIVED) */
+                status?: string | null;
             };
             header?: never;
             path?: never;
@@ -3217,6 +3291,68 @@ export interface operations {
             };
         };
     };
+    "events-publish_event": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventPublic"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "events-archive_event": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventPublic"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     "events-delete_event": {
         parameters: {
             query?: never;
@@ -3236,6 +3372,41 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "events-list_events_v2": {
+        parameters: {
+            query?: {
+                skip?: number;
+                limit?: number;
+                name?: string | null;
+                organization_id?: number | null;
+                status?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventsPublic"];
+                };
             };
             /** @description Validation Error */
             422: {
@@ -3539,6 +3710,7 @@ export interface operations {
                 skip?: number;
                 limit?: number;
                 name?: string | null;
+                organization_id?: number | null;
             };
             header?: never;
             path?: never;

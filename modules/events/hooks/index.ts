@@ -3,6 +3,8 @@ export { useEvent }               from './useEvent';
 export { useCreateEvent }         from './useCreateEvent';
 export { useUpdateEvent }         from './useUpdateEvent';
 export { useDeleteEvent }         from './useDeleteEvent';
+export { usePublishEvent }        from './usePublishEvent';
+export { useArchiveEvent }        from './useArchiveEvent';
 export { useEventSports, useAllSportsCatalogue }   from './useEventSports';
 export { useAddSportToEvent }     from './useAddSportToEvent';
 export { useRemoveSportFromEvent } from './useRemoveSportFromEvent';

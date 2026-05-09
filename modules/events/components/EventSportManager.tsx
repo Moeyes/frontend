@@ -28,8 +28,9 @@ export function EventSportManager({ eventId }: EventSportManagerProps) {
   const tc = useTranslations('common');
 
   const [selectedSportId, setSelectedSportId] = useState<number | null>(null);
-  const [removeAssocId, setRemoveAssocId] = useState<number | null>(null);
-  const [expandedSport, setExpandedSport] = useState<string | null>(null);
+  const [selectedQuota, setSelectedQuota]     = useState<number | ''>('');
+  const [removeAssocId, setRemoveAssocId]     = useState<number | null>(null);
+  const [expandedSport, setExpandedSport]     = useState<string | null>(null);
 
   const sportsQuery   = useEventSports(eventId);
   const catalogueQuery = useAllSportsCatalogue();
@@ -45,7 +46,10 @@ export function EventSportManager({ eventId }: EventSportManagerProps) {
 
   const handleAdd = () => {
     if (!selectedSportId) return;
-    addMutation.mutate(selectedSportId, { onSuccess: () => setSelectedSportId(null) });
+    addMutation.mutate(
+      { sportId: selectedSportId, quota: selectedQuota !== '' ? Number(selectedQuota) : null },
+      { onSuccess: () => { setSelectedSportId(null); setSelectedQuota(''); } },
+    );
   };
 
   return (
@@ -66,7 +70,14 @@ export function EventSportManager({ eventId }: EventSportManagerProps) {
               return (
                 <li key={associationId ?? sportName} className="px-4 py-3">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm font-medium">{sportName}</span>
+                    <div>
+                      <span className="text-sm font-medium">{sportName}</span>
+                      {sport.quota != null && (
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          {t('sports.quota')}: {sport.quota}
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-1">
                       <Button
                         variant="ghost"
@@ -107,11 +118,11 @@ export function EventSportManager({ eventId }: EventSportManagerProps) {
         )}
       </QueryBoundary>
 
-      {/* Add sport picker */}
+      {/* Add sport picker with optional quota */}
       {availableSports.length > 0 && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <select
-            className="text-sm border rounded px-3 py-2 flex-1 bg-background"
+            className="text-sm border rounded px-3 py-2 flex-1 min-w-40 bg-background"
             value={selectedSportId ?? ''}
             onChange={(e) => setSelectedSportId(e.target.value ? Number(e.target.value) : null)}
           >
@@ -120,6 +131,15 @@ export function EventSportManager({ eventId }: EventSportManagerProps) {
               <option key={s.id} value={s.id}>{s.name_kh}</option>
             ))}
           </select>
+          <input
+            type="number"
+            min={1}
+            placeholder={t('sports.quotaPlaceholder')}
+            value={selectedQuota}
+            onChange={(e) => setSelectedQuota(e.target.value ? Number(e.target.value) : '')}
+            className="text-sm border rounded px-3 py-2 w-24 bg-background"
+            aria-label={t('sports.quota')}
+          />
           <Button
             variant="outline"
             disabled={!selectedSportId || addMutation.isPending}

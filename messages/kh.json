@@ -151,11 +151,18 @@
       "primarySchool": "កីឡាសិស្សបថមសិក្សា"
     },
     "status": {
-      "upcoming": "នាំមុខ",
-      "active": "កំពុងដំណើរ",
-      "ended": "បានបញ្ចប់",
-      "unknown": "មិនដឹង"
+      "draft":     "ព្រាង",
+      "published": "បានបោះផ្សាយ",
+      "archived":  "បានរក្សាទុក",
+      "upcoming":  "នាំមុខ",
+      "active":    "កំពុងដំណើរ",
+      "ended":     "បានបញ្ចប់",
+      "unknown":   "មិនដឹង"
     },
+    "publish":        "បោះផ្សាយ",
+    "archive":        "រក្សាទុក",
+    "publishSuccess": "ព្រឹត្តិការណ៍ត្រូវបានបោះផ្សាយ",
+    "archiveSuccess": "ព្រឹត្តិការណ៍ត្រូវបានរក្សាទុក",
     "addSport": "បន្ថែមកីឡា",
     "selectSportPlaceholder": "ជ្រើសរើសកីឡា...",
     "noSportSelected": "សូមជ្រើសរើសកីឡាមុន",
@@ -174,7 +181,9 @@
       "title": "កីឡាក្នុងព្រឹត្តិការណ៍",
       "selectSport": "ជ្រើសរើសកីឡា...",
       "noSportsAssigned": "មិនទាន់មានកីឡាត្រូវបានកំណត់ក្នុងព្រឹត្តិការណ៍នេះ។",
-      "removeSportConfirm": "តើអ្នកពិតជាចង់លុបកីឡានេះចេញពីព្រឹត្តិការណ៍?"
+      "removeSportConfirm": "តើអ្នកពិតជាចង់លុបកីឡានេះចេញពីព្រឹត្តិការណ៍?",
+      "quota": "កូតា",
+      "quotaPlaceholder": " កូតា (មិនចាំបាច់)"
     },
     "validation": {
       "nameRequired": "សូមបញ្ចូលឈ្មោះព្រឹត្តិការណ៍",
