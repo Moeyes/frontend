@@ -657,7 +657,7 @@
     "totalLeaders": "Total Leaders",
     "byNumberHint": "Submit overall totals for the entire event",
     "byCategoryHint": "By-category survey — counts are aggregated before submission",
-    "categoryGapNote": "By-category survey: per-category counts are aggregated (backend missing category_id field)",
+    "noCategoriesForSport": "No categories yet — add categories to this sport first",
     "orgIdMissing": "organization_id not available in session — backend fix required",
     "orgIdMissingDetail": "Submission requires organization_id. Backend must add organization_id to UserPublic/session endpoint.",
     "adminTitle": "Survey Submissions",

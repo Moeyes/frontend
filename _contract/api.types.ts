@@ -278,20 +278,11 @@ export interface paths {
          * Create Participant
          * @description **Register a new participant (Athlete or Leader/Staff).**
          *
-         *     **Scenario:**
-         *     Used by organizations to register their athletes, coaches, or staff for an event.
-         *     The logic dynamically chooses the target table based on the `role` field.
-         *
-         *     **Requirements:**
-         *     - Athletes MUST have a `categoryId`.
-         *     - Leaders (coach, manager, etc.) MUST have a `leaderRole`.
-         *
-         *     **Success Response:**
-         *     - `201 Created`: Participant information is saved successfully.
-         *
-         *     **Error Cases:**
-         *     - `400 Bad Request`: Validation failure (e.g., Athlete missing category, Leader missing leaderRole).
-         *     - `404 Not Found`: The specified Event, Sport, or Organization does not exist.
+         *     All fields use snake_case to match the frontend payload exactly.
+         *     - `role`: "athlete" or "leader"
+         *     - Athletes should provide `category_id` if available
+         *     - Leaders must provide `leader_role` (coach, manager, delegate, team_lead, coach_trainer, teacher_assistant)
+         *     - Document URLs are Cloudinary secure URLs obtained from GET /api/cloudinary/presign-url
          */
         post: operations["registration-create_participant"];
         delete?: never;
@@ -1662,6 +1653,12 @@ export interface components {
             detail?: components["schemas"]["ValidationError"][];
         };
         /**
+         * IdDocumentType
+         * @description Common identity document types in Cambodia & region
+         * @enum {string}
+         */
+        IdDocumentType: "CAM_NID" | "CAM_PASSPORT" | "CAM_BIRTH_CERT" | "CAM_FAMILY_BOOK" | "OTHER";
+        /**
          * LeaderRole
          * @enum {string}
          */
@@ -1747,6 +1744,53 @@ export interface components {
             /** Total */
             total: number;
         };
+        /**
+         * ParticipantCreateRequest
+         * @description Frontend-compatible registration schema.
+         *     All fields match what the Next.js frontend sends (snake_case).
+         *     Used for POST /api/registration/ — this is the canonical public API shape.
+         */
+        ParticipantCreateRequest: {
+            /** Kh Family Name */
+            kh_family_name: string;
+            /** Kh Given Name */
+            kh_given_name: string;
+            /** En Family Name */
+            en_family_name: string;
+            /** En Given Name */
+            en_given_name: string;
+            gender: components["schemas"]["genderEnum"];
+            /**
+             * Date Of Birth
+             * Format: date
+             */
+            date_of_birth: string;
+            /** Phone */
+            phone?: string | null;
+            /** Address */
+            address?: string | null;
+            /** Sport Id */
+            sport_id: number;
+            /** Organization Id */
+            organization_id: number;
+            /** Category Id */
+            category_id?: number | null;
+            /** Role */
+            role: string;
+            leader_role?: components["schemas"]["LeaderRole"] | null;
+            /** Event Id */
+            event_id?: number | null;
+            /** Photourl */
+            photoUrl?: string | null;
+            /** Birthcertificateurl */
+            birthCertificateUrl?: string | null;
+            /** Nationalidurl */
+            nationalIdUrl?: string | null;
+            /** Passporturl */
+            passportUrl?: string | null;
+            /** @default OTHER */
+            id_document_type: components["schemas"]["IdDocumentType"];
+        };
         /** ParticipantDeleteBody */
         ParticipantDeleteBody: {
             /** Enroll Id */
@@ -1807,6 +1851,8 @@ export interface components {
             sports_id: number;
             /** Organization Id */
             organization_id: number;
+            /** Category Id */
+            category_id?: number | null;
             /**
              * Athlete Female Count
              * @default 0
@@ -1846,6 +1892,8 @@ export interface components {
             organization_id?: number | null;
             /** Sports Events Id */
             sports_Events_id?: number | null;
+            /** Category Id */
+            category_id?: number | null;
             /** Athlete Female Count */
             athlete_female_count: number | null;
             /** Leader Female Count */
@@ -2619,9 +2667,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
+                "application/json": components["schemas"]["ParticipantCreateRequest"];
             };
         };
         responses: {

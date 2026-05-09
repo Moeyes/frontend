@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { createRegistration, type ParticipantRecord } from '../services/registration.service';
+import { createRegistration, type ParticipantRecord, type ParticipantCreateBody } from '../services/registration.service';
 import { regKeys } from '../services/keys';
 
 export type BulkRowStatus = 'valid' | 'error' | 'pending' | 'success' | 'failed';
@@ -65,19 +65,22 @@ export function useBulkCreateRegistration() {
       if (state.status !== 'valid') continue;
 
       try {
-        const result = await createRegistration({
-          kh_family_name:  state.row.kh_family_name,
-          kh_given_name:   state.row.kh_given_name,
-          en_family_name:  state.row.en_family_name,
-          en_given_name:   state.row.en_given_name,
-          gender:          state.row.gender,
-          date_of_birth:   state.row.date_of_birth,
-          phone:           state.row.phone || null,
-          address:         state.row.address || null,
-          sport_id:        opts.sportId,
-          organization_id: opts.organizationId,
-          role:            'athlete',
-        });
+        const body: ParticipantCreateBody = {
+          kh_family_name:   state.row.kh_family_name,
+          kh_given_name:    state.row.kh_given_name,
+          en_family_name:   state.row.en_family_name,
+          en_given_name:    state.row.en_given_name,
+          gender:           state.row.gender,
+          date_of_birth:    state.row.date_of_birth,
+          phone:            state.row.phone || undefined,
+          address:          state.row.address || undefined,
+          sport_id:         opts.sportId,
+          organization_id:  opts.organizationId ?? 0,
+          event_id:         opts.eventId,
+          role:             'athlete',
+          id_document_type: 'OTHER',
+        };
+        const result = await createRegistration(body);
         done++;
         setRowStates((prev) =>
           prev.map((r) =>

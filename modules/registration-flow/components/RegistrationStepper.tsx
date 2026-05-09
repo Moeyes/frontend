@@ -60,14 +60,25 @@ export function RegistrationStepper() {
     const { eventSport, personalInfo, documents } = formState;
 
     mutation.mutate({
-      ...personalInfo,
-      ...documents,
-      sport_id:       eventSport.sport_id,
-      category_id:    eventSport.category_id ?? null,
-      role:           eventSport.role,
-      leader_role:    eventSport.leader_role ?? null,
-      organization_id: organizationId,
-      // event_id not in ParticipantUpdateRequest — backend uses sport+org to resolve event
+      kh_family_name:  personalInfo.kh_family_name   ?? '',
+      kh_given_name:   personalInfo.kh_given_name    ?? '',
+      en_family_name:  personalInfo.en_family_name   ?? '',
+      en_given_name:   personalInfo.en_given_name    ?? '',
+      gender:          (personalInfo.gender ?? 'MALE') as 'MALE' | 'FEMALE',
+      date_of_birth:   personalInfo.date_of_birth    ?? '',
+      phone:           personalInfo.phone            ?? undefined,
+      address:         personalInfo.address          ?? undefined,
+      photoUrl:             documents.photoUrl            ?? undefined,
+      birthCertificateUrl:  documents.birthCertificateUrl ?? undefined,
+      nationalIdUrl:        documents.nationalIdUrl       ?? undefined,
+      passportUrl:          documents.passportUrl         ?? undefined,
+      id_document_type: 'OTHER' as const,
+      sport_id:        eventSport.sport_id           ?? 0,
+      category_id:     eventSport.category_id        ?? null,
+      role:            eventSport.role               ?? 'athlete',
+      leader_role:     (eventSport.leader_role ?? null) as 'coach' | 'manager' | 'delegate' | 'team_lead' | 'coach_trainer' | 'teacher_assistant' | null | undefined,
+      organization_id: organizationId                ?? 0,
+      event_id:        eventSport.event_id           ?? null,
     }, {
       onSuccess: () => {
         toast.success(t('success.title'));

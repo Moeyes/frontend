@@ -657,7 +657,7 @@
     "totalLeaders": "អ្នកដឹកនាំសរុប",
     "byNumberHint": "ដាក់ស្នើចំនួនសរុបសម្រាប់ព្រឹត្តិការណ៍ទាំងមូល",
     "byCategoryHint": "ការស្ទង់មតិតាមប្រភេទ — ចំនួនត្រូវបានបូករួមមុនដាក់ស្នើ",
-    "categoryGapNote": "ការស្ទង់មតិតាមប្រភេទ: ចំនួនតាមប្រភេទត្រូវបានបូករួម (Backend ខ្វះ category_id field)",
+    "noCategoriesForSport": "មិនទាន់មានប្រភេទ — សូម​បន្ថែម​ប្រភេទ​ដំបូង",
     "orgIdMissing": "organization_id មិនទាន់មាននៅក្នុង session — ត្រូវការ Backend Fix",
     "orgIdMissingDetail": "ការដាក់ស្នើត្រូវការ organization_id។ Backend ត្រូវការបន្ថែម organization_id ទៅ UserPublic/session endpoint ។",
     "adminTitle": "ការដាក់ស្នើការស្ទង់មតិ",

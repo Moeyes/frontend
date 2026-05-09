@@ -1,14 +1,11 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { useCreateRegistration } from '@/modules/registration-flow';
+import { createRegistration, type ParticipantCreateBody } from '@/modules/registration-flow/services/registration.service';
 import { participationKeys } from '../services/keys';
 
 export function useCreateOrganizer() {
   const qc = useQueryClient();
-  const inner = useCreateRegistration();
-
   return useMutation({
-    mutationFn: (body: Record<string, unknown>) =>
-      inner.mutateAsync({ ...body, role: 'leader' }),
+    mutationFn: (body: ParticipantCreateBody) => createRegistration(body),
     onSettled: () =>
       qc.invalidateQueries({ queryKey: participationKeys.lists() }),
   });

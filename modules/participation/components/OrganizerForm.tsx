@@ -79,10 +79,24 @@ export function OrganizerForm({ org, organizationId, onSuccess }: OrganizerFormP
   const onSubmit = async (values: OrganizerFormValues) => {
     try {
       await mutation.mutateAsync({
-        ...values,
-        role:            'leader',
-        organization_id: organizationId,
-        sport_id:        Number(values.sport_id),
+        kh_family_name:  values.kh_family_name   ?? '',
+        kh_given_name:   values.kh_given_name    ?? '',
+        en_family_name:  values.en_family_name   ?? '',
+        en_given_name:   values.en_given_name    ?? '',
+        gender:          (values.gender ?? 'MALE') as 'MALE' | 'FEMALE',
+        date_of_birth:   values.date_of_birth    ?? '',
+        phone:           values.phone            ?? undefined,
+        address:         values.address          ?? undefined,
+        photoUrl:              values.photoUrl             ?? undefined,
+        birthCertificateUrl:   values.birthCertificateUrl  ?? undefined,
+        nationalIdUrl:         values.nationalIdUrl        ?? undefined,
+        passportUrl:           values.passportUrl          ?? undefined,
+        leader_role:           (values.leader_role ?? null) as 'coach' | 'manager' | 'delegate' | 'team_lead' | 'coach_trainer' | 'teacher_assistant' | null | undefined,
+        role:                  'leader',
+        organization_id:       organizationId ?? 0,
+        sport_id:              Number(values.sport_id),
+        event_id:              values.event_id ?? null,
+        id_document_type:      'OTHER',
       });
       onSuccess();
     } catch (err: unknown) {

@@ -11,6 +11,9 @@ export type RoleEnum                 = components['schemas']['RoleEnum'];
 export type LeaderRole               = components['schemas']['LeaderRole'];
 export type GenderEnum               = components['schemas']['genderEnum'];
 
+// Canonical request body type — now properly documented in OpenAPI
+export type ParticipantCreateBody = components['schemas']['ParticipantCreateRequest'];
+
 // Frontend-only participant record shape (response is `unknown` in contract).
 export interface ParticipantRecord extends ParticipantUpdateRequest {
   id: number;
@@ -54,7 +57,7 @@ export async function getRegistration(
 }
 
 export async function createRegistration(
-  body: Record<string, unknown>
+  body: ParticipantCreateBody
 ): Promise<ParticipantRecord> {
   const { data, error } = await api.POST('/api/registration/', { body });
   if (error) throw error;

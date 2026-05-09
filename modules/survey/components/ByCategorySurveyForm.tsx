@@ -2,10 +2,10 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import {
   PageHeader, BackLink, Card, CardContent, Button,
-  QueryBoundary, PageEmptyState,
+  QueryBoundary, PageEmptyState, Skeleton,
 } from '@/shared/ui';
 import { useEffectiveOrgId } from '@/core/auth';
 import { ROUTES } from '@/core/config';
@@ -13,12 +13,11 @@ import { useEvent, useEventSports } from '@/modules/events';
 import { useCategories } from '@/modules/sports';
 import { useSubmitSurvey } from '../hooks/useSubmitSurvey';
 import type { SportsEventPublic } from '@/modules/events';
+import type { CategoryPublic } from '@/modules/sports';
 
-interface CategoryCountRow {
-  category: string;
-  male: number;
-  female: number;
-}
+// ── Per-category M/F state ────────────────────────────────────────────────────
+
+interface CatCounts { male: number; female: number }
 
 interface SportCategoryPanelProps {
   sport:          SportsEventPublic;
@@ -29,102 +28,128 @@ interface SportCategoryPanelProps {
 function SportCategoryPanel({ sport, eventId, organizationId }: SportCategoryPanelProps) {
   const t       = useTranslations('survey');
   const tc      = useTranslations('common');
-  const sportId = 0; // Backend gap: SportsEventPublic lacks sports_id — use 0 as placeholder
+  const sportId = sport.sports_id ?? 0;
 
   const catQuery = useCategories(eventId, sportId);
   const mutation = useSubmitSurvey();
 
-  const [rows, setRows] = useState<CategoryCountRow[]>([
-    { category: 'default', male: 0, female: 0 },
-  ]);
+  const [counts, setCounts] = useState<Record<number, CatCounts>>({});
 
-  const totalM = rows.reduce((s, r) => s + r.male, 0);
-  const totalF = rows.reduce((s, r) => s + r.female, 0);
+  const getCount = (catId: number): CatCounts =>
+    counts[catId] ?? { male: 0, female: 0 };
 
-  const handleSubmit = () => {
+  const setCount = (catId: number, field: 'male' | 'female', val: number) =>
+    setCounts((prev) => ({
+      ...prev,
+      [catId]: { ...getCount(catId), [field]: Math.max(0, val) },
+    }));
+
+  const handleSubmit = async (categories: CategoryPublic[]) => {
     if (!organizationId || !sport.id) return;
-    mutation.mutate({
-      org_id:          sport.id,
-      events_id:       eventId,
-      sports_id:       sport.id,
-      organization_id: organizationId,
-      athlete_male_count:   totalM,
-      athlete_female_count: totalF,
-      leader_male_count:    0,
-      leader_female_count:  0,
-    }, {
-      onSuccess: () => toast.success(t('submitSuccess')),
+
+    const entries = categories.map((cat) => {
+      const c = getCount(cat.id);
+      return {
+        org_id:               sport.id!,
+        events_id:            eventId,
+        sports_id:            sportId,
+        organization_id:      organizationId,
+        category_id:          cat.id,
+        athlete_male_count:   c.male,
+        athlete_female_count: c.female,
+        leader_male_count:    0,
+        leader_female_count:  0,
+      };
     });
+
+    let successCount = 0;
+    for (const entry of entries) {
+      await new Promise<void>((resolve) => {
+        mutation.mutate(entry, {
+          onSuccess: () => { successCount++; resolve(); },
+          onError:   () => resolve(),
+        });
+      });
+    }
+    if (successCount > 0) toast.success(t('submitSuccess'));
   };
 
   return (
-    <div className="border rounded-lg p-4 space-y-3">
-      <p className="font-medium text-sm">{sport.sport_name ?? '—'}</p>
+    <Card>
+      <CardContent className="pt-4 space-y-3">
+        <p className="font-medium text-sm">{sport.sport_name ?? '—'}</p>
 
-      {/* Gap notice: sports_id needed for real categories */}
-      {sportId === 0 && (
-        <div className="flex items-start gap-2 text-xs text-muted-foreground">
-          <AlertCircle className="h-3 w-3 mt-0.5 shrink-0" />
-          <span>{t('categoryGapNote')}</span>
-        </div>
-      )}
-
-      <div className="space-y-2">
-        {rows.map((row, i) => (
-          <div key={i} className="grid grid-cols-3 gap-2 items-center">
-            <span className="text-sm">{row.category}</span>
-            <div className="space-y-0.5">
-              <label className="text-xs text-muted-foreground">{t('athleteMale')}</label>
-              <input type="number" min={0} value={row.male}
-                onChange={(e) => {
-                  const next = [...rows];
-                  next[i] = { ...next[i], male: Math.max(0, Number(e.target.value)) };
-                  setRows(next);
-                }}
-                className="w-full rounded-md border px-2 py-1 text-sm bg-background"
-              />
-            </div>
-            <div className="space-y-0.5">
-              <label className="text-xs text-muted-foreground">{t('athleteFemale')}</label>
-              <input type="number" min={0} value={row.female}
-                onChange={(e) => {
-                  const next = [...rows];
-                  next[i] = { ...next[i], female: Math.max(0, Number(e.target.value)) };
-                  setRows(next);
-                }}
-                className="w-full rounded-md border px-2 py-1 text-sm bg-background"
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">
-          {t('total')}: M={totalM} F={totalF}
-        </span>
-        <Button
-          size="sm"
-          disabled={!organizationId || mutation.isPending}
-          onClick={handleSubmit}
+        <QueryBoundary
+          query={catQuery}
+          loadingFallback={<Skeleton className="h-8 w-full" />}
+          empty={<p className="text-xs text-muted-foreground">{t('noCategoriesForSport')}</p>}
         >
-          {mutation.isPending && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
-          {t('submit')}
-        </Button>
-      </div>
-    </div>
+          {(categories) => (
+            <>
+              <div className="space-y-2">
+                {categories.map((cat) => (
+                  <div key={cat.id} className="grid grid-cols-3 gap-2 items-center">
+                    <span className="text-sm">
+                      {cat.category}
+                      {cat.gender && (
+                        <span className="ml-1 text-xs text-muted-foreground">
+                          ({cat.gender})
+                        </span>
+                      )}
+                    </span>
+                    <div className="space-y-0.5">
+                      <label className="text-xs text-muted-foreground">{t('athleteMale')}</label>
+                      <input
+                        type="number" min={0}
+                        value={getCount(cat.id).male}
+                        onChange={(e) => setCount(cat.id, 'male', Number(e.target.value))}
+                        className="w-full rounded-md border px-2 py-1 text-sm bg-background"
+                        aria-label={`${cat.category} ${t('athleteMale')}`}
+                      />
+                    </div>
+                    <div className="space-y-0.5">
+                      <label className="text-xs text-muted-foreground">{t('athleteFemale')}</label>
+                      <input
+                        type="number" min={0}
+                        value={getCount(cat.id).female}
+                        onChange={(e) => setCount(cat.id, 'female', Number(e.target.value))}
+                        className="w-full rounded-md border px-2 py-1 text-sm bg-background"
+                        aria-label={`${cat.category} ${t('athleteFemale')}`}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-end pt-1">
+                <Button
+                  size="sm"
+                  disabled={!organizationId || mutation.isPending || sportId === 0}
+                  onClick={() => handleSubmit(categories)}
+                >
+                  {mutation.isPending && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
+                  {t('submit')}
+                </Button>
+              </div>
+            </>
+          )}
+        </QueryBoundary>
+      </CardContent>
+    </Card>
   );
 }
+
+// ── Page ─────────────────────────────────────────────────────────────────────
 
 interface ByCategorySurveyFormProps {
   eventId: number;
 }
 
 export function ByCategorySurveyForm({ eventId }: ByCategorySurveyFormProps) {
-  const t    = useTranslations('survey');
-  
-  const eventQuery  = useEvent(eventId);
-  const sportsQuery = useEventSports(eventId);
+  const t = useTranslations('survey');
+
+  const eventQuery     = useEvent(eventId);
+  const sportsQuery    = useEventSports(eventId);
   const organizationId = useEffectiveOrgId();
 
   return (
@@ -148,7 +173,7 @@ export function ByCategorySurveyForm({ eventId }: ByCategorySurveyFormProps) {
           <div className="space-y-3">
             {sports.map((sport) => (
               <SportCategoryPanel
-                key={sport.id ?? sport.sport_name}
+                key={sport.id}
                 sport={sport}
                 eventId={eventId}
                 organizationId={organizationId}
