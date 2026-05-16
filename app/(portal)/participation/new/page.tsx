@@ -12,7 +12,7 @@ export default function ParticipationNewRoute() {
   const orgId  = useEffectiveOrgId();
 
   return (
-    <ProtectedRoute requiredRoles={['user2']}>
+    <ProtectedRoute requiredRoles={['user1', 'user2']}>
       <div className="space-y-4">
         <BackLink href={ROUTES.participation.home} label={t('backToList')} />
         <PageHeader title={t('createTitle')} />

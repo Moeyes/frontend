@@ -1,6 +1,7 @@
-export { RegistrationHomePage }  from './RegistrationHomePage';
-export { RegistrationStepper }   from './RegistrationStepper';
-export { TeamRegistrationPage }  from './TeamRegistrationPage';
+export { RegistrationHomePage }   from './RegistrationHomePage';
+export { RegistrationStepper }    from './RegistrationStepper';
+export { TeamRegistrationPage }   from './TeamRegistrationPage';
+export { ParticipantDetailPage }  from './ParticipantDetailPage';
 export { EventSportStep }        from './EventSportStep';
 export { PersonalInfoStep }      from './PersonalInfoStep';
 export { DocumentStep }          from './DocumentStep';

@@ -12,11 +12,11 @@ import { documentStepSchema, type DocumentStepValues } from '../services/schema'
 import { useCloudinaryUpload } from '../hooks/useCloudinaryUpload';
 
 interface DocumentStepProps {
-  defaultValues?: Partial<DocumentStepValues>;
-  eventId:        number;
-  dateOfBirth:    string;
+  defaultValues?:  Partial<DocumentStepValues>;
+  eventId:         number;
+  dateOfBirth:     string;
   onNext: (values: DocumentStepValues) => void;
-  onBack: () => void;
+  onBack: () =>    void;
 }
 
 export function DocumentStep({

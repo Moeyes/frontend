@@ -1,5 +1,4 @@
 'use client';
-import { useTranslations } from 'next-intl';
 import { QueryBoundary, Skeleton } from '@/shared/ui';
 import { useDashboard } from '../hooks';
 import { StatsGrid } from './StatsGrid';
@@ -18,7 +17,6 @@ function StatsGridSkeleton() {
 }
 
 export function AdminDashboard() {
-  const t = useTranslations('dashboard');
   const query = useDashboard();
 
   return (
@@ -41,11 +39,8 @@ export function AdminDashboard() {
         )}
       </QueryBoundary>
 
-      {query.isError && (
-        <p className="text-xs text-muted-foreground text-center">
-          {t('failedToLoad')}
-        </p>
-      )}
     </div>
   );
 }
+// QueryBoundary renders its own error state with a retry button.
+// No separate isError check is needed here.

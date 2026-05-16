@@ -42,22 +42,8 @@ export async function POST(req: NextRequest) {
     ...cookieOpts,
     maxAge: 60 * 60 * 24 * 7,
   });
-
-  try {
-    const payload = JSON.parse(
-      Buffer.from(access_token.split('.')[1], 'base64url').toString()
-    );
-    if (payload.sub) {
-      response.cookies.set('user_id', String(payload.sub), {
-        secure: IS_PROD,
-        sameSite: 'strict',
-        path: '/',
-        maxAge: 60 * 15,
-      });
-    }
-  } catch {
-    // ignore
-  }
+  // SEC-H5: user_id no longer set as a non-HttpOnly cookie.
+  // Client reads user identity via GET /api/auth/me.
 
   return response;
 }

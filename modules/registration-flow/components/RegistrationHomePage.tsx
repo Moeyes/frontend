@@ -108,6 +108,7 @@ export function RegistrationHomePage() {
 
       <Input
         placeholder={t('list.searchPlaceholder')}
+        aria-label={tc('search')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="max-w-xs"

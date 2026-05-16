@@ -6,18 +6,19 @@ import { Button, Badge, type BadgeVariant } from '@/shared/ui';
 import { useApproveSubmission } from '../hooks/useApproveSubmission';
 import { useRejectSubmission }  from '../hooks/useRejectSubmission';
 import { useFlagSubmission }    from '../hooks/useFlagSubmission';
+import type { SubmissionStatus } from '../types';
 
-const STATUS_VARIANT: Record<string, BadgeVariant> = {
+const STATUS_VARIANT: Record<SubmissionStatus, BadgeVariant> = {
   PENDING:   'outline',
   SUBMITTED: 'secondary',
   APPROVED:  'default',
   REJECTED:  'destructive',
-  FLAGGED:   'outline',
+  FLAGGED:   'secondary',
 };
 
 export function StatusBadge({ status }: { status: string | null | undefined }) {
   const t = useTranslations('submissions');
-  const s = status ?? 'PENDING';
+  const s = (status ?? 'PENDING') as SubmissionStatus;
   return (
     <Badge variant={STATUS_VARIANT[s] ?? 'outline'}>
       {t(`status.${s.toLowerCase()}` as Parameters<typeof t>[0])}
@@ -26,8 +27,8 @@ export function StatusBadge({ status }: { status: string | null | undefined }) {
 }
 
 interface ReviewActionsProps {
-  submissionId: number;
-  currentStatus?: string | null;
+  submissionId:  number;
+  currentStatus?: SubmissionStatus | null;
 }
 
 export function ReviewActions({ submissionId, currentStatus }: ReviewActionsProps) {

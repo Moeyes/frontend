@@ -457,7 +457,8 @@
       "genderRequired": "សូមជ្រើសរើសភេទ",
       "dobRequired": "សូមបញ្ចូលថ្ងៃខែឆ្នាំកំណើត",
       "birthCertRequired": "ត្រូវការសំបុត្រកំណើត (អ្នកចូលរួមមានអាយុក្រោម ១៨ ឆ្នាំ)",
-      "idOrPassportRequired": "ត្រូវការអត្តសញ្ញាណប័ណ្ណ ឬលិខិតឆ្លងដែន"
+      "idOrPassportRequired": "ត្រូវការអត្តសញ្ញាណប័ណ្ណ ឬលិខិតឆ្លងដែន",
+      "nationalityRequired": "សូមបញ្ចូលសញ្ជាតិ"
     },
     "teamMode": {
       "title": "ចុះឈ្មោះជាក្រុម (CSV)",
@@ -621,6 +622,45 @@
       "description": "អ្នកដឹកនាំក្រុមសម្រាប់ស្ថាប័ននេះ",
       "filename": "RPT-DELEGATION-LEADERS"
     }
+  },
+  "bysport": {
+    "title": "បញ្ជីចុះឈ្មោះប្រភេទកីឡា",
+    "subtitle": "ការចុះឈ្មោះប្រភេទកីឡា",
+    "column": {
+      "no": "ល.រ",
+      "sport": "ប្រភេទកីឡា",
+      "male": "បុរស",
+      "female": "នារី"
+    },
+    "submit": "ដាក់ស្នើ",
+    "draftSaved": "បានរក្សាទុក",
+    "submitted": "បានដាក់ស្នើ",
+    "noSports": "មិនមានកីឡាសម្រាប់ព្រឹត្តិការណ៍នេះ",
+    "orgIdMissing": "organization_id មិនទាន់ — សូមផ្ទុកទំព័រឡើងវិញ",
+    "submitSuccess": "ការស្ទង់មតិត្រូវបានដាក់ស្នើ",
+    "submitError": "ការដាក់ស្នើបានបរាជ័យ — ព្យាយាមមើលម្ដងទៀត"
+  },
+  "bynumber": {
+    "title": "បញ្ជីចំនួនតាមប្រភេទកីឡា",
+    "subtitle": "ចំនួនតាមប្រភេទកីឡា",
+    "column": {
+      "no": "ល.រ",
+      "sport": "ប្រភេទកីឡា",
+      "delegate": "ប្រតិភូ",
+      "leader": "ដឹកនាំ",
+      "coach": "គ្រូបង្វឹក",
+      "athlete": "អត្តពលិក",
+      "male": "ប",
+      "female": "ស",
+      "subtotal": "សរុប",
+      "grandtotal": "សរុបរួម"
+    },
+    "submit": "ដាក់ស្នើទាំងអស់",
+    "submitSuccess": "ការស្ទង់មតិត្រូវបានដាក់ស្នើ",
+    "submitError": "ការដាក់ស្នើបានបរាជ័យ — ព្យាយាមមើលម្ដងទៀត",
+    "noSports": "មិនមានកីឡាសម្រាប់ព្រឹត្តិការណ៍នេះ",
+    "orgIdMissing": "organization_id មិនទាន់ — សូមផ្ទុកទំព័រឡើងវិញ",
+    "totalRow": "សរុប"
   },
   "unauthorized": {
     "title": "ការចូលប្រើត្រូវបានបដិសេធ",

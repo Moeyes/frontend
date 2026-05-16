@@ -2,6 +2,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { TextInputField } from '@/shared/form';
 import { Button } from '@/shared/ui';
 import { parseApiError } from '@/core/api/client';
@@ -27,6 +28,7 @@ export function SportForm({ onSuccess }: SportFormProps) {
   const onSubmit = async (values: SportCreateFormValues) => {
     try {
       const result = await mutation.mutateAsync(values);
+      toast.success(t('createSport'));
       onSuccess(result);
     } catch (err: unknown) {
       if (err instanceof Response) {

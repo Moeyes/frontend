@@ -13,12 +13,11 @@ interface PersonalInfoStepProps {
 }
 
 export function PersonalInfoStep({ defaultValues, onNext, onBack }: PersonalInfoStepProps) {
-  const t  = useTranslations('registration');
   const tc = useTranslations('common');
 
   const form = useForm<PersonalInfoStepValues>({
     resolver: zodResolver(personalInfoStepSchema),
-    defaultValues: { gender: 'MALE', ...defaultValues },
+    defaultValues: { gender: 'MALE', nationality: 'ខ្មែរ', ...defaultValues },
   });
 
   const genderOptions = [
@@ -40,7 +39,15 @@ export function PersonalInfoStep({ defaultValues, onNext, onBack }: PersonalInfo
         <SelectField control={form.control} name="gender" labelKey="registration.fields.gender" options={genderOptions} required />
         <DateField  control={form.control} name="date_of_birth" labelKey="registration.fields.dateOfBirth" required />
       </div>
-      <TextInputField control={form.control} name="phone"   labelKey="registration.fields.phone" />
+      <div className="grid grid-cols-2 gap-4">
+        <TextInputField
+          control={form.control}
+          name="nationality"
+          labelKey="registration.fields.nationality"
+          required
+        />
+        <TextInputField control={form.control} name="phone" labelKey="registration.fields.phone" />
+      </div>
       <TextInputField control={form.control} name="address" labelKey="registration.fields.address" />
 
       <div className="flex justify-between pt-2">

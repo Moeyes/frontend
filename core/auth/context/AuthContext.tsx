@@ -29,17 +29,22 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-function getUserIdFromCookie(): string | null {
-  if (typeof document === 'undefined') return null;
-  const match = document.cookie.match(/(?:^|;\s*)user_id=([^;]+)/);
-  return match ? decodeURIComponent(match[1]) : null;
+// SEC-H5: reads user ID server-side from the HttpOnly access_token cookie.
+// Never reads document.cookie — no non-HttpOnly cookie required.
+async function fetchUserId(): Promise<string | null> {
+  try {
+    const res = await fetch('/api/auth/me');
+    if (!res.ok) return null;
+    const { userId } = await res.json() as { userId: string | null };
+    return userId;
+  } catch {
+    return null;
+  }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState(
-    () => typeof document !== 'undefined' && !!getUserIdFromCookie()
-  );
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchSession = useCallback(async (userId: string): Promise<AuthUser | null> => {
     const res = await fetch(`/api/auth/session/${userId}`);
@@ -53,10 +58,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const userId = getUserIdFromCookie();
-    if (!userId) return;
-    fetchSession(userId)
-      .then((u) => setUser(u))
+    fetchUserId()
+      .then(async (userId) => {
+        if (!userId) return null;
+        return fetchSession(userId);
+      })
+      .then((u) => setUser(u ?? null))
       .catch(() => setUser(null))
       .finally(() => setIsLoading(false));
   }, [fetchSession]);
@@ -71,7 +78,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const err = await res.json().catch(() => ({}));
       throw err;
     }
-    const userId = getUserIdFromCookie();
+    // Read user identity via the secure server-side endpoint (SEC-H5)
+    const userId = await fetchUserId();
     if (userId) {
       const u = await fetchSession(userId);
       setUser(u);

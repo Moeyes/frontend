@@ -3,6 +3,9 @@ export const APP_NAME_EN = 'National Sports Event Management';
 
 export const DEFAULT_PAGE_SIZE = 20;
 export const MAX_PAGE_SIZE = 100;
+// Limit for "fetch all" dropdown queries (events, orgs, sports pickers).
+// Higher than MAX_PAGE_SIZE because dropdowns need the full list, not a page.
+export const DROPDOWN_LIMIT = 200;
 
 export const SUPPORTED_LOCALES = ['kh', 'en'] as const;
 export const DEFAULT_LOCALE = 'kh' as const;

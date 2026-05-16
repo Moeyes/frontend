@@ -1,5 +1,4 @@
 'use client';
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -62,15 +61,10 @@ export function OrganizerForm({ org, organizationId, onSuccess }: OrganizerFormP
     : null;
   const isMinor = age !== null ? age < MINOR_AGE_THRESHOLD : null;
 
-  const eventOptions = (eventsQuery.data?.data ?? []).map((e) => ({
-    value: String(e.id), label: e.name_kh,
-  }));
-  const sportOptions = (sportsQuery.data ?? []).map((s) => ({
-    value: String(s.id ?? ''), label: s.sport_name ?? '—',
-  }));
-  const leaderRoleOptions = LEADER_ROLES.map((lr) => ({
-    value: lr, label: t(`leaderRoles.${lr}` as Parameters<typeof t>[0]),
-  }));
+  const eventOptions = (eventsQuery.data?.data ?? []).map((e) => ({ value: String(e.id), label: e.name_kh }));
+  // Use sports_id (actual sport ID), not s.id (sports_event join table ID)
+  const sportOptions = (sportsQuery.data ?? []).map((s) => ({ value: String(s.sports_id ?? s.id ?? ''), label: s.sport_name ?? '—' }));
+  const leaderRoleOptions = LEADER_ROLES.map((lr) => ({ value: lr, label: t(`leaderRoles.${lr}` as Parameters<typeof t>[0]),}));
   const genderOptions = [
     { value: 'MALE', label: tc('male') },
     { value: 'FEMALE', label: tc('female') },
@@ -79,14 +73,14 @@ export function OrganizerForm({ org, organizationId, onSuccess }: OrganizerFormP
   const onSubmit = async (values: OrganizerFormValues) => {
     try {
       await mutation.mutateAsync({
-        kh_family_name:  values.kh_family_name   ?? '',
-        kh_given_name:   values.kh_given_name    ?? '',
-        en_family_name:  values.en_family_name   ?? '',
-        en_given_name:   values.en_given_name    ?? '',
-        gender:          (values.gender ?? 'MALE') as 'MALE' | 'FEMALE',
-        date_of_birth:   values.date_of_birth    ?? '',
-        phone:           values.phone            ?? undefined,
-        address:         values.address          ?? undefined,
+        kh_family_name:        values.kh_family_name   ?? '',
+        kh_given_name:         values.kh_given_name    ?? '',
+        en_family_name:        values.en_family_name   ?? '',
+        en_given_name:         values.en_given_name    ?? '',
+        gender:                (values.gender ?? 'MALE') as 'MALE' | 'FEMALE',
+        date_of_birth:         values.date_of_birth    ?? '',
+        phone:                 values.phone            ?? undefined,
+        address:               values.address          ?? undefined,
         photoUrl:              values.photoUrl             ?? undefined,
         birthCertificateUrl:   values.birthCertificateUrl  ?? undefined,
         nationalIdUrl:         values.nationalIdUrl        ?? undefined,

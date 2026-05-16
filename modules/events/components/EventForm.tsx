@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { TextInputField, SelectField, DateField } from '@/shared/form';
 import { Button } from '@/shared/ui';
 import { parseApiError } from '@/core/api/client';
@@ -62,6 +63,7 @@ export function EventForm({ mode, event, onSuccess }: EventFormProps) {
       const result = mode === 'create'
         ? await createMutation.mutateAsync(clean as EventCreate)
         : await updateMutation.mutateAsync(clean as EventUpdate);
+      toast.success(mode === 'create' ? t('createEvent') : tc('save'));
       onSuccess(result);
     } catch (err: unknown) {
       if (err instanceof Response) {

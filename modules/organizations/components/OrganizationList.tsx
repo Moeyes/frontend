@@ -10,12 +10,12 @@ import {
 } from '@/shared/ui';
 import { formatDate } from '@/core/lib/format';
 import { useLanguage } from '@/core/i18n';
-import { ROUTES } from '@/core/config';
+import { ROUTES, DEFAULT_PAGE_SIZE } from '@/core/config';
 import { useOrganizations }      from '../hooks/useOrganizations';
 import { useDeleteOrganization } from '../hooks/useDeleteOrganization';
 import type { OrganizationPublic, InstituteType } from '../services/organizations.service';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
 const TYPE_VARIANT: Record<InstituteType, 'default' | 'secondary'> = {
   province: 'secondary',
@@ -122,6 +122,7 @@ export function OrganizationList() {
             columns={columns}
             data={data.data}
             pageCount={pageCount}
+            totalCount={data.count}
             pagination={pagination}
             onPaginationChange={setPagination}
           />

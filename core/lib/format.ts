@@ -56,7 +56,21 @@ export function formatDateTime(
   }
 }
 
-// Red Line #3 — ALWAYS compute age from the event date, NEVER from new Date()
+/**
+ * Computes a participant's age in whole years as of the event's start date.
+ *
+ * RED LINE #3: Always pass the event start_date — never use new Date() or today's date.
+ * Age at event determines the required document type:
+ *   age < MINOR_AGE_THRESHOLD (18) → birthCertificateUrl required
+ *   age ≥ 18                       → nationalIdUrl OR passportUrl required
+ *
+ * @param dob - Participant date of birth (YYYY-MM-DD string or Date)
+ * @param eventStartDate - event.start_date from the backend (YYYY-MM-DD string or Date)
+ * @returns Age in whole years, or null if either argument is missing or invalid.
+ * @example
+ *   computeAgeAtEvent('2006-03-15', '2024-03-14') // → 17 (birthday not yet reached)
+ *   computeAgeAtEvent('2006-03-15', '2024-03-15') // → 18 (birthday is event day → adult)
+ */
 export function computeAgeAtEvent(
   dob: string | Date | null | undefined,
   eventStartDate: string | Date | null | undefined
@@ -78,6 +92,11 @@ export function computeAgeAtEvent(
   }
 }
 
+/**
+ * Returns true if the participant is under MINOR_AGE_THRESHOLD (18) at the event start date.
+ * Delegates to computeAgeAtEvent — inherits Red Line #3 constraint.
+ * Returns false (safe default) if age cannot be computed due to missing/invalid inputs.
+ */
 export function isMinorAtEvent(
   dob: string | Date | null | undefined,
   eventStartDate: string | Date | null | undefined

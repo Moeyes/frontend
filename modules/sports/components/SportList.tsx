@@ -10,12 +10,12 @@ import {
 } from '@/shared/ui';
 import { formatDate } from '@/core/lib/format';
 import { useLanguage } from '@/core/i18n';
-import { ROUTES } from '@/core/config';
+import { ROUTES, DEFAULT_PAGE_SIZE } from '@/core/config';
 import { useSports } from '../hooks/useSports';
 import { useDeleteSport } from '../hooks/useDeleteSport';
 import type { SportPublic } from '../services/sports.service';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
 export function SportList() {
   const t  = useTranslations('sports');
@@ -97,6 +97,7 @@ export function SportList() {
             columns={columns}
             data={data.data}
             pageCount={pageCount}
+            totalCount={data.count}
             pagination={pagination}
             onPaginationChange={setPagination}
           />

@@ -1,5 +1,5 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { createRegistration, type ParticipantCreateBody } from '@/modules/registration-flow/services/registration.service';
+import { createRegistration, type ParticipantCreateBody } from '@/modules/registration-flow';
 import { participationKeys } from '../services/keys';
 
 export function useCreateOrganizer() {

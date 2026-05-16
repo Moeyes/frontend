@@ -7,7 +7,7 @@ import { Button } from '@/shared/ui';
 import { useAuth } from '@/core/auth';
 import { useEvents, useEventSports } from '@/modules/events';
 import { eventSportStepSchema, type EventSportStepValues } from '../services/schema';
-import { LEADER_ROLES, type LeaderRole } from '../services/registration.service';
+import { LEADER_ROLES } from '../services/registration.service';
 
 interface EventSportStepProps {
   defaultValues?: Partial<EventSportStepValues>;
@@ -40,8 +40,9 @@ export function EventSportStep({ defaultValues, onNext }: EventSportStepProps) {
     label: e.name_kh,
   }));
 
+  // Use sports_id (actual sport ID) as value, not s.id (sports_event join table ID).
   const sportOptions = (sportsQuery.data ?? []).map((s) => ({
-    value: String(s.id ?? ''),
+    value: String(s.sports_id ?? s.id ?? ''),
     label: s.sport_name ?? '—',
   }));
 

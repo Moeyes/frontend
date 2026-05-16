@@ -1,2 +1,2 @@
-export { OrganizerList, OrganizerForm, LeaderRoleBadge } from './components';
+export { OrganizerList, OrganizerForm, LeaderRoleBadge, OrganizerDetailPage } from './components';
 export * from './hooks';

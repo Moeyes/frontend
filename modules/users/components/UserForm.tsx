@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { TextInputField, SelectField } from '@/shared/form';
 import { Button } from '@/shared/ui';
 import { parseApiError } from '@/core/api/client';
@@ -101,6 +102,7 @@ export function UserForm({ mode, user, onSuccess }: UserFormProps) {
         if (v.password) updates.password = v.password;
         await updateMutation.mutateAsync(updates);
       }
+      toast.success(mode === 'create' ? t('createUser') : tc('save'));
       onSuccess();
     } catch (err: unknown) {
       if (err instanceof Response) {

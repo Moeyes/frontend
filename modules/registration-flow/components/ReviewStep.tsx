@@ -82,9 +82,11 @@ export function ReviewStep({
             )}
           </dl>
 
-          <div className="text-sm text-muted-foreground pt-2">
-            {docCount} {docCount === 1 ? 'document' : 'documents'} uploaded
-          </div>
+          {docCount > 0 && (
+            <div className="text-sm text-muted-foreground pt-2">
+              {t('fields.fileUploaded')} ×{docCount}
+            </div>
+          )}
         </CardContent>
       </Card>
 

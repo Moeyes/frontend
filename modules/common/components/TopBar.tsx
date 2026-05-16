@@ -1,5 +1,5 @@
 'use client';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, Menu } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/core/auth';
@@ -7,7 +7,11 @@ import { LanguageSwitcher } from '@/core/i18n';
 import { Button } from '@/shared/ui';
 import { ROUTES } from '@/core/config';
 
-export function TopBar() {
+interface TopBarProps {
+  onMenuClick?: () => void;
+}
+
+export function TopBar({ onMenuClick }: TopBarProps) {
   const { user, logout } = useAuth();
   const router = useRouter();
   const t = useTranslations('common');
@@ -18,8 +22,16 @@ export function TopBar() {
   };
 
   return (
-    <header className="h-14 border-b bg-card flex items-center justify-between px-6 flex-shrink-0">
-      <div />
+    <header className="h-14 border-b bg-card flex items-center justify-between px-4 lg:px-6 flex-shrink-0">
+      {/* Hamburger — mobile only */}
+      <button
+        className="lg:hidden p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        onClick={onMenuClick}
+        aria-label="Open menu"
+      >
+        <Menu className="h-5 w-5" aria-hidden="true" />
+      </button>
+      <div className="hidden lg:block" />
       <div className="flex items-center gap-4">
         <LanguageSwitcher />
         {user && (

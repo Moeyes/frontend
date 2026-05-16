@@ -2,4 +2,5 @@ export { AuthProvider, useAuthContext, type AuthUser, type UserRole } from './co
 export { ProtectedRoute } from './components/ProtectedRoute';
 export { useAuth } from './hooks/useAuth';
 export { useRequireRole } from './hooks/useRequireRole';
-export { useEffectiveOrgId } from './hooks/useEffectiveOrgId';
+export { useEffectiveOrgId, setDemoOrgId, getDemoOrgId } from './hooks/useEffectiveOrgId';
+export { DemoOrgIdSetter } from './components/DemoOrgIdSetter';

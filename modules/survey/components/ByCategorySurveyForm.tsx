@@ -27,7 +27,6 @@ interface SportCategoryPanelProps {
 
 function SportCategoryPanel({ sport, eventId, organizationId }: SportCategoryPanelProps) {
   const t       = useTranslations('survey');
-  const tc      = useTranslations('common');
   const sportId = sport.sports_id ?? 0;
 
   const catQuery = useCategories(eventId, sportId);

@@ -15,6 +15,7 @@ export const personalInfoStepSchema = z.object({
   en_given_name:  z.string().min(1, { message: 'registration.validation.enGivenNameRequired' }),
   gender:         z.enum(['MALE', 'FEMALE'], { message: 'registration.validation.genderRequired' }),
   date_of_birth:  z.string().min(1, { message: 'registration.validation.dobRequired' }),
+  nationality:    z.string().min(1, { message: 'registration.validation.nationalityRequired' }),
   phone:          z.string().optional(),
   address:        z.string().optional(),
 });

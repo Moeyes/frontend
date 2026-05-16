@@ -36,6 +36,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Demo credentials — never commit
+**/demo/CREDENTIALS.md
+CREDENTIALS.md
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

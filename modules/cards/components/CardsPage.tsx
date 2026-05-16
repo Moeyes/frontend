@@ -5,6 +5,7 @@ import { PageHeader, QueryBoundary, PageEmptyState, Skeleton } from '@/shared/ui
 import { useAuth, useEffectiveOrgId } from '@/core/auth';
 import { useEvents } from '@/modules/events';
 import { useOrganizations } from '@/modules/organizations';
+import { DROPDOWN_LIMIT } from '@/core/config';
 import { useCards } from '../hooks/useCards';
 import { ParticipantCard } from './ParticipantCard';
 
@@ -27,8 +28,8 @@ export function CardsPage() {
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
   const [selectedOrgId,   setSelectedOrgId]   = useState<number | null>(effectiveOrgId);
 
-  const eventsQuery = useEvents({ limit: 100 });
-  const orgsQuery   = useOrganizations({ limit: 200 });
+  const eventsQuery = useEvents({ limit: DROPDOWN_LIMIT });
+  const orgsQuery   = useOrganizations({ limit: DROPDOWN_LIMIT });
 
   const cardsQuery = useCards(selectedOrgId, selectedEventId);
 
@@ -39,29 +40,41 @@ export function CardsPage() {
       <PageHeader title={t('title')} description={t('description')} />
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-center">
-        <select
-          className="rounded-md border px-3 py-2 text-sm bg-background min-w-[200px]"
-          value={selectedEventId ?? ''}
-          onChange={(e) => setSelectedEventId(e.target.value ? Number(e.target.value) : null)}
-        >
-          <option value="">{t('selectEvent')}</option>
-          {(eventsQuery.data?.data ?? []).map((ev) => (
-            <option key={ev.id} value={ev.id}>{ev.name_kh}</option>
-          ))}
-        </select>
-
-        {isAdmin && (
+      <div className="flex flex-wrap gap-4 items-end">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="cards-event-select" className="text-sm font-medium">
+            {t('selectEvent')}
+          </label>
           <select
+            id="cards-event-select"
             className="rounded-md border px-3 py-2 text-sm bg-background min-w-[200px]"
-            value={selectedOrgId ?? ''}
-            onChange={(e) => setSelectedOrgId(e.target.value ? Number(e.target.value) : null)}
+            value={selectedEventId ?? ''}
+            onChange={(e) => setSelectedEventId(e.target.value ? Number(e.target.value) : null)}
           >
-            <option value="">{t('selectOrganization')}</option>
-            {(orgsQuery.data?.data ?? []).map((org) => (
-              <option key={org.id} value={org.id}>{org.name_kh}</option>
+            <option value="">—</option>
+            {(eventsQuery.data?.data ?? []).map((ev) => (
+              <option key={ev.id} value={ev.id}>{ev.name_kh}</option>
             ))}
           </select>
+        </div>
+
+        {isAdmin && (
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="cards-org-select" className="text-sm font-medium">
+              {t('selectOrganization')}
+            </label>
+            <select
+              id="cards-org-select"
+              className="rounded-md border px-3 py-2 text-sm bg-background min-w-[200px]"
+              value={selectedOrgId ?? ''}
+              onChange={(e) => setSelectedOrgId(e.target.value ? Number(e.target.value) : null)}
+            >
+              <option value="">—</option>
+              {(orgsQuery.data?.data ?? []).map((org) => (
+                <option key={org.id} value={org.id}>{org.name_kh}</option>
+              ))}
+            </select>
+          </div>
         )}
       </div>
 

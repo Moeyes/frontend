@@ -28,8 +28,8 @@ export async function getNumbersReport(params: ReportParams): Promise<NumbersRep
 }
 
 // Download an Excel file directly from the backend as a blob.
-// The /api/excel/* endpoints likely return binary Excel (despite application/json in spec).
-// The Next.js rewrite forwards to the backend with auth cookie → middleware injects Bearer token.
+// Uses the native fetch API (not the typed openapi-fetch client) because we need a Blob
+// response, not JSON. Goes through /api/* so Next.js middleware injects the Bearer token.
 export async function downloadExcelBlob(
   path: string,
   params: ReportParams,
@@ -39,7 +39,9 @@ export async function downloadExcelBlob(
     org_id:    String(params.org_id),
     events_id: String(params.events_id),
   });
-  const res = await fetch(`${path}?${qs}`);
+  // Explicit credentials:'include' ensures HttpOnly cookies travel with the request.
+  // The Next.js /api/* rewrite + middleware.ts then injects Authorization: Bearer <token>.
+  const res = await fetch(`${path}?${qs}`, { credentials: 'include' });
   if (!res.ok) throw new Error(`Download failed: ${res.status}`);
   const blob = await res.blob();
   const url  = URL.createObjectURL(blob);

@@ -6,7 +6,7 @@ export function useDeleteOrganization() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (orgId: number) => deleteOrganization(orgId),
-    onMutate: async (orgId) => {
+    onMutate: async (_orgId) => {
       await qc.cancelQueries({ queryKey: orgKeys.lists() });
       const snapshot = qc.getQueriesData({ queryKey: orgKeys.lists() });
       return { snapshot };

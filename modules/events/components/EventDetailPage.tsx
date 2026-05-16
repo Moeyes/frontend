@@ -1,12 +1,12 @@
 'use client';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { QueryBoundary, PageHeader, BackLink, Card, CardContent, Button } from '@/shared/ui';
 import { formatDate } from '@/core/lib/format';
 import { useLanguage } from '@/core/i18n';
 import { ROUTES } from '@/core/config';
 import { toast } from 'sonner';
+import { useRequireRole } from '@/core/auth';
 import { useEvent } from '../hooks/useEvent';
 import { usePublishEvent } from '../hooks/usePublishEvent';
 import { useArchiveEvent } from '../hooks/useArchiveEvent';
@@ -23,7 +23,7 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const t           = useTranslations('events');
   const tc          = useTranslations('common');
   const { locale }  = useLanguage();
-  const router      = useRouter();
+  const isAdmin     = useRequireRole(['admin']);
   const [editing, setEditing] = useState(false);
   const query      = useEvent(eventId);
   const publishMut = usePublishEvent(eventId);
@@ -69,30 +69,24 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
           ))}
         </dl>
 
-        <div className="flex gap-2 pt-2 flex-wrap">
-          <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
-            {tc('edit')}
-          </Button>
-          {event.status !== 'PUBLISHED' && (
-            <Button
-              size="sm"
-              loading={publishMut.isPending}
-              onClick={handlePublish}
-            >
-              {t('publish')}
+        {/* Admin-only actions: Edit / Publish / Archive */}
+        {isAdmin && (
+          <div className="flex gap-2 pt-2 flex-wrap">
+            <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
+              {tc('edit')}
             </Button>
-          )}
-          {event.status === 'PUBLISHED' && (
-            <Button
-              variant="outline"
-              size="sm"
-              loading={archiveMut.isPending}
-              onClick={handleArchive}
-            >
-              {t('archive')}
-            </Button>
-          )}
-        </div>
+            {event.status !== 'PUBLISHED' && (
+              <Button size="sm" loading={publishMut.isPending} onClick={handlePublish}>
+                {t('publish')}
+              </Button>
+            )}
+            {event.status === 'PUBLISHED' && (
+              <Button variant="outline" size="sm" loading={archiveMut.isPending} onClick={handleArchive}>
+                {t('archive')}
+              </Button>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -105,7 +99,7 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
       <QueryBoundary query={query}>
         {(event) => (
           <>
-            {editing ? (
+            {isAdmin && editing ? (
               <Card>
                 <CardContent className="pt-5">
                   <EventForm
@@ -119,7 +113,7 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
               renderInfo(event)
             )}
 
-            <EventSportManager eventId={eventId} />
+            {isAdmin && <EventSportManager eventId={eventId} />}
           </>
         )}
       </QueryBoundary>

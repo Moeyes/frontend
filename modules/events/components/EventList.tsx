@@ -7,13 +7,13 @@ import { Plus, Eye, Trash2 } from 'lucide-react';
 import { DataTable, QueryBoundary, PageHeader, PageEmptyState, Button, Modal } from '@/shared/ui';
 import { formatDate } from '@/core/lib/format';
 import { useLanguage } from '@/core/i18n';
-import { ROUTES } from '@/core/config';
+import { ROUTES, DEFAULT_PAGE_SIZE } from '@/core/config';
 import { useEvents } from '../hooks/useEvents';
 import { useDeleteEvent } from '../hooks/useDeleteEvent';
 import { EventStatusBadge } from './EventStatusBadge';
 import type { EventPublic } from '../services/events.service';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
 export function EventList() {
   const t  = useTranslations('events');
@@ -110,6 +110,7 @@ export function EventList() {
             columns={columns}
             data={data.data}
             pageCount={pageCount}
+            totalCount={data.count}
             pagination={pagination}
             onPaginationChange={setPagination}
           />

@@ -457,7 +457,8 @@
       "genderRequired": "Please select a gender",
       "dobRequired": "Date of birth is required",
       "birthCertRequired": "Birth certificate required (participant is under 18)",
-      "idOrPassportRequired": "National ID or Passport is required"
+      "idOrPassportRequired": "National ID or Passport is required",
+      "nationalityRequired": "Nationality is required"
     },
     "teamMode": {
       "title": "Team Registration (CSV)",
@@ -622,6 +623,45 @@
       "filename": "RPT-DELEGATION-LEADERS"
     }
   },
+  "bysport": {
+    "title": "បញ្ជីចុះឈ្មោះប្រភេទកីឡា",
+    "subtitle": "Sport Registration List",
+    "column": {
+      "no": "No.",
+      "sport": "Sport",
+      "male": "Male (ប)",
+      "female": "Female (ស)"
+    },
+    "submit": "Submit",
+    "draftSaved": "Draft saved",
+    "submitted": "Submitted",
+    "noSports": "No sports attached to this event",
+    "orgIdMissing": "organization_id missing — please refresh",
+    "submitSuccess": "Survey submitted successfully",
+    "submitError": "Submission failed — please try again"
+  },
+  "bynumber": {
+    "title": "បញ្ជីចំនួនតាមប្រភេទកីឡា",
+    "subtitle": "Numbers by Sport",
+    "column": {
+      "no": "No.",
+      "sport": "Sport",
+      "delegate": "ប្រតិភូ",
+      "leader": "ដឹកនាំ",
+      "coach": "គ្រូបង្វឹក",
+      "athlete": "អត្តពលិក",
+      "male": "ប",
+      "female": "ស",
+      "subtotal": "សរុប",
+      "grandtotal": "សរុបរួម"
+    },
+    "submit": "Submit All",
+    "submitSuccess": "Survey submitted successfully",
+    "submitError": "Submission failed — please try again",
+    "noSports": "No sports attached to this event",
+    "orgIdMissing": "organization_id missing — please refresh",
+    "totalRow": "Total"
+  },
   "unauthorized": {
     "title": "Access Denied",
     "noPermission": "You don't have permission to view this page.",
@@ -686,7 +726,7 @@
   },
   "submissions": {
     "title": "Survey Review Queue",
-    "description": "Review and process federation survey submissions",
+    "description": "Review and process organization survey submissions",
     "backToList": "Back to Submissions",
     "noSubmissions": "No submissions yet",
     "detailTitle": "Submission Detail",

@@ -23,10 +23,6 @@ interface SportCategoryManagerProps {
   sportId: number;
 }
 
-const GENDER_OPTIONS = [
-  { value: 'MALE',   label: '' },
-  { value: 'FEMALE', label: '' },
-];
 
 function CategoryRow({
   cat, sportId, eventId,

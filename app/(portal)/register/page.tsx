@@ -3,7 +3,7 @@ import { RegistrationHomePage } from '@/modules/registration-flow';
 
 export default function RegisterRoute() {
   return (
-    <ProtectedRoute requiredRoles={['user1']}>
+    <ProtectedRoute requiredRoles={['user2']}>
       <RegistrationHomePage />
     </ProtectedRoute>
   );

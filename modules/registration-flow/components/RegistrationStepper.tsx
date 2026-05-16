@@ -14,12 +14,6 @@ import { ReviewStep }       from './ReviewStep';
 import type { RegistrationStep, RegistrationFormState } from '../types';
 import type { EventSportStepValues, PersonalInfoStepValues, DocumentStepValues } from '../services/schema';
 
-const STEPS: { key: RegistrationStep; label: string }[] = [
-  { key: 'event-sport', label: '' },
-  { key: 'personal',    label: '' },
-  { key: 'documents',   label: '' },
-  { key: 'review',      label: '' },
-];
 
 export function RegistrationStepper() {
   const t             = useTranslations('registration');

@@ -7,7 +7,7 @@ export function useDeleteUser() {
 
   return useMutation({
     mutationFn: (userId: string) => deleteUser(userId),
-    onMutate: async (userId) => {
+    onMutate: async (_userId) => {
       await qc.cancelQueries({ queryKey: userKeys.lists() });
       const snapshot = qc.getQueriesData({ queryKey: userKeys.lists() });
       return { snapshot };

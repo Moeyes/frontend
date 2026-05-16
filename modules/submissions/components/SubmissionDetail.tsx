@@ -1,5 +1,4 @@
 'use client';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { QueryBoundary, PageHeader, BackLink, Card, CardContent } from '@/shared/ui';
 import { formatDate } from '@/core/lib/format';
@@ -7,6 +6,7 @@ import { useLanguage } from '@/core/i18n';
 import { ROUTES } from '@/core/config';
 import { useSubmission } from '../hooks/useSubmission';
 import { ReviewActions } from './ReviewActions';
+import type { SubmissionStatus } from '../types';
 
 interface SubmissionDetailProps {
   submissionId: number;
@@ -67,7 +67,7 @@ export function SubmissionDetail({ submissionId }: SubmissionDetailProps) {
 
             <ReviewActions
               submissionId={submissionId}
-              currentStatus={entry.status}
+              currentStatus={entry.status as SubmissionStatus | null}
             />
           </div>
         )}

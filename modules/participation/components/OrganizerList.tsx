@@ -19,6 +19,7 @@ import type { OrganizerRecord } from '../services/participation.service';
 export function OrganizerList() {
   const t  = useTranslations('participation');
   const tc = useTranslations('common');
+  const tr = useTranslations('registration');
   const { locale } = useLanguage();
   const router  = useRouter();
   const orgId   = useEffectiveOrgId();
@@ -50,10 +51,19 @@ export function OrganizerList() {
     },
     {
       accessorKey: 'date_of_birth',
-      header: tc('role'),
+      header: tr('fields.dateOfBirth'),
       cell: ({ getValue }) => (
         <span className="text-sm tabular-nums text-muted-foreground">
           {formatDate(String(getValue() ?? ''), locale)}
+        </span>
+      ),
+    },
+    {
+      id: 'sport',
+      header: t('columns.sport'),
+      cell: ({ row }) => (
+        <span className="text-sm tabular-nums text-muted-foreground">
+          {row.original.sport_id ? `#${row.original.sport_id}` : '—'}
         </span>
       ),
     },
@@ -71,7 +81,7 @@ export function OrganizerList() {
         </Button>
       ),
     },
-  ], [t, tc, locale]);
+  ], [t, tc, tr, locale]);
 
   return (
     <div className="space-y-4">
@@ -88,6 +98,7 @@ export function OrganizerList() {
 
       <Input
         placeholder={`${tc('search')}...`}
+        aria-label={tc('search')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="max-w-xs"

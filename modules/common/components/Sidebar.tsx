@@ -46,15 +46,20 @@ const NAV_ITEMS: NavItem[] = [
   { labelKey: 'sports',       href: ROUTES.sports.list,         icon: Medal,           roles: ['admin'] },
   { labelKey: 'organizations',href: ROUTES.organizations.list,  icon: Building2,       roles: ['admin'] },
   { labelKey: 'users',        href: ROUTES.users.list,          icon: Users,           roles: ['admin'] },
-  { labelKey: 'surveys',      href: ROUTES.surveys.home,        icon: ClipboardList,   roles: ['user1'] },
+  { labelKey: 'surveys',      href: ROUTES.surveys.home,        icon: ClipboardList,   roles: ['user1', 'user2'] },
   { labelKey: 'submissions',  href: ROUTES.submissions.list,    icon: CheckSquare,     roles: ['admin'] },
-  { labelKey: 'registration', href: ROUTES.register.home,       icon: UserPlus,        roles: ['user1'] },
-  { labelKey: 'participation',href: ROUTES.participation.home,  icon: Users2,          roles: ['user2'] },
+  { labelKey: 'registration', href: ROUTES.register.home,       icon: UserPlus,        roles: ['user2'] },
+  { labelKey: 'participation',href: ROUTES.participation.home,  icon: Users2,          roles: ['user1', 'user2'] },
   { labelKey: 'reports',      href: ROUTES.reports,             icon: FileBarChart,    roles: ['admin'] },
-  { labelKey: 'cards',        href: ROUTES.cards,               icon: CreditCard,      roles: ['admin', 'user1'] },
+  { labelKey: 'cards',        href: ROUTES.cards,               icon: CreditCard,      roles: ['admin', 'user1', 'user2'] },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  open?: boolean;
+  onClose?: () => void;
+}
+
+export function Sidebar({ open = false, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
   const t = useTranslations('nav');
@@ -64,11 +69,28 @@ export function Sidebar() {
   );
 
   return (
-    <aside className="w-56 flex-shrink-0 border-r bg-card flex flex-col h-full">
-      <div className="px-4 py-5 border-b">
+    <aside
+      className={cn(
+        'w-56 flex-shrink-0 border-r bg-card flex flex-col h-full z-30',
+        // On mobile: slide in from left as fixed overlay; on lg+: always visible static
+        'fixed inset-y-0 left-0 transition-transform duration-200 lg:static lg:translate-x-0',
+        open ? 'translate-x-0' : '-translate-x-full'
+      )}
+    >
+      <div className="px-4 py-5 border-b flex items-center justify-between">
         <span className="text-sm font-semibold leading-tight text-foreground">
           {t('appName')}
         </span>
+        {/* Close button visible only on mobile */}
+        <button
+          className="lg:hidden p-1 rounded text-muted-foreground hover:text-foreground"
+          onClick={onClose}
+          aria-label="Close menu"
+        >
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
       <nav className="flex-1 overflow-y-auto py-2" aria-label="Main navigation">
         {visible.map((item) => {
@@ -80,6 +102,7 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onClose}
               className={cn(
                 'flex items-center gap-3 px-4 py-2.5 text-sm transition-colors',
                 isActive

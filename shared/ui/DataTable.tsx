@@ -7,6 +7,7 @@ import {
   type PaginationState,
   type OnChangeFn,
 } from '@tanstack/react-table';
+import { useTranslations } from 'next-intl';
 import { Button } from './Button';
 import { Skeleton } from './Skeleton';
 import { cn } from '@/lib/utils';
@@ -15,8 +16,10 @@ interface DataTableProps<TData> {
   columns: ColumnDef<TData>[];
   data: TData[];
   isLoading?: boolean;
+  emptyMessage?: string;
   // Server-side pagination
   pageCount?: number;
+  totalCount?: number;
   pagination?: PaginationState;
   onPaginationChange?: OnChangeFn<PaginationState>;
   className?: string;
@@ -26,11 +29,14 @@ export function DataTable<TData>({
   columns,
   data,
   isLoading,
+  emptyMessage,
   pageCount,
+  totalCount,
   pagination,
   onPaginationChange,
   className,
 }: DataTableProps<TData>) {
+  const tc = useTranslations('common');
   const table = useReactTable({
     data,
     columns,
@@ -77,8 +83,9 @@ export function DataTable<TData>({
                 <td
                   colSpan={columns.length}
                   className="px-4 py-8 text-center text-muted-foreground"
+                  aria-live="polite"
                 >
-                  —
+                  {emptyMessage ?? tc('noData')}
                 </td>
               </tr>
             ) : (
@@ -98,13 +105,16 @@ export function DataTable<TData>({
 
       {pageCount && pagination && onPaginationChange && (
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">
-            {pagination.pageIndex + 1} / {pageCount}
+          <span className="text-sm text-muted-foreground" aria-live="polite">
+            {totalCount != null
+              ? `${tc('showing')} ${pagination.pageIndex * pagination.pageSize + 1}–${Math.min((pagination.pageIndex + 1) * pagination.pageSize, totalCount)} ${tc('of')} ${totalCount}`
+              : `${pagination.pageIndex + 1} / ${pageCount}`}
           </span>
           <div className="flex gap-2">
             <Button
               variant="outline"
               size="sm"
+              aria-label={tc('previous')}
               onClick={() =>
                 onPaginationChange((p) =>
                   typeof p === 'function' ? p : { ...pagination, pageIndex: pagination.pageIndex - 1 }
@@ -117,6 +127,7 @@ export function DataTable<TData>({
             <Button
               variant="outline"
               size="sm"
+              aria-label={tc('next')}
               onClick={() =>
                 onPaginationChange((p) =>
                   typeof p === 'function' ? p : { ...pagination, pageIndex: pagination.pageIndex + 1 }

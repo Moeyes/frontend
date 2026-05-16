@@ -8,12 +8,12 @@ import {
   DataTable, QueryBoundary, PageHeader, PageEmptyState,
   Badge, Button, Modal, Input,
 } from '@/shared/ui';
-import { ROUTES } from '@/core/config';
+import { ROUTES, DEFAULT_PAGE_SIZE } from '@/core/config';
 import { useUsers } from '../hooks/useUsers';
 import { useDeleteUser } from '../hooks/useDeleteUser';
 import type { UserPublic } from '../services/users.service';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
 function RoleBadge({ role }: { role: string }) {
   const t = useTranslations('users.roles');
@@ -132,6 +132,7 @@ export function UserList() {
       <div className="flex items-center gap-3">
         <Input
           placeholder={`${tc('search')}...`}
+          aria-label={tc('search')}
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPagination((p) => ({ ...p, pageIndex: 0 })); }}
           className="max-w-xs"
@@ -147,6 +148,7 @@ export function UserList() {
             columns={columns}
             data={data.data}
             pageCount={pageCount}
+            totalCount={data.count}
             pagination={pagination}
             onPaginationChange={setPagination}
           />

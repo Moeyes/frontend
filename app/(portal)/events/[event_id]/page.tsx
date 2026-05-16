@@ -8,7 +8,7 @@ interface Props {
 export default async function EventDetailRoute({ params }: Props) {
   const { event_id } = await params;
   return (
-    <ProtectedRoute requiredRoles={['admin']}>
+    <ProtectedRoute requiredRoles={['admin', 'user1', 'user2']}>
       <EventDetailPage eventId={Number(event_id)} />
     </ProtectedRoute>
   );

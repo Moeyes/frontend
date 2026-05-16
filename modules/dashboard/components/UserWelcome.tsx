@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, Button } from '@/shared/ui';
-import { useAuth } from '@/core/auth';
+import { useAuth, DemoOrgIdSetter } from '@/core/auth';
 import type { UserRole } from '@/core/auth';
 import { ROUTES } from '@/core/config';
 
@@ -25,6 +25,7 @@ export function UserWelcome({ role }: UserWelcomeProps) {
             {tDash('welcomeBack', { name })}
           </h1>
 
+          {/* Federation (user1): by-category survey + leader/coach participation */}
           {role === 'user1' && (
             <>
               <p className="text-sm text-muted-foreground">
@@ -37,7 +38,7 @@ export function UserWelcome({ role }: UserWelcomeProps) {
                   </Link>
                 </Button>
                 <Button asChild variant="outline">
-                  <Link href={ROUTES.register.home}>
+                  <Link href={ROUTES.participation.home}>
                     {tDash('federationWelcome.goToRegister')}
                   </Link>
                 </Button>
@@ -45,16 +46,25 @@ export function UserWelcome({ role }: UserWelcomeProps) {
             </>
           )}
 
+          {/* Organization (user2): surveys (by-sport/by-number) + athlete registration */}
           {role === 'user2' && (
             <>
+              <DemoOrgIdSetter />
               <p className="text-sm text-muted-foreground">
                 {tDash('orgWelcome.subtitle')}
               </p>
-              <Button asChild>
-                <Link href={ROUTES.participation.home}>
-                  {tDash('orgWelcome.goToParticipation')}
-                </Link>
-              </Button>
+              <div className="flex gap-3 flex-wrap justify-center">
+                <Button asChild>
+                  <Link href={ROUTES.surveys.home}>
+                    {tDash('federationWelcome.goToSurveys')}
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href={ROUTES.register.home}>
+                    {tDash('orgWelcome.goToParticipation')}
+                  </Link>
+                </Button>
+              </div>
             </>
           )}
 

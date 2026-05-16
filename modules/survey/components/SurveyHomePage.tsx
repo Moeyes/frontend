@@ -9,7 +9,6 @@ import { ROUTES } from '@/core/config';
 
 export function SurveyHomePage() {
   const t   = useTranslations('survey');
-  const tc  = useTranslations('common');
   const { user } = useAuth();
   // Gap #11: pass organization_id for federation scoping; status=PUBLISHED for federation view
   const eventsQuery = useEvents({
@@ -18,10 +17,22 @@ export function SurveyHomePage() {
     status:          user?.role === 'admin' ? undefined : 'PUBLISHED',
   });
 
+  // Per ACTOR_MODEL.md:
+  // - Organization (user2): by-sport + by-number
+  // - Federation (user1): by-category only
+  // - Admin: all three (review/oversight)
+  const isAdmin = user?.role === 'admin';
+  const isOrg   = user?.role === 'user2';
+  const isFed   = user?.role === 'user1';
+
   const surveyTypes = [
-    { key: 'bySport',    label: t('bySport'),    desc: t('bySportDesc'),    route: (id: number) => ROUTES.surveys.bySport(id) },
-    { key: 'byNumber',   label: t('byNumber'),   desc: t('byNumberDesc'),   route: (id: number) => ROUTES.surveys.byNumber(id) },
-    { key: 'byCategory', label: t('byCategory'), desc: t('byCategoryDesc'), route: (id: number) => ROUTES.surveys.byCategory(id) },
+    ...(isOrg || isAdmin ? [
+      { key: 'bySport',  label: t('bySport'),  desc: t('bySportDesc'),  route: (id: number) => ROUTES.surveys.bySport(id) },
+      { key: 'byNumber', label: t('byNumber'), desc: t('byNumberDesc'), route: (id: number) => ROUTES.surveys.byNumber(id) },
+    ] : []),
+    ...(isFed || isAdmin ? [
+      { key: 'byCategory', label: t('byCategory'), desc: t('byCategoryDesc'), route: (id: number) => ROUTES.surveys.byCategory(id) },
+    ] : []),
   ];
 
   return (
