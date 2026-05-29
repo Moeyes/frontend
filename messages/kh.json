@@ -32,6 +32,14 @@
     "dashboard": "ផ្ទាំងគ្រប់គ្រង",
     "account": "គណនី",
     "role": "តួនាទី",
+    "profile": "ប្រវត្តិរូប",
+    "roles": {
+      "superAdmin": "អ្នកគ្រប់គ្រងធំ",
+      "admin": "អ្នកគ្រប់គ្រង",
+      "organization": "អង្គការ",
+      "federation": "សហព័ន្ធ",
+      "guest": "ភ្ញៀវ"
+    },
     "page": "ទំព័រ",
     "of": "នៃ",
     "showing": "បង្ហាញ",
@@ -53,6 +61,13 @@
     "participation": "ការចូលរួម",
     "cards": "កាតអត្តសញ្ញាណ",
     "reports": "របាយការណ៍",
+    "federations": "សហព័ន្ធ",
+    "bysport": "តាមកីឡា",
+    "bynumber": "តាមលេខ",
+    "bycategory": "តាមប្រភេទ",
+    "submissions": "ការដាក់ស្នើ",
+    "athleteRegistration": "ការចុះឈ្មោះអត្តពលិក",
+    "leaderRegistration": "ការចុះឈ្មោះមេក្រុម",
     "portalVersion": "វិបផតថល v1.0"
   },
   "auth": {

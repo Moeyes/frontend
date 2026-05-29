@@ -17,18 +17,24 @@ const LanguageContext = createContext<LanguageContextValue>({
 });
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-    const [lang, setLang] = useState<Language>('en');
+    const [lang, setLang] = useState<Language>(() => {
+        try {
+            if (typeof window === 'undefined') return 'en';
+            const saved = localStorage.getItem('lang') as Language | null;
+            return saved === 'en' || saved === 'km' ? saved : 'en';
+        } catch {
+            return 'en';
+        }
+    });
 
     useEffect(() => {
-        const saved = localStorage.getItem('lang') as Language | null;
-        if (saved === 'en' || saved === 'km') setLang(saved);
-    }, []);
+        document.documentElement.lang = lang === 'km' ? 'km' : 'en';
+    }, [lang]);
 
     const toggleLanguage = useCallback(() => {
         setLang(prev => {
             const next = prev === 'en' ? 'km' : 'en';
             localStorage.setItem('lang', next);
-            document.documentElement.lang = next === 'km' ? 'km' : 'en';
             return next;
         });
     }, []);

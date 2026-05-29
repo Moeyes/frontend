@@ -32,6 +32,14 @@
     "dashboard": "Dashboard",
     "account": "Account",
     "role": "Role",
+    "profile": "Profile",
+    "roles": {
+      "superAdmin": "Super Admin",
+      "admin": "Admin",
+      "organization": "Organization",
+      "federation": "Federation",
+      "guest": "Guest"
+    },
     "page": "Page",
     "of": "of",
     "showing": "Showing",
@@ -53,6 +61,13 @@
     "participation": "Participation",
     "cards": "Cards",
     "reports": "Reports",
+    "federations": "Federations",
+    "bysport": "By Sport",
+    "bynumber": "By Number",
+    "bycategory": "By Category",
+    "submissions": "Submissions",
+    "athleteRegistration": "Athlete Registration",
+    "leaderRegistration": "Leader Registration",
     "portalVersion": "Portal v1.0"
   },
   "auth": {

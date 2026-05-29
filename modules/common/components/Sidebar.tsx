@@ -1,115 +1,171 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useAuth, UserRole } from '@/core/auth';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
-    LayoutDashboard, Calendar, Trophy, Layers, Building2,
-    Users, ClipboardList, UserCheck, CreditCard, FilePieChart,
-    LogOut, ChevronRight, Shield
+    Building2,
+    Calendar,
+    ChevronLeft,
+    ChevronRight,
+    ClipboardList,
+    CreditCard,
+    FilePieChart,
+    LayoutDashboard,
+    Layers,
+    Trophy,
+    Users,
+    UserCheck,
 } from 'lucide-react';
+import { useAuth, UserRole } from '@/core/auth';
 import { cn } from '@/shared/utils/cn';
-import { Button } from '@/shared/ui/button';
-import { LanguageSwitcher } from '@/shared/ui';
+import { Button } from '@/shared/ui';
 
 interface MenuItem {
     labelKey: string;
     href: string;
     icon: React.ElementType;
-    roles: UserRole[];
 }
 
-const MENU_ITEMS: MenuItem[] = [
-    { labelKey: 'dashboard', href: '/dashboard', icon: LayoutDashboard, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.ORGANIZATION, UserRole.FEDERATION] },
-    { labelKey: 'events', href: '/events', icon: Calendar, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN] },
-    { labelKey: 'sports', href: '/sports', icon: Trophy, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN] },
-    { labelKey: 'categories', href: '/bycategory', icon: Layers, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.FEDERATION] },
-    { labelKey: 'organizations', href: '/organizations', icon: Building2, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN] },
-    { labelKey: 'users', href: '/users', icon: Users, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN] },
-    { labelKey: 'registration', href: '/register', icon: ClipboardList, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.ORGANIZATION] },
-    { labelKey: 'participation', href: '/participation', icon: UserCheck, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.ORGANIZATION] },
-    { labelKey: 'cards', href: '/cards', icon: CreditCard, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.ORGANIZATION] },
-    { labelKey: 'reports', href: '/reports', icon: FilePieChart, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.ORGANIZATION] },
-];
+type MenuSections = MenuItem[][];
+
+const COLLAPSED_KEY = 'moeys.sidebar.collapsed';
+
+const MENU_BY_ROLE: Partial<Record<UserRole, MenuSections>> = {
+    [UserRole.SUPER_ADMIN]: [
+        [{ labelKey: 'dashboard', href: '/dashboard', icon: LayoutDashboard }],
+        [
+            { labelKey: 'events', href: '/events', icon: Calendar },
+            { labelKey: 'sports', href: '/sports', icon: Trophy },
+            { labelKey: 'organizations', href: '/organizations', icon: Building2 },
+            { labelKey: 'federations', href: '/bycategory', icon: Layers },
+            { labelKey: 'users', href: '/users', icon: Users },
+        ],
+        [
+            { labelKey: 'submissions', href: '/participation', icon: UserCheck },
+            { labelKey: 'reports', href: '/reports', icon: FilePieChart },
+        ],
+    ],
+    [UserRole.ADMIN]: [
+        [{ labelKey: 'dashboard', href: '/dashboard', icon: LayoutDashboard }],
+        [
+            { labelKey: 'events', href: '/events', icon: Calendar },
+            { labelKey: 'sports', href: '/sports', icon: Trophy },
+            { labelKey: 'organizations', href: '/organizations', icon: Building2 },
+            { labelKey: 'federations', href: '/bycategory', icon: Layers },
+            { labelKey: 'users', href: '/users', icon: Users },
+        ],
+        [
+            { labelKey: 'submissions', href: '/participation', icon: UserCheck },
+            { labelKey: 'reports', href: '/reports', icon: FilePieChart },
+        ],
+    ],
+    [UserRole.ORGANIZATION]: [
+        [
+            { labelKey: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
+            { labelKey: 'events', href: '/events', icon: Calendar },
+        ],
+        [
+            { labelKey: 'bysport', href: '/bysport', icon: ClipboardList },
+            { labelKey: 'bynumber', href: '/bynumber', icon: UserCheck },
+            { labelKey: 'athleteRegistration', href: '/register', icon: CreditCard },
+            { labelKey: 'leaderRegistration', href: '/cards', icon: FilePieChart },
+        ],
+    ],
+    [UserRole.FEDERATION]: [
+        [
+            { labelKey: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
+            { labelKey: 'events', href: '/events', icon: Calendar },
+        ],
+        [{ labelKey: 'bycategory', href: '/bycategory', icon: Layers }],
+    ],
+};
 
 export function Sidebar() {
     const pathname = usePathname();
-    const { user, role, logout } = useAuth();
-    const router = useRouter();
+    const { role } = useAuth();
     const t = useTranslations('nav');
     const tCommon = useTranslations('common');
-
-    const handleLogout = async () => {
-        await logout();
-        router.push('/login');
-    };
-
-    const filteredItems = MENU_ITEMS.filter(item => {
-        if (!role) return false;
-        return item.roles.includes(role);
+    const [collapsed, setCollapsed] = useState(() => {
+        try {
+            if (typeof window === 'undefined') return false;
+            return window.localStorage.getItem(COLLAPSED_KEY) === 'true';
+        } catch {
+            return false;
+        }
     });
 
+    useEffect(() => {
+        try {
+            window.localStorage.setItem(COLLAPSED_KEY, String(collapsed));
+        } catch {
+            // Non-fatal: ignore storage errors.
+        }
+    }, [collapsed]);
+
+    const sections = useMemo(() => {
+        if (!role) return [];
+        return MENU_BY_ROLE[role] ?? [];
+    }, [role]);
+
     return (
-        <aside className="w-64 bg-card border-r border-border h-screen flex flex-col sticky top-0 z-50 shadow-sm">
-            <div className="p-6 flex flex-col h-full">
-                <div className="flex items-center gap-3 mb-10 px-2 transition-all hover:scale-105 duration-300">
-                    <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-                        <Trophy className="w-6 h-6 text-primary-foreground" />
+        <aside className={cn('sticky top-0 z-40 flex h-screen shrink-0 flex-col border-r border-border bg-card shadow-sm transition-all duration-300', collapsed ? 'w-16' : 'w-64')}>
+            <div className={cn('flex h-full flex-col px-3 py-4', collapsed && 'items-center')}>
+                <div className={cn('flex items-center gap-3 rounded-2xl border border-border/70 bg-white px-3 py-3 shadow-sm', collapsed && 'justify-center px-2')}>
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm shadow-primary/10">
+                        <Trophy className="h-5 w-5" />
                     </div>
-                    <div>
-                        <span className="font-black text-xl tracking-tighter text-foreground uppercase block leading-none">MOEYS</span>
-                        <span className="text-[8px] font-black tracking-[0.2em] text-muted-foreground uppercase opacity-50">{t('portalVersion')}</span>
-                    </div>
+                    {!collapsed && (
+                        <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold leading-snug text-foreground">ប្រព័ន្ធកីឡា MOEYS</p>
+                            <p className="truncate text-[11px] font-medium leading-relaxed text-muted-foreground">{tCommon('dashboard')}</p>
+                        </div>
+                    )}
                 </div>
 
-                <nav className="space-y-1.5 flex-1">
-                    {filteredItems.map((item) => {
-                        const isActive = pathname.startsWith(item.href);
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                className={cn(
-                                    "flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 group",
-                                    isActive
-                                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/10 translate-x-1"
-                                        : "text-muted-foreground hover:bg-secondary/80 hover:text-foreground hover:translate-x-1"
-                                )}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <item.icon className={cn("w-4.5 h-4.5", isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary transition-colors")} />
-                                    <span className="text-xs font-black uppercase tracking-widest">{t(item.labelKey)}</span>
-                                </div>
-                                {isActive && <ChevronRight className="w-4 h-4 opacity-50 animate-in slide-in-from-left-2" />}
-                            </Link>
-                        );
-                    })}
+                <nav className="mt-5 flex-1 space-y-3">
+                    {sections.map((section, sectionIndex) => (
+                        <div key={sectionIndex} className="space-y-1.5">
+                            {section.map((item) => {
+                                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+                                return (
+                                    <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        aria-label={t(item.labelKey as never)}
+                                        title={t(item.labelKey as never)}
+                                        className={cn(
+                                            'group flex items-center gap-3 rounded-xl border-l-4 px-3 py-3 text-sm font-medium leading-relaxed transition-all duration-200',
+                                            collapsed && 'justify-center px-2',
+                                            isActive
+                                                ? 'border-primary bg-accent text-primary shadow-sm'
+                                                : 'border-transparent text-muted-foreground hover:border-primary/30 hover:bg-accent/60 hover:text-primary',
+                                        )}
+                                    >
+                                        <item.icon className={cn('h-4.5 w-4.5 shrink-0 transition-colors', isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-primary')} />
+                                        {!collapsed && <span className="truncate">{t(item.labelKey as never)}</span>}
+                                    </Link>
+                                );
+                            })}
+
+                            {sectionIndex < sections.length - 1 && !collapsed && <div className="pt-2" />}
+                            {sectionIndex < sections.length - 1 && collapsed && <div className="mx-auto w-8 border-t border-border pt-2" />}
+                        </div>
+                    ))}
                 </nav>
 
-                <div className="mt-auto pt-6 border-t border-border space-y-4">
-                    <LanguageSwitcher />
-
-                    <div className="px-4 py-4 rounded-2xl bg-secondary/30 border border-border/50 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-150 duration-500" />
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">{tCommon('account')}</p>
-                        <p className="text-sm font-black text-foreground truncate relative z-10">{user?.khmer_name || user?.username}</p>
-                        <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary text-primary-foreground rounded-lg shadow-sm">
-                            <Shield className="w-3 h-3" />
-                            <span className="text-[9px] font-black uppercase tracking-widest">{role}</span>
-                        </div>
-                    </div>
-
+                <div className="mt-auto border-t border-border pt-4">
                     <Button
                         variant="outline"
-                        className="w-full justify-start gap-3 h-12 rounded-xl border-border bg-card hover:bg-error/5 hover:text-error hover:border-error/20 group transition-all"
-                        onClick={handleLogout}
+                        size="icon-sm"
+                        type="button"
+                        onClick={() => setCollapsed((value) => !value)}
+                        className="w-full justify-center border-border bg-white text-foreground hover:bg-accent/70"
+                        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                     >
-                        <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center group-hover:bg-error/10 transition-colors">
-                            <LogOut className="w-4 h-4 text-muted-foreground group-hover:text-error transition-colors" />
-                        </div>
-                        <span className="text-xs font-black uppercase tracking-widest">{tCommon('signOut')}</span>
+                        {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
                     </Button>
                 </div>
             </div>

@@ -1,12 +1,12 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
+import { cn } from '@/shared/utils/cn';
 
 export function LanguageSwitcher() {
     const locale = useLocale();
-    const t = useTranslations('language');
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
 
@@ -20,10 +20,15 @@ export function LanguageSwitcher() {
         <button
             onClick={toggle}
             disabled={isPending}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-[10px] font-black uppercase tracking-widest text-foreground disabled:opacity-50"
+            className="inline-flex items-center gap-1 rounded-full border border-border bg-white px-3 py-1.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent/40 disabled:opacity-50"
         >
-            <span>{locale === 'en' ? '🇰🇭' : '🇬🇧'}</span>
-            <span>{t('switchTo')}</span>
+            <span className={cn('rounded-full px-2 py-0.5 transition-colors', locale === 'kh' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground')}>
+                ខ្មែរ
+            </span>
+            <span className="text-border">|</span>
+            <span className={cn('rounded-full px-2 py-0.5 transition-colors', locale === 'en' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground')}>
+                EN
+            </span>
         </button>
     );
 }

@@ -26,12 +26,12 @@ export function PageShell({
     animated = true,
 }: PageShellProps) {
     return (
-        <div className={cn('min-h-screen bg-background transition-colors duration-300', padded && 'p-4 md:p-8', className)}>
+        <div className={cn('min-h-full bg-background transition-colors duration-300', className)}>
             <div
                 className={cn(
-                    'mx-auto space-y-6',
+                    'mx-auto w-full space-y-6',
                     SIZE_CLASS_MAP[size],
-                    !padded && 'px-4 py-8 sm:px-6 lg:px-8',
+                    padded ? 'px-4 py-6 sm:px-6 lg:px-8' : 'px-4 py-6 sm:px-6 lg:px-8',
                     animated && 'animate-in fade-in slide-in-from-bottom-2 duration-500',
                     contentClassName
                 )}

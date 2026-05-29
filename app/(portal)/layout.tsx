@@ -10,6 +10,7 @@
 import { ProtectedRoute } from '@/modules/auth';
 import { UserRole } from '@/core/auth';
 import { Sidebar } from '@/modules/common';
+import { TopBar } from '@/shared/layout';
 
 // All portal routes require at least being logged in
 const PORTAL_ROLES: UserRole[] = [
@@ -22,14 +23,14 @@ const PORTAL_ROLES: UserRole[] = [
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
     return (
         <ProtectedRoute requiredRoles={PORTAL_ROLES}>
-            <div className="flex min-h-screen bg-background">
-                {/* Sidebar */}
+            <div className="flex min-h-screen bg-background text-foreground">
                 <Sidebar />
-                
-                {/* Main Content */}
-                <main className="flex-1 overflow-y-auto">
-                    {children}
-                </main>
+                <div className="flex min-w-0 flex-1 flex-col">
+                    <TopBar />
+                    <main className="min-w-0 flex-1 overflow-y-auto bg-muted/20">
+                        {children}
+                    </main>
+                </div>
             </div>
         </ProtectedRoute>
     );
