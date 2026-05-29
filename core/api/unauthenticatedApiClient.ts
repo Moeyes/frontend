@@ -4,12 +4,10 @@
  * Axios instance for public endpoints that don't require auth tokens.
  */
 
-import axios, { AxiosInstance, AxiosError } from 'axios';
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/';
+import axios, { type AxiosInstance, AxiosError } from 'axios';
 
 const unauthenticatedApiClient: AxiosInstance = axios.create({
-    baseURL: BASE_URL,
+    baseURL: '/',
     headers: {
         'Content-Type': 'application/json',
     },

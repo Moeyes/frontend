@@ -35,6 +35,7 @@ export const constants = {
  * Role-based default redirect after login
  */
 export const ROLE_DEFAULT_ROUTE: Record<UserRole, string> = {
+    [UserRole.SUPER_ADMIN]: '/dashboard',
     [UserRole.ADMIN]: '/dashboard',
     [UserRole.ORGANIZATION]: '/dashboard',
     [UserRole.FEDERATION]: '/bycategory',

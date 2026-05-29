@@ -205,8 +205,8 @@
     "national": "ជាតិ",
     "deleteConfirm": "តើអ្នកពិតជាចង់លុបអង្គការនេះ?",
     "types": {
-      "PROVINCE": "ខេត្ត",
-      "MINISTRY": "ក្រសួង"
+      "province": "ខេត្ត",
+      "ministry": "ក្រសួង"
     },
     "columns": {
       "orgName": "ឈ្មោះអង្គការ",

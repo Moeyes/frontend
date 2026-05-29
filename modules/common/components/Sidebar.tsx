@@ -22,16 +22,16 @@ interface MenuItem {
 }
 
 const MENU_ITEMS: MenuItem[] = [
-    { labelKey: 'dashboard', href: '/dashboard', icon: LayoutDashboard, roles: [UserRole.ADMIN, UserRole.ORGANIZATION, UserRole.FEDERATION] },
-    { labelKey: 'events', href: '/events', icon: Calendar, roles: [UserRole.ADMIN] },
-    { labelKey: 'sports', href: '/sports', icon: Trophy, roles: [UserRole.ADMIN] },
-    { labelKey: 'categories', href: '/bycategory', icon: Layers, roles: [UserRole.ADMIN, UserRole.FEDERATION] },
-    { labelKey: 'organizations', href: '/organizations', icon: Building2, roles: [UserRole.ADMIN] },
-    { labelKey: 'users', href: '/users', icon: Users, roles: [UserRole.ADMIN] },
-    { labelKey: 'registration', href: '/register', icon: ClipboardList, roles: [UserRole.ADMIN, UserRole.ORGANIZATION] },
-    { labelKey: 'participation', href: '/participation', icon: UserCheck, roles: [UserRole.ADMIN, UserRole.ORGANIZATION] },
-    { labelKey: 'cards', href: '/cards', icon: CreditCard, roles: [UserRole.ADMIN, UserRole.ORGANIZATION] },
-    { labelKey: 'reports', href: '/reports', icon: FilePieChart, roles: [UserRole.ADMIN, UserRole.ORGANIZATION] },
+    { labelKey: 'dashboard', href: '/dashboard', icon: LayoutDashboard, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.ORGANIZATION, UserRole.FEDERATION] },
+    { labelKey: 'events', href: '/events', icon: Calendar, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN] },
+    { labelKey: 'sports', href: '/sports', icon: Trophy, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN] },
+    { labelKey: 'categories', href: '/bycategory', icon: Layers, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.FEDERATION] },
+    { labelKey: 'organizations', href: '/organizations', icon: Building2, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN] },
+    { labelKey: 'users', href: '/users', icon: Users, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN] },
+    { labelKey: 'registration', href: '/register', icon: ClipboardList, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.ORGANIZATION] },
+    { labelKey: 'participation', href: '/participation', icon: UserCheck, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.ORGANIZATION] },
+    { labelKey: 'cards', href: '/cards', icon: CreditCard, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.ORGANIZATION] },
+    { labelKey: 'reports', href: '/reports', icon: FilePieChart, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.ORGANIZATION] },
 ];
 
 export function Sidebar() {

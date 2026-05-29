@@ -85,6 +85,7 @@ export function UserList() {
 function RoleBadge({ role }: { role: UserRole }) {
     const t = useTranslations('users.roles');
     const config = {
+        [UserRole.SUPER_ADMIN]: { label: t('admin'), variant: 'default' as const, icon: Shield },
         [UserRole.ADMIN]: { label: t('admin'), variant: 'default' as const, icon: Shield },
         [UserRole.ORGANIZATION]: { label: t('org'), variant: 'info' as const, icon: Building2 },
         [UserRole.FEDERATION]: { label: t('fed'), variant: 'warning' as const, icon: Landmark },

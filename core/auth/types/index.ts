@@ -1,4 +1,5 @@
 export enum UserRole {
+    SUPER_ADMIN  = 'SUPER_ADMIN',
     ADMIN        = 'ADMIN',
     ORGANIZATION = 'USER1',
     FEDERATION   = 'USER2',
@@ -53,6 +54,12 @@ export interface AuthContextType extends AuthState {
 }
 
 export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
+    [UserRole.SUPER_ADMIN]: [
+        'access:register', 'access:bynumber', 'access:bysport',
+        'access:bycategory', 'access:dashboard',
+        'action:edit-any-organization', 'action:download-any',
+        'action:manage-users', 'action:manage-events',
+    ],
     [UserRole.ADMIN]: [
         'access:register', 'access:bynumber', 'access:bysport',
         'access:bycategory', 'access:dashboard',
@@ -70,11 +77,11 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
 };
 
 export const FEATURE_ACCESS: Record<string, UserRole[]> = {
-    'register':   [UserRole.ADMIN, UserRole.ORGANIZATION, UserRole.GUEST],
-    'bynumber':   [UserRole.ADMIN, UserRole.ORGANIZATION],
-    'bysport':    [UserRole.ADMIN, UserRole.ORGANIZATION],
-    'bycategory': [UserRole.ADMIN, UserRole.FEDERATION],
-    'dashboard':  [UserRole.ADMIN, UserRole.ORGANIZATION, UserRole.FEDERATION],
+    'register':   [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.ORGANIZATION, UserRole.GUEST],
+    'bynumber':   [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.ORGANIZATION],
+    'bysport':    [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.ORGANIZATION],
+    'bycategory': [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.FEDERATION],
+    'dashboard':  [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.ORGANIZATION, UserRole.FEDERATION],
 };
 
 export class AuthError extends Error {

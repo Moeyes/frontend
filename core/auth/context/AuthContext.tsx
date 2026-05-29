@@ -26,10 +26,13 @@ const CACHE_KEY = 'auth_user_cache';
 
 function normalizeRole(raw: string): UserRole {
     const map: Record<string, UserRole> = {
-        admin:  UserRole.ADMIN,        ADMIN:  UserRole.ADMIN,
-        USER1:  UserRole.ORGANIZATION, user1:  UserRole.ORGANIZATION,
-        USER2:  UserRole.FEDERATION,   user2:  UserRole.FEDERATION,
-        GUEST:  UserRole.GUEST,        guest:  UserRole.GUEST,
+        super_admin:  UserRole.SUPER_ADMIN,  SUPER_ADMIN:  UserRole.SUPER_ADMIN,
+        admin:        UserRole.ADMIN,        ADMIN:        UserRole.ADMIN,
+        organization: UserRole.ORGANIZATION, ORGANIZATION: UserRole.ORGANIZATION,
+        federation:   UserRole.FEDERATION,   FEDERATION:   UserRole.FEDERATION,
+        USER1:        UserRole.ORGANIZATION, user1:        UserRole.ORGANIZATION,
+        USER2:        UserRole.FEDERATION,   user2:        UserRole.FEDERATION,
+        GUEST:        UserRole.GUEST,        guest:        UserRole.GUEST,
     };
     const normalized = map[raw];
     if (!normalized) console.warn(`Unknown role: "${raw}" — defaulting to GUEST`);

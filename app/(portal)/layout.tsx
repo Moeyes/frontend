@@ -13,6 +13,7 @@ import { Sidebar } from '@/modules/common';
 
 // All portal routes require at least being logged in
 const PORTAL_ROLES: UserRole[] = [
+    UserRole.SUPER_ADMIN,
     UserRole.ADMIN,
     UserRole.ORGANIZATION,
     UserRole.FEDERATION,
