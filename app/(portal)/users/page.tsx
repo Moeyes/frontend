@@ -5,7 +5,7 @@ import { PageLoadingState } from '@/shared';
 import { UsersPage } from '@/modules/users';
 
 export default function Page() {
-    const { isLoading, hasRole } = useRequireRole([UserRole.ADMIN]);
+    const { isLoading, hasRole } = useRequireRole([UserRole.SUPER_ADMIN, UserRole.ADMIN]);
 
     if (isLoading) {
         return <PageLoadingState />;

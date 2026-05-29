@@ -97,7 +97,11 @@
       "totalParticipants": "Total Participants",
       "activeEvents": "Active Events",
       "organizations": "Organizations",
-      "totalSports": "Total Sports"
+      "totalSports": "Total Sports",
+      "totalEvents": "Total Events",
+      "totalOrganizations": "Total Organizations",
+      "pendingSubmissions": "Pending Submissions",
+      "totalAthletesRegistered": "Total Athletes Registered"
     },
     "genderDistribution": "Gender Distribution",
     "topOrganizations": "Top Organizations",
@@ -140,6 +144,14 @@
       "dates": "Dates",
       "location": "Location"
     },
+    "search": "Search events...",
+    "statusFilter": {
+      "all": "All",
+      "upcoming": "Upcoming",
+      "ongoing": "Ongoing",
+      "completed": "Completed"
+    },
+    "pagination": "Page {page} of {totalPages} — {total} total"
     "sports": {
       "title": "Event Sports",
       "selectSport": "Select sport...",

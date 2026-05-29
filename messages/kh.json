@@ -97,7 +97,11 @@
       "totalParticipants": "អ្នកចូលរួមសរុប",
       "activeEvents": "ព្រឹត្តិការណ៍សកម្ម",
       "organizations": "អង្គការ",
-      "totalSports": "កីឡាសរុប"
+      "totalSports": "កីឡាសរុប",
+      "totalEvents": "ព្រឹត្តិការណ៍សរុប",
+      "totalOrganizations": "អង្គការសរុប",
+      "pendingSubmissions": "ការដាក់ស្នើរង់ចាំ",
+      "totalAthletesRegistered": "ចំនួនកីឡាករចុះឈ្មោះ"
     },
     "genderDistribution": "ការបែងចែកតាមភេទ",
     "topOrganizations": "អង្គការចម្បង",
@@ -138,8 +142,18 @@
       "eventName": "ឈ្មោះព្រឹត្តិការណ៍",
       "type": "ប្រភេទ",
       "dates": "កាលបរិច្ឆេទ",
+      "status": "ស្ថានភាព",
+      "sportsCount": "ចំនួនកីឡា",
       "location": "ទីតាំង"
     },
+    "search": "ស្វែងរកព្រឹត្តិការណ៍...",
+    "statusFilter": {
+      "all": "ទាំងអស់",
+      "upcoming": "កំពុងមកដល់",
+      "ongoing": "កំពុងប្រព្រឹត្ត",
+      "completed": "បានបញ្ចប់"
+    },
+    "pagination": "ទំព័រ {page} នៃ {totalPages} — សរុប {total}",
     "sports": {
       "title": "កីឡាក្នុងព្រឹត្តិការណ៍",
       "selectSport": "ជ្រើសរើសកីឡា...",

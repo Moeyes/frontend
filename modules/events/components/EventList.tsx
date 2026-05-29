@@ -1,11 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Event, EventType } from '../types';
 import { useEvents, useDeleteEvent } from '../hooks';
 import { EventForm } from './EventForm';
 import { Modal, DataTable, Badge, PageHeader } from '@/shared';
 import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/shared/ui/select';
+import { useRouter } from 'next/navigation';
 import { useAuth, UserRole } from '@/core/auth';
 import { Edit2, Trash2, Plus, Calendar, MapPin, Tag, Eye } from 'lucide-react';
 import Link from 'next/link';
@@ -21,6 +24,11 @@ export function EventList() {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingEvent, setEditingEvent] = useState<Event | undefined>(undefined);
+    const [query, setQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState<'all' | 'upcoming' | 'ongoing' | 'completed'>('all');
+    const [page, setPage] = useState(1);
+    const pageSize = 10;
+    const router = useRouter();
 
     const handleCreate = () => { setEditingEvent(undefined); setIsModalOpen(true); };
     const handleEdit = (event: Event) => { setEditingEvent(event); setIsModalOpen(true); };
@@ -36,6 +44,29 @@ export function EventList() {
         </div>
     );
 
+    const getStatus = (event: Event) => {
+        const now = new Date();
+        const start = new Date(event.start_date);
+        const end = new Date(event.end_date);
+        if (now < start) return 'upcoming';
+        if (now >= start && now <= end) return 'ongoing';
+        return 'completed';
+    };
+
+    const filtered = useMemo(() => {
+        if (!events) return [] as Event[];
+        return events.filter((ev) => {
+            const matchesQuery = query.trim() === '' || `${ev.name} ${ev.description ?? ''}`.toLowerCase().includes(query.toLowerCase());
+            const status = getStatus(ev);
+            const matchesStatus = statusFilter === 'all' || statusFilter === status;
+            return matchesQuery && matchesStatus;
+        });
+    }, [events, query, statusFilter]);
+
+    const total = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    const pageData = filtered.slice((page - 1) * pageSize, page * pageSize);
+
     return (
         <div className="space-y-6">
             <PageHeader
@@ -49,10 +80,30 @@ export function EventList() {
                 )}
             />
 
+            <div className="flex items-center gap-3">
+                <div className="flex-1">
+                    <Input placeholder={t('search') as string} value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }} />
+                </div>
+                <div className="w-48">
+                    <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v as any); setPage(1); }}>
+                        <SelectTrigger size="sm" className="w-full">
+                            <SelectValue>{t('statusFilter.all')}</SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">{t('statusFilter.all')}</SelectItem>
+                            <SelectItem value="upcoming">{t('statusFilter.upcoming')}</SelectItem>
+                            <SelectItem value="ongoing">{t('statusFilter.ongoing')}</SelectItem>
+                            <SelectItem value="completed">{t('statusFilter.completed')}</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
+
             <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
                 <DataTable
                     isLoading={isLoading}
-                    data={events || []}
+                    data={pageData || []}
+                    onRowClick={(item) => router.push(`/events/${(item as Event).id}`)}
                     columns={[
                         {
                             header: t('columns.eventName'),
@@ -64,6 +115,11 @@ export function EventList() {
                             ),
                         },
                         { header: t('columns.type'), accessor: (event) => <TypeBadge type={event.event_type} /> },
+                        { header: t('columns.status'), accessor: (event) => (
+                            <Badge variant={getStatus(event) === 'upcoming' ? 'info' : getStatus(event) === 'ongoing' ? 'success' : 'secondary'} className="gap-1.5 whitespace-nowrap">
+                                <span className="text-[10px] font-black uppercase tracking-tight">{t(`statusFilter.${getStatus(event)}`)}</span>
+                            </Badge>
+                        ) },
                         {
                             header: t('columns.dates'),
                             accessor: (event) => (
@@ -113,6 +169,14 @@ export function EventList() {
                         },
                     ]}
                 />
+            </div>
+
+            <div className="flex items-center justify-between gap-4">
+                <div className="text-sm text-muted-foreground">{t('pagination', { page, totalPages, total })}</div>
+                <div className="flex items-center gap-2">
+                    <Button disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))} variant="outline">Prev</Button>
+                    <Button disabled={page >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>Next</Button>
+                </div>
             </div>
 
             {isAdmin && (

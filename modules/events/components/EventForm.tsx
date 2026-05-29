@@ -7,6 +7,8 @@ import { Event, EventType, EventCreate } from '../types';
 import { useCreateEvent, useUpdateEvent } from '../hooks';
 import { Button } from '@/shared/ui/button';
 import { TextInputField, SelectField } from '@/shared/form';
+import { FormSection } from '@/shared';
+import { Calendar } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 const eventSchema = z.object({
@@ -58,23 +60,36 @@ export function EventForm({ event, onSuccess, onCancel }: EventFormProps) {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <TextInputField control={control} name="name" label={t('eventName')} required error={errors.name?.message} />
-            <TextInputField control={control} name="description" label={t('description_field')} error={errors.description?.message} />
-            <div className="grid grid-cols-2 gap-4">
-                <TextInputField control={control} name="start_date" label={t('startDate')} type="date" required error={errors.start_date?.message} />
-                <TextInputField control={control} name="end_date" label={t('endDate')} type="date" required error={errors.end_date?.message} />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-                <TextInputField control={control} name="open_register_date" label={t('registrationOpenDate')} type="date" error={errors.open_register_date?.message} />
-                <TextInputField control={control} name="close_register_date" label={t('registrationCloseDate')} type="date" error={errors.close_register_date?.message} />
-            </div>
-            <SelectField control={control} name="event_type" label={t('eventType')} required options={[
-                { value: EventType.NATIONAL, label: t('types.NATIONAL') },
-                { value: EventType.UNIVERSITY, label: t('types.UNIVERSITY') },
-                { value: EventType.HIGH_SCHOOL, label: t('types.HIGH_SCHOOL') },
-                { value: EventType.PRIMARY_SCHOOL, label: t('types.PRIMARY_SCHOOL') },
-            ]} error={errors.event_type?.message} />
-            <TextInputField control={control} name="location" label={t('location')} required error={errors.location?.message} />
+            <FormSection title={t('eventName')} description={t('description_field')} icon={Calendar}>
+                <div className="space-y-3">
+                    <TextInputField control={control} name="name" label={t('eventName')} required error={errors.name?.message} />
+                    <TextInputField control={control} name="description" label={t('description_field')} error={errors.description?.message} />
+                </div>
+            </FormSection>
+
+            <FormSection title={t('registerWindow')} description="" icon={Calendar}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <TextInputField control={control} name="start_date" label={t('startDate')} type="date" required error={errors.start_date?.message} />
+                    <TextInputField control={control} name="end_date" label={t('endDate')} type="date" required error={errors.end_date?.message} />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    <TextInputField control={control} name="open_register_date" label={t('registrationOpenDate')} type="date" error={errors.open_register_date?.message} />
+                    <TextInputField control={control} name="close_register_date" label={t('registrationCloseDate')} type="date" error={errors.close_register_date?.message} />
+                </div>
+            </FormSection>
+
+            <FormSection title={t('eventType')} description="" icon={Calendar}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <SelectField control={control} name="event_type" label={t('eventType')} required options={[
+                        { value: EventType.NATIONAL, label: t('types.NATIONAL') },
+                        { value: EventType.UNIVERSITY, label: t('types.UNIVERSITY') },
+                        { value: EventType.HIGH_SCHOOL, label: t('types.HIGH_SCHOOL') },
+                        { value: EventType.PRIMARY_SCHOOL, label: t('types.PRIMARY_SCHOOL') },
+                    ]} error={errors.event_type?.message} />
+                    <TextInputField control={control} name="location" label={t('location')} required error={errors.location?.message} />
+                </div>
+            </FormSection>
+
             <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={onCancel}>{tCommon('cancel')}</Button>
                 <Button type="submit" disabled={isCreating || isUpdating}>
