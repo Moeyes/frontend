@@ -9,6 +9,8 @@ import { GENDER_OPTIONS, ID_DOCUMENT_OPTIONS, ROLE_OPTIONS, LEADER_ROLE_OPTIONS 
 import { Calendar, User, Trophy, Building2, CheckCircle2, Camera, Users } from 'lucide-react';
 import { useAuth, UserRole } from '@/core/auth';
 import { useTranslations } from 'next-intl';
+import { eventsService } from '@/modules/events/services';
+import { useEffect, useState } from 'react';
 
 type FormStep = 'event' | 'category' | 'personal' | 'documents' | 'review';
 
@@ -144,9 +146,14 @@ export function RegisterFormFields({ form, cascadingData, categories, step }: Re
                         <FileUploadField control={control} name="photoPath" label="" accept="image/*" maxSize={2} onUpload={uploadPhoto} required error={formState.errors.photoPath?.message} />
                     </div>
                 </div>
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <FileUploadField control={control} name="nationalIdPath" label={t('idDocument')} accept="image/*,.pdf" maxSize={5} onUpload={uploadDocument} />
-                    <FileUploadField control={control} name="birthCertificatePath" label={t('birthCertificate')} accept="image/*,.pdf" maxSize={5} onUpload={uploadDocument} />
+                <div>
+                    {/* Display required document message if athlete is under 18 at event date */}
+                    <Under18Note form={form} />
+
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <FileUploadField control={control} name="nationalIdPath" label={t('idDocument')} accept="image/*,.pdf" maxSize={5} onUpload={uploadDocument} />
+                        <FileUploadField control={control} name="birthCertificatePath" label={t('birthCertificate')} accept="image/*,.pdf" maxSize={5} onUpload={uploadDocument} />
+                    </div>
                 </div>
             </div>
         );
@@ -191,5 +198,42 @@ export function RegisterFormFields({ form, cascadingData, categories, step }: Re
         );
     }
 
+    return null;
+}
+
+function Under18Note({ form }: { form: UseFormReturn<RegisterFormInput, unknown, RegisterFormData>; }) {
+    const [ageAtEvent, setAgeAtEvent] = useState<number | null>(null);
+    const eventId = form.watch('eventId');
+    const dob = form.watch('dateOfBirth');
+    const t = useTranslations('registration.fields');
+
+    useEffect(() => {
+        let active = true;
+        if (!dob || !eventId) return;
+        (async () => {
+            try {
+                const event = await eventsService.getEventById(Number(eventId));
+                if (!active) return;
+                const evDateStr = (event as { start_date?: string }).start_date || new Date().toISOString();
+                const birth = new Date(dob);
+                const evDate = new Date(evDateStr);
+                let age = evDate.getFullYear() - birth.getFullYear();
+                if (evDate.getMonth() < birth.getMonth() || (evDate.getMonth() === birth.getMonth() && evDate.getDate() < birth.getDate())) age--;
+                setAgeAtEvent(age);
+            } catch {
+                // ignore errors silently
+            }
+        })();
+        return () => { active = false; };
+    }, [dob, eventId, form]);
+
+    if (ageAtEvent === null) return null;
+    if (ageAtEvent < 18) {
+        return (
+            <div className="mb-4 p-4 rounded-lg bg-primary/10 border border-primary/20 text-sm font-medium text-primary">
+                {t('under18BirthCert')}
+            </div>
+        );
+    }
     return null;
 }

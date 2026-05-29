@@ -151,7 +151,7 @@
       "ongoing": "Ongoing",
       "completed": "Completed"
     },
-    "pagination": "Page {page} of {totalPages} — {total} total"
+    "pagination": "Page {page} of {totalPages} — {total} total",
     "sports": {
       "title": "Event Sports",
       "selectSport": "Select sport...",
@@ -314,6 +314,7 @@
       "photoUploadDesc": "Upload a clear passport-style photo. Max 2MB.",
       "idDocument": "ID Document",
       "birthCertificate": "Birth Certificate",
+      "under18BirthCert": "Because this athlete is under 18 at the event date, a birth certificate is required.",
       "photoUploaded": "Profile photo uploaded successfully"
     },
     "review": {

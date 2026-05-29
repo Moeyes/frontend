@@ -166,10 +166,13 @@ export function ByNumberFormFields({
                                 <th className="p-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Athletes (F)</th>
                                 <th className="p-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Leaders (M)</th>
                                 <th className="p-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Leaders (F)</th>
+                                <th className="p-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Subtotal</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-200 bg-white">
-                            {sports.map((sport, index) => (
+                            {sports.map((sport, index) => {
+                                const subtotal = (sport.athlete_male_count || 0) + (sport.athlete_female_count || 0) + (sport.leader_male_count || 0) + (sport.leader_female_count || 0);
+                                return (
                                 <tr key={sport.sport_id} className="hover:bg-slate-50/50 transition-colors">
                                     <td className="p-3 text-sm font-semibold text-slate-900">{sport.sport_name_kh}</td>
                                     <td className="p-3">
@@ -224,9 +227,21 @@ export function ByNumberFormFields({
                                             className="w-full px-2 py-1.5 border border-slate-300 rounded focus:ring-1 focus:ring-primary focus:border-primary text-center text-sm"
                                         />
                                     </td>
+                                    <td className="p-3 bg-slate-50 text-center font-bold text-slate-700">{subtotal}</td>
                                 </tr>
-                            ))}
+                                );
+                            })}
                         </tbody>
+                        <tfoot>
+                            <tr className="bg-slate-50 border-t border-slate-200">
+                                <td className="p-3 text-sm font-semibold text-slate-900">Totals</td>
+                                <td className="p-3 text-center font-bold">{sports.reduce((s, sp) => s + (sp.athlete_male_count || 0), 0)}</td>
+                                <td className="p-3 text-center font-bold">{sports.reduce((s, sp) => s + (sp.athlete_female_count || 0), 0)}</td>
+                                <td className="p-3 text-center font-bold">{sports.reduce((s, sp) => s + (sp.leader_male_count || 0), 0)}</td>
+                                <td className="p-3 text-center font-bold">{sports.reduce((s, sp) => s + (sp.leader_female_count || 0), 0)}</td>
+                                <td className="p-3 text-center font-bold">{sports.reduce((s, sp) => s + ((sp.athlete_male_count||0)+(sp.athlete_female_count||0)+(sp.leader_male_count||0)+(sp.leader_female_count||0)), 0)}</td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
 

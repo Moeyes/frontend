@@ -150,37 +150,44 @@ export function SurveyFormFields({
                         <p className="text-slate-500">No sports available for this event</p>
                     </div>
                 ) : (
-                    <div className="grid gap-3 max-h-[400px] overflow-y-auto pr-2">
-                        {eventSports.map((sport) => (
-                            <label
-                                key={`${sport.sports_id}-${sport.id}`}
-                                className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${
-                                    selectedSportIds.includes(sport.sports_id)
-                                    ? 'border-primary bg-primary/5'
-                                    : 'hover:bg-slate-50'
-                                }`}
-                            >
-                                <input
-                                    type="checkbox"
-                                    checked={selectedSportIds.includes(sport.sports_id)}
-                                    onChange={(e) => {
-                                        const newIds = e.target.checked
-                                            ? [...selectedSportIds, sport.sports_id]
-                                            : selectedSportIds.filter((id) => id !== sport.sports_id);
-                                        setValue('sportIds', newIds);
-                                        trigger('sportIds');
-                                    }}
-                                    className="w-4 h-4 rounded text-primary border-slate-300 focus:ring-primary"
-                                />
-                                <div>
-                                    <h4 className="font-semibold text-slate-900">{sport.name_kh}</h4>
-                                    {sport.sport_type && (
-                                        <p className="text-sm text-slate-600">{sport.sport_type}</p>
-                                    )}
-                                </div>
-                            </label>
-                        ))}
-                    </div>
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[520px] overflow-y-auto pr-2">
+                            {eventSports.map((sport) => (
+                                <label
+                                    key={`${sport.sports_id}-${sport.id}`}
+                                    className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${
+                                        selectedSportIds.includes(sport.sports_id)
+                                        ? 'border-primary bg-primary/5 shadow-sm'
+                                        : 'hover:bg-slate-50'
+                                    }`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedSportIds.includes(sport.sports_id)}
+                                        onChange={(e) => {
+                                            const newIds = e.target.checked
+                                                ? [...selectedSportIds, sport.sports_id]
+                                                : selectedSportIds.filter((id) => id !== sport.sports_id);
+                                            setValue('sportIds', newIds);
+                                            trigger('sportIds');
+                                        }}
+                                        className="w-4 h-4 rounded text-primary border-slate-300 focus:ring-primary"
+                                    />
+                                    <div>
+                                        <h4 className="font-semibold text-slate-900">{sport.name_kh}</h4>
+                                        {sport.sport_type && (
+                                            <p className="text-sm text-slate-600">{sport.sport_type}</p>
+                                        )}
+                                    </div>
+                                </label>
+                            ))}
+                        </div>
+
+                        <div className="mt-4 flex items-center justify-between">
+                            <div className="text-sm text-muted-foreground">{selectedSportIds.length} selected</div>
+                            <div className="text-sm font-bold">Total sports selected</div>
+                        </div>
+                    </>
                 )}
 
                 {form.formState.errors.sportIds && (
