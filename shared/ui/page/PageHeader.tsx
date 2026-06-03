@@ -26,8 +26,8 @@ export function PageHeader({
     >
       <div className="flex items-start gap-4">
         {Icon && (
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-primary shadow-sm">
-            <Icon className="h-6 w-6 text-primary" />
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent text-primary">
+            <Icon className="h-5 w-5 text-primary" />
           </div>
         )}
         <div className="min-w-0">
@@ -41,7 +41,7 @@ export function PageHeader({
           )}
         </div>
       </div>
-      {action && <div className="flex items-center gap-3">{action}</div>}
+      {action && <div className="flex flex-wrap items-center gap-3">{action}</div>}
     </div>
   );
 }

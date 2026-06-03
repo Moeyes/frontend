@@ -1,5 +1,6 @@
 export * from './EventList';
 export * from './EventForm';
+export * from './EventPhases';
 export * from './EventSportManager';
 export * from './EventSportOrgManager';
 export * from './EventsPage';

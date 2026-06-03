@@ -5,6 +5,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/core/api/queryKeys';
 import { getParticipations } from '../services';
 
 interface ParticipationsFilter {
@@ -17,7 +18,7 @@ interface ParticipationsFilter {
 
 export function useParticipations(filter: ParticipationsFilter) {
     return useQuery({
-        queryKey: ['participations', filter],
+        queryKey: queryKeys.participations.list(filter),
         queryFn: () => getParticipations(filter),
         staleTime: 30000,
     });

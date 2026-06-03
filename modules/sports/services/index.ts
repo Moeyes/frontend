@@ -7,6 +7,9 @@ import {
   AddCategoryBody,
   UpdateCategoryBody,
   DeleteCategoryBody,
+  ParticipantRole,
+  SportParticipant,
+  SportParticipantListResponse,
 } from "../types";
 
 const BASE_URL = "/api/sports";
@@ -84,6 +87,40 @@ export async function updateSport(sportData: SportUpdate): Promise<Sport> {
 }
 
 /**
+ * Delete a sport
+ */
+export async function deleteSport(sportId: number): Promise<void> {
+  await apiClient.delete(buildUrl(`${BASE_URL}/${sportId}`));
+}
+
+/**
+ * List participants (athletes or leaders) for a sport.
+ * Backend scopes ORGANIZATION users to their own org automatically; the
+ * `role` query param is required and selects athlete vs leader.
+ */
+export async function getSportParticipants(params: {
+  role: ParticipantRole;
+  sportId: number;
+  eventId?: number;
+  organizationId?: number;
+  limit?: number;
+}): Promise<SportParticipant[]> {
+  const { data } = await apiClient.get<SportParticipantListResponse>(
+    buildUrl(`/api/participant/`),
+    {
+      params: {
+        role: params.role,
+        sport_id: params.sportId,
+        event_id: params.eventId,
+        organization_id: params.organizationId,
+        limit: params.limit ?? 200,
+      },
+    },
+  );
+  return data?.data ?? [];
+}
+
+/**
  * Get single category by ID
  */
 export async function getCategoryById(categoryId: number): Promise<Category> {
@@ -145,6 +182,8 @@ export const sportsService = {
   getSportById,
   createSport,
   updateSport,
+  deleteSport,
+  getSportParticipants,
   getCategoryById,
   addCategory,
   deleteCategory,

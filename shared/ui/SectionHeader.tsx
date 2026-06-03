@@ -32,8 +32,8 @@ export function SectionHeader({
                     </div>
                 )}
                 <div>
-                    <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground">{title}</h3>
-                    {subtitle && <p className="text-[10px] font-medium text-muted-foreground/60">{subtitle}</p>}
+                    <h3 className="text-sm font-semibold leading-snug text-foreground">{title}</h3>
+                    {subtitle && <p className="text-xs leading-relaxed text-muted-foreground">{subtitle}</p>}
                 </div>
             </div>
             {action && <div className="flex items-center gap-2">{action}</div>}

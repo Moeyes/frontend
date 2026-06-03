@@ -43,7 +43,7 @@ function LoginFormInner() {
                     <p className="text-muted-foreground">{t('signInSubtitle')}</p>
                 </div>
 
-                <div className="bg-card rounded-2xl shadow-sm border border-border p-8">
+                <div className="bg-card rounded-lg shadow-sm border border-border p-8">
                     {error && (
                         <div className="mb-6 flex items-start gap-3 rounded-lg bg-destructive/10 border border-destructive/30 p-4">
                             <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />

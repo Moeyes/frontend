@@ -4,14 +4,17 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   Calendar,
+  CheckCircle2,
   ClipboardList,
   LayoutDashboard,
   MapPin,
+  Pencil,
   Tag,
   Trophy,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import {
+  Badge,
   ContentPanel,
   DetailHeader,
   PageEmptyState,
@@ -21,12 +24,13 @@ import {
   Modal,
 } from "@/shared";
 import { useAuth, UserRole } from "@/core/auth";
-import { useUpdateEvent } from "../hooks";
+import { useUpdateEvent, useUpdateEventPhase } from "../hooks";
 import { useEventDetail, useEventSports } from "../hooks";
 import { EventSportManager } from "./EventSportManager";
 import { EventUpdate } from "../types";
 import { EventForm } from "./EventForm";
 import { EventSportOrgManager } from "./EventSportOrgManager";
+import { EventPhaseControl } from "./EventPhases";
 import { useTranslations } from "next-intl";
 
 interface EventDetailPageProps {
@@ -39,12 +43,22 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const [selectedSportId, setSelectedSportId] = useState<number | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const { role } = useAuth();
+  const canManage =
+    role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN;
   const { mutate: publishEvent } = useUpdateEvent();
+  const { mutate: updatePhase } = useUpdateEventPhase();
   const t = useTranslations("events");
   const tCommon = useTranslations("common");
 
   const selectedSportName =
     eventSports?.find((s) => s.sports_id === selectedSportId)?.name_kh || "";
+
+  const getStatus = (start: string, end: string) => {
+    const now = new Date();
+    if (now < new Date(start)) return "upcoming" as const;
+    if (now <= new Date(end)) return "ongoing" as const;
+    return "completed" as const;
+  };
 
   if (isLoading) return <PageLoadingState />;
   if (!event)
@@ -69,7 +83,18 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
           eyebrowIcon={Tag}
           title={event.name}
           meta={
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <Badge
+                variant={
+                  getStatus(event.start_date, event.end_date) === "upcoming"
+                    ? "info"
+                    : getStatus(event.start_date, event.end_date) === "ongoing"
+                      ? "success"
+                      : "secondary"
+                }
+              >
+                {t(`statusFilter.${getStatus(event.start_date, event.end_date)}`)}
+              </Badge>
               <span className="flex items-center gap-1.5">
                 <Calendar className="h-4 w-4" />
                 {event.start_date} {tCommon("to")} {event.end_date}
@@ -80,18 +105,18 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                   {event.location}
                 </span>
               )}
-              {(event.open_register_date || event.close_register_date) && (
-                <span className="flex items-center gap-1.5">
-                  <ClipboardList className="h-4 w-4" />
-                  {t("register")}: {event.open_register_date ?? "—"} →{" "}
-                  {event.close_register_date ?? "—"}
-                </span>
-              )}
+              <span className="flex items-center gap-1.5">
+                <ClipboardList className="h-4 w-4" />
+                {t("register")}:{" "}
+                {event.registration_is_open
+                  ? t("phases.open")
+                  : t("phases.closed")}
+              </span>
             </div>
           }
           action={
-            <div className="flex items-center gap-2">
-              {role === UserRole.ADMIN && (
+            <div className="flex flex-wrap items-center gap-2">
+              {canManage && (
                 <Button
                   onClick={() => {
                     const payload = {
@@ -100,14 +125,16 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                     } as unknown as EventUpdate & { status?: string };
                     publishEvent(payload);
                   }}
-                  variant="ghost"
+                  variant="secondary"
+                  className="gap-2"
                 >
-                  Publish
+                  <CheckCircle2 className="h-4 w-4" />
+                  {t("publish")}
                 </Button>
               )}
-              {role === UserRole.ADMIN && (
+              {canManage && (
                 <Button onClick={() => setIsEditOpen(true)} className="gap-2">
-                  <Calendar className="h-4 w-4" />
+                  <Pencil className="h-4 w-4" />
                   {t("editEvent")}
                 </Button>
               )}
@@ -121,6 +148,23 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
           }
         />
         <div className="grid grid-cols-1 gap-8">
+          <ContentPanel>
+            <div className="mb-4">
+              <h2 className="text-base font-semibold text-foreground">
+                {t("phases.title")}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {t("phases.hint")}
+              </p>
+            </div>
+            <EventPhaseControl
+              event={event}
+              canManage={canManage}
+              onChange={(phase, status) =>
+                updatePhase({ id: event.id, phase, status })
+              }
+            />
+          </ContentPanel>
           <ContentPanel>
             <EventSportManager
               eventId={eventId}

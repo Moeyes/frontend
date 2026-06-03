@@ -10,7 +10,27 @@ import {
   AddOrgToEventSportPayload,
   DeleteEventSportOrgLinkPayload,
   RemoveOrgCompletelyFromEventPayload,
+  PhaseFields,
+  PhaseUpdatePayload,
 } from "../types";
+
+/** Per-phase keys that pass straight through to the backend (names match). */
+const PHASE_KEYS = [
+  "survey_category_status", "survey_category_open_date", "survey_category_close_date",
+  "survey_sport_status", "survey_sport_open_date", "survey_sport_close_date",
+  "survey_number_status", "survey_number_open_date", "survey_number_close_date",
+  "registration_status", "registration_open_date", "registration_close_date",
+] as const;
+
+/** Collect the defined phase fields, normalising "" -> null for dates. */
+function phasePayload(src: Partial<PhaseFields>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const key of PHASE_KEYS) {
+    const value = (src as Record<string, unknown>)[key];
+    if (value !== undefined) out[key] = value === "" ? null : value;
+  }
+  return out;
+}
 
 // ─── Raw API Shape ────────────────────────────────────────────────────────────
 
@@ -24,8 +44,27 @@ interface RawApiEvent {
   type?: string;
   event_type?: string;
   location?: string;
-  open_register_date?: string | null;
-  close_register_date?: string | null;
+  age_mode?: string | null;
+  age_min?: number | null;
+  age_max?: number | null;
+  // Per-phase status + AUTO date window.
+  survey_category_status?: string;
+  survey_category_open_date?: string | null;
+  survey_category_close_date?: string | null;
+  survey_sport_status?: string;
+  survey_sport_open_date?: string | null;
+  survey_sport_close_date?: string | null;
+  survey_number_status?: string;
+  survey_number_open_date?: string | null;
+  survey_number_close_date?: string | null;
+  registration_status?: string;
+  registration_open_date?: string | null;
+  registration_close_date?: string | null;
+  // Computed gates.
+  survey_category_is_open?: boolean;
+  survey_sport_is_open?: boolean;
+  survey_number_is_open?: boolean;
+  registration_is_open?: boolean;
   created_at?: string;
   updated_at?: string;
 }
@@ -112,8 +151,27 @@ function mapApiEvent(apiEvent: RawApiEvent): Event {
     end_date: apiEvent.end_date || "",
     event_type: (apiEvent.type ?? apiEvent.event_type) as Event["event_type"],
     location: apiEvent.location || "",
-    open_register_date: apiEvent.open_register_date ?? null,
-    close_register_date: apiEvent.close_register_date ?? null,
+    age_mode: (apiEvent.age_mode ?? null) as Event["age_mode"],
+    age_min: apiEvent.age_min ?? null,
+    age_max: apiEvent.age_max ?? null,
+    // Per-phase status + window (passthrough — names already match).
+    survey_category_status: apiEvent.survey_category_status as Event["survey_category_status"],
+    survey_category_open_date: apiEvent.survey_category_open_date ?? null,
+    survey_category_close_date: apiEvent.survey_category_close_date ?? null,
+    survey_sport_status: apiEvent.survey_sport_status as Event["survey_sport_status"],
+    survey_sport_open_date: apiEvent.survey_sport_open_date ?? null,
+    survey_sport_close_date: apiEvent.survey_sport_close_date ?? null,
+    survey_number_status: apiEvent.survey_number_status as Event["survey_number_status"],
+    survey_number_open_date: apiEvent.survey_number_open_date ?? null,
+    survey_number_close_date: apiEvent.survey_number_close_date ?? null,
+    registration_status: apiEvent.registration_status as Event["registration_status"],
+    registration_open_date: apiEvent.registration_open_date ?? null,
+    registration_close_date: apiEvent.registration_close_date ?? null,
+    // Computed gates.
+    survey_category_is_open: apiEvent.survey_category_is_open,
+    survey_sport_is_open: apiEvent.survey_sport_is_open,
+    survey_number_is_open: apiEvent.survey_number_is_open,
+    registration_is_open: apiEvent.registration_is_open,
     created_at: apiEvent.created_at,
     updated_at: apiEvent.updated_at,
   };
@@ -142,43 +200,52 @@ export async function createEvent(eventData: EventCreate): Promise<Event> {
       name_kh: eventData.name,
       type: eventData.event_type,
       description: eventData.description || null,
-      start_date: eventData.start_date || null,
-      end_date: eventData.end_date || null,
+      start_date: eventData.start_date,
+      end_date: eventData.end_date,
       location: eventData.location || null,
-      open_register_date: eventData.open_register_date || null,
-      close_register_date: eventData.close_register_date || null,
+      age_mode: eventData.age_mode,
+      age_min: eventData.age_min,
+      age_max: eventData.age_max,
+      ...phasePayload(eventData),
     },
   );
   return mapApiEvent(extractItem(data));
 }
 
 export async function updateEvent(eventData: EventUpdate): Promise<Event> {
-  const {
-    id,
-    name,
-    event_type,
-    description,
-    start_date,
-    end_date,
-    location,
-    open_register_date,
-    close_register_date,
-  } = eventData;
-  const payload: Record<string, string | null> = {};
+  const { id, name, event_type, description, start_date, end_date, location, age_mode, age_min, age_max } =
+    eventData;
+  const payload: Record<string, unknown> = { ...phasePayload(eventData) };
   if (name !== undefined) payload.name_kh = name ?? null;
   if (event_type !== undefined) payload.type = event_type ?? null;
   if (description !== undefined) payload.description = description || null;
   if (start_date !== undefined) payload.start_date = start_date || null;
   if (end_date !== undefined) payload.end_date = end_date || null;
   if (location !== undefined) payload.location = location || null;
-  if (open_register_date !== undefined)
-    payload.open_register_date = open_register_date || null;
-  if (close_register_date !== undefined)
-    payload.close_register_date = close_register_date || null;
+  if (age_mode !== undefined) payload.age_mode = age_mode;
+  if (age_min !== undefined) payload.age_min = age_min;
+  if (age_max !== undefined) payload.age_max = age_max;
 
   const { data } = await apiClient.patch<ApiItemResponse<RawApiEvent>>(
     buildUrl(`${EVENT_PATH}/${id}`),
     payload,
+  );
+  return mapApiEvent(extractItem(data));
+}
+
+/** Quick action: force a single phase OPEN/CLOSED/AUTO (admin only). */
+export async function updateEventPhase(
+  payload: PhaseUpdatePayload,
+): Promise<Event> {
+  const { id, phase, status, open_date, close_date } = payload;
+  const { data } = await apiClient.patch<ApiItemResponse<RawApiEvent>>(
+    buildUrl(`${EVENT_PATH}/${id}/phase`),
+    {
+      phase,
+      status,
+      open_date: open_date || null,
+      close_date: close_date || null,
+    },
   );
   return mapApiEvent(extractItem(data));
 }

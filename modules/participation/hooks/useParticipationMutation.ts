@@ -5,6 +5,7 @@
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/core/api/queryKeys';
 import { createParticipation, updateParticipation, deleteParticipation } from '../services';
 import { ParticipationPerSportPayload } from '../types';
 
@@ -14,8 +15,8 @@ export function useParticipationMutation() {
     const create = useMutation({
         mutationFn: (payload: ParticipationPerSportPayload) => createParticipation(payload),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['participations'] });
-            queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+            queryClient.invalidateQueries({ queryKey: queryKeys.participations.all });
+            queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
         },
     });
 
@@ -23,15 +24,15 @@ export function useParticipationMutation() {
         mutationFn: ({ id, payload }: { id: number; payload: Partial<ParticipationPerSportPayload> }) => 
             updateParticipation(id, payload),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['participations'] });
+            queryClient.invalidateQueries({ queryKey: queryKeys.participations.all });
         },
     });
 
     const remove = useMutation({
         mutationFn: (id: number) => deleteParticipation(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['participations'] });
-            queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+            queryClient.invalidateQueries({ queryKey: queryKeys.participations.all });
+            queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
         },
     });
 

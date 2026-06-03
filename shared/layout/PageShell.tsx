@@ -36,7 +36,7 @@ export function PageShell({
         className={cn(
           "mx-auto w-full space-y-6",
           SIZE_CLASS_MAP[size],
-          padded ? "px-4 py-6 sm:px-6 lg:px-8" : "px-4 py-6 sm:px-6 lg:px-8",
+          padded && "px-4 py-6 sm:px-6",
           animated && "animate-in fade-in slide-in-from-bottom-2 duration-500",
           contentClassName,
         )}

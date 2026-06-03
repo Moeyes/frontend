@@ -58,3 +58,36 @@ export interface DeleteCategoryBody {
 export interface SportUpdate extends Partial<SportCreate> {
     id: number;
 }
+
+// ─── Participant-by-category view ────────────────────────────────────
+
+export type ParticipantRole = 'athlete' | 'leader';
+
+interface NamedRef {
+    id: number;
+    name: string;
+}
+
+/** A row returned by GET /api/participant/ (athlete or leader). */
+export interface SportParticipant {
+    participant_id: number;
+    name_kh: string;
+    name_en: string;
+    gender: string;
+    phone?: string | null;
+    date_of_birth?: string | null;
+    photoUrl?: string | null;
+    role: ParticipantRole;
+    sport?: NamedRef | null;
+    organization?: NamedRef | null;
+    event_id?: number | null;
+    // athlete-only
+    category?: NamedRef | null;
+    // leader-only
+    leader_role?: string | null;
+}
+
+export interface SportParticipantListResponse {
+    data: SportParticipant[];
+    count: number;
+}

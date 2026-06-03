@@ -206,7 +206,7 @@ export async function submitByNumber(payload: ByNumberSubmissionPayload): Promis
 
     const submitPromises = sports.map(async (sport) => {
         try {
-            await apiClient.post('/api/participation/', {
+            await apiClient.post('/api/participation-per-sport/', {
                 org_id: organization_id,
                 events_id: event_id,
                 sports_id: sport.sport_id,

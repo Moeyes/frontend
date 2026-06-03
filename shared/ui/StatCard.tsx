@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import type { LucideIcon } from 'lucide-react';
+import { ArrowDown, ArrowUp, type LucideIcon } from 'lucide-react';
 import { cn } from '@/shared/utils/cn';
 
 interface StatCardProps {
@@ -17,12 +17,21 @@ interface StatCardProps {
 }
 
 const COLOR_MAP = {
-    primary: 'text-primary bg-primary/10',
-    blue: 'text-blue-600 bg-blue-100',
-    amber: 'text-amber-600 bg-amber-100',
-    emerald: 'text-emerald-600 bg-emerald-100',
-    purple: 'text-purple-600 bg-purple-100',
-    error: 'text-error bg-error/10',
+    primary: 'text-primary bg-accent',
+    blue: 'text-primary bg-accent',
+    amber: 'text-warning bg-warning/10',
+    emerald: 'text-success bg-success/10',
+    purple: 'text-secondary bg-secondary/10',
+    error: 'text-destructive bg-destructive/10',
+};
+
+const STRIP_MAP = {
+    primary: 'bg-primary',
+    blue: 'bg-primary',
+    amber: 'bg-warning',
+    emerald: 'bg-success',
+    purple: 'bg-secondary',
+    error: 'bg-destructive',
 };
 
 export function StatCard({
@@ -34,22 +43,25 @@ export function StatCard({
     className,
 }: StatCardProps) {
     return (
-        <div className={cn('bg-card p-6 rounded-xl border border-border shadow-sm transition-all hover:shadow-md', className)}>
-            <div className="flex justify-between items-start mb-4">
-                <div className={cn('p-2.5 rounded-xl', COLOR_MAP[color])}>
-                    <Icon className="w-5 h-5" />
+        <div className={cn('relative overflow-hidden rounded-lg border border-border bg-card p-6 pl-7 shadow-sm transition-shadow hover:shadow-md', className)}>
+            {/* Accent strip */}
+            <span className={cn('absolute inset-y-0 left-0 w-1', STRIP_MAP[color])} aria-hidden />
+            <div className="mb-4 flex items-start justify-between">
+                <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg', COLOR_MAP[color])}>
+                    <Icon className="h-5 w-5" />
                 </div>
                 {trend && (
                     <div className={cn(
-                        'flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-black',
-                        trend.isUp ? 'text-emerald-600 bg-emerald-50' : 'text-error bg-error/5'
+                        'flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium',
+                        trend.isUp ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'
                     )}>
-                        {trend.isUp ? '↑' : '↓'} {trend.value}%
+                        {trend.isUp ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+                        {trend.value}%
                     </div>
                 )}
             </div>
-            <p className="text-2xl font-black text-foreground tracking-tight">{typeof value === 'number' ? value.toLocaleString() : value}</p>
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1">{label}</p>
+            <p className="text-3xl font-semibold tracking-tight text-foreground">{typeof value === 'number' ? value.toLocaleString() : value}</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{label}</p>
         </div>
     );
 }

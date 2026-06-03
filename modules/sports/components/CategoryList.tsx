@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { Category, Gender } from '../types';
 import { useCategories, useDeleteCategory } from '../hooks';
 import { CategoryForm } from './CategoryForm';
+import { CategoryParticipants } from './CategoryParticipants';
 import { Modal } from '@/shared';
 import { Button } from '@/shared/ui/button';
 import { useAuth, UserRole } from '@/core/auth';
-import { Edit2, Trash2, Plus, Users } from 'lucide-react';
+import { Edit2, Trash2, Plus, Users, ChevronRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface CategoryListProps { sportId: number; }
@@ -15,13 +16,20 @@ interface CategoryListProps { sportId: number; }
 export function CategoryList({ sportId }: CategoryListProps) {
     const { data: categories, isLoading, error } = useCategories(sportId);
     const { mutate: deleteCategory } = useDeleteCategory(sportId);
-    const { role } = useAuth();
-    const isAdmin = role === UserRole.ADMIN;
+    const { hasRole } = useAuth();
+    // Managing sport categories is an admin + super_admin capability.
+    const isAdmin = hasRole([UserRole.ADMIN, UserRole.SUPER_ADMIN]);
+    // Viewing the participants/leaders of a category: admin, super_admin and
+    // federation (organizations cannot reach this feature at all).
+    const canViewParticipants = hasRole([UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.FEDERATION]);
     const t = useTranslations('sports.categories');
     const tCommon = useTranslations('common');
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | undefined>(undefined);
+    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+    const toggleSelect = (cat: Category) =>
+        setSelectedCategory((cur) => (cur?.id === cat.id ? null : cat));
 
     const handleCreate = () => { setEditingCategory(undefined); setIsModalOpen(true); };
     const handleEdit = (cat: Category) => { setEditingCategory(cat); setIsModalOpen(true); };
@@ -37,8 +45,8 @@ export function CategoryList({ sportId }: CategoryListProps) {
                 <h3 className="text-xl font-bold flex items-center gap-2"><Users className="w-5 h-5 text-primary" />{t('title')}</h3>
                 {isAdmin && <Button onClick={handleCreate} size="sm" className="gap-2"><Plus className="w-4 h-4" />{t('addCategory')}</Button>}
             </div>
-            <div className="bg-card rounded-xl border border-border overflow-hidden">
-                <table className="w-full text-left border-collapse">
+            <div className="bg-card rounded-lg border border-border overflow-x-auto">
+                <table className="w-full min-w-[480px] text-left border-collapse">
                     <thead>
                         <tr className="bg-muted/50 border-b border-border">
                             <th className="p-4 font-semibold text-sm">{t('categoryName')}</th>
@@ -48,9 +56,18 @@ export function CategoryList({ sportId }: CategoryListProps) {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
-                        {categories?.map((cat) => (
-                            <tr key={cat.id} className="hover:bg-muted/30 transition-colors">
-                                <td className="p-4 text-sm font-medium">{cat.category}</td>
+                        {categories?.map((cat) => {
+                            const isSelected = selectedCategory?.id === cat.id;
+                            return (
+                            <tr key={cat.id}
+                                onClick={canViewParticipants ? () => toggleSelect(cat) : undefined}
+                                className={`transition-colors ${canViewParticipants ? 'cursor-pointer' : ''} ${isSelected ? 'bg-primary/5' : 'hover:bg-muted/30'}`}>
+                                <td className="p-4 text-sm font-medium">
+                                    <span className="flex items-center gap-1.5">
+                                        {canViewParticipants && <ChevronRight className={`h-4 w-4 text-primary/60 transition-transform ${isSelected ? 'rotate-90' : ''}`} />}
+                                        {cat.category}
+                                    </span>
+                                </td>
                                 <td className="p-4"><GenderBadge gender={cat.gender} /></td>
                                 <td className="p-4 text-sm text-muted-foreground">
                                     {cat.age_min || cat.age_max ? `${cat.age_min || 0} - ${cat.age_max || '∞'} ${t('years')}` : t('noAgeLimit')}
@@ -58,19 +75,24 @@ export function CategoryList({ sportId }: CategoryListProps) {
                                 {isAdmin && (
                                     <td className="p-4 text-right">
                                         <div className="flex items-center justify-end gap-2">
-                                            <button onClick={() => handleEdit(cat)} className="p-2 text-muted-foreground hover:text-primary transition-colors"><Edit2 className="w-4 h-4" /></button>
-                                            <button onClick={() => handleDelete(cat.id)} className="p-2 text-muted-foreground hover:text-destructive transition-colors"><Trash2 className="w-4 h-4" /></button>
+                                            <button onClick={(e) => { e.stopPropagation(); handleEdit(cat); }} className="p-2 text-muted-foreground hover:text-primary transition-colors"><Edit2 className="w-4 h-4" /></button>
+                                            <button onClick={(e) => { e.stopPropagation(); handleDelete(cat.id); }} className="p-2 text-muted-foreground hover:text-destructive transition-colors"><Trash2 className="w-4 h-4" /></button>
                                         </div>
                                     </td>
                                 )}
                             </tr>
-                        ))}
+                            );
+                        })}
                         {categories?.length === 0 && (
                             <tr><td colSpan={isAdmin ? 4 : 3} className="p-8 text-center text-muted-foreground text-sm">{t('noCategories')}</td></tr>
                         )}
                     </tbody>
                 </table>
             </div>
+
+            {canViewParticipants && selectedCategory && (
+                <CategoryParticipants sportId={sportId} category={selectedCategory} />
+            )}
             {isAdmin && (
                 <Modal isOpen={isModalOpen} onClose={closeModal} title={editingCategory ? t('editCategory') : t('addCategory')}>
                     <CategoryForm sportId={sportId} category={editingCategory} onSuccess={closeModal} onCancel={closeModal} />

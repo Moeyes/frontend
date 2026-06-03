@@ -20,7 +20,7 @@ export function LanguageSwitcher() {
     <button
       onClick={toggle}
       disabled={isPending}
-      className="inline-flex items-center gap-1 rounded-full border border-border bg-white px-3 py-1.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent/40 disabled:opacity-50"
+      className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent/40 disabled:opacity-50"
     >
       <span
         className={cn(

@@ -4,7 +4,8 @@ import { useState } from "react";
 import { Event, EventType } from "../types";
 import { useEvents, useDeleteEvent } from "../hooks";
 import { EventForm } from "./EventForm";
-import { Modal, DataTable, Badge, PageHeader } from "@/shared";
+import { EventPhaseBadges } from "./EventPhases";
+import { Modal, DataTable, Badge, PageHeader, PageEmptyState, PageErrorState, useConfirm } from "@/shared";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import {
@@ -24,9 +25,10 @@ export function EventList() {
   const { data: events, isLoading, error } = useEvents();
   const { mutate: deleteEvent } = useDeleteEvent();
   const { role } = useAuth();
-  const isAdmin = role === UserRole.ADMIN;
+  const isAdmin = role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN;
   const t = useTranslations("events");
   const tCommon = useTranslations("common");
+  const confirm = useConfirm();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | undefined>(
@@ -48,8 +50,8 @@ export function EventList() {
     setEditingEvent(event);
     setIsModalOpen(true);
   };
-  const handleDelete = (eventId: number) => {
-    if (window.confirm(tCommon("confirm"))) deleteEvent(eventId);
+  const handleDelete = async (eventId: number) => {
+    if (await confirm()) deleteEvent(eventId);
   };
   const closeModal = () => {
     setIsModalOpen(false);
@@ -58,12 +60,10 @@ export function EventList() {
 
   if (error)
     return (
-      <div className="rounded-2xl border border-error/20 bg-error/5 p-12 text-center">
-        <p className="font-black text-error">{t("failedToLoad")}</p>
-        <p className="mt-1 text-xs font-medium text-muted-foreground">
-          {tCommon("connectionError")}
-        </p>
-      </div>
+      <PageErrorState
+        title={t("failedToLoad")}
+        description={tCommon("connectionError")}
+      />
     );
 
   const getStatus = (event: Event) => {
@@ -108,7 +108,7 @@ export function EventList() {
         }
       />
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="flex-1">
           <Input
             placeholder={t("search") as string}
@@ -119,7 +119,7 @@ export function EventList() {
             }}
           />
         </div>
-        <div className="w-48">
+        <div className="w-full sm:w-48">
           <Select
             value={statusFilter}
             onValueChange={(v) => {
@@ -130,7 +130,7 @@ export function EventList() {
             }}
           >
             <SelectTrigger size="sm" className="w-full">
-              <SelectValue>{t("statusFilter.all")}</SelectValue>
+              <SelectValue>{t(`statusFilter.${statusFilter}`)}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("statusFilter.all")}</SelectItem>
@@ -148,7 +148,22 @@ export function EventList() {
         </div>
       </div>
 
-      <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
+      {!isLoading && total === 0 ? (
+        <PageEmptyState
+          icon={Calendar}
+          title={t("title")}
+          description={t("description")}
+          action={
+            isAdmin && (
+              <Button onClick={handleCreate} className="gap-2">
+                <Plus className="h-4 w-4" />
+                {t("createEvent")}
+              </Button>
+            )
+          }
+        />
+      ) : (
+      <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
         <DataTable
           isLoading={isLoading}
           data={pageData || []}
@@ -158,11 +173,11 @@ export function EventList() {
               header: t("columns.eventName"),
               accessor: (event) => (
                 <div className="flex flex-col">
-                  <span className="font-black text-foreground">
+                  <span className="font-medium leading-relaxed text-foreground">
                     {event.name}
                   </span>
                   {event.description && (
-                    <span className="text-[10px] text-muted-foreground line-clamp-1">
+                    <span className="line-clamp-1 text-xs leading-relaxed text-muted-foreground">
                       {event.description}
                     </span>
                   )}
@@ -184,53 +199,35 @@ export function EventList() {
                         ? "success"
                         : "secondary"
                   }
-                  className="gap-1.5 whitespace-nowrap"
+                  className="whitespace-nowrap"
                 >
-                  <span className="text-[10px] font-black uppercase tracking-tight">
-                    {t(`statusFilter.${getStatus(event)}`)}
-                  </span>
+                  {t(`statusFilter.${getStatus(event)}`)}
                 </Badge>
               ),
             },
             {
               header: t("columns.dates"),
               accessor: (event) => (
-                <div className="flex flex-col text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                <div className="flex flex-col text-xs leading-relaxed text-muted-foreground">
                   <span className="flex items-center gap-1.5 text-foreground">
-                    <Calendar className="w-3 h-3 text-primary" />
+                    <Calendar className="h-3.5 w-3.5 text-primary" />
                     {event.start_date}
                   </span>
-                  <span className="mt-0.5 opacity-60">
+                  <span className="mt-0.5">
                     {tCommon("to")} {event.end_date}
                   </span>
                 </div>
               ),
             },
             {
-              header: t("registerWindow"),
-              accessor: (event) => (
-                <div className="flex flex-col text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                  {event.open_register_date || event.close_register_date ? (
-                    <>
-                      <span className="flex items-center gap-1.5 text-foreground">
-                        <Calendar className="w-3 h-3 text-success" />
-                        {event.open_register_date ?? "—"}
-                      </span>
-                      <span className="mt-0.5 opacity-60">
-                        {tCommon("to")} {event.close_register_date ?? "—"}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="opacity-40">{t("notSet")}</span>
-                  )}
-                </div>
-              ),
+              header: t("phases.title"),
+              accessor: (event) => <EventPhaseBadges event={event} compact />,
             },
             {
               header: t("columns.location"),
               accessor: (event) => (
-                <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                  <MapPin className="w-3 h-3 text-primary/50" />
+                <div className="flex items-center gap-1.5 text-sm leading-relaxed text-muted-foreground">
+                  <MapPin className="h-3.5 w-3.5 text-primary/60" />
                   {event.location || "N/A"}
                 </div>
               ),
@@ -270,27 +267,33 @@ export function EventList() {
           ]}
         />
       </div>
+      )}
 
-      <div className="flex items-center justify-between gap-4">
-        <div className="text-sm text-muted-foreground">
-          {t("pagination", { page, totalPages, total })}
+      {!(!isLoading && total === 0) && (
+        <div className="flex items-center justify-between gap-4">
+          <div className="text-sm leading-relaxed text-muted-foreground">
+            {t("pagination", { page, totalPages, total })}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              variant="outline"
+              size="sm"
+            >
+              {tCommon("previous")}
+            </Button>
+            <Button
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              variant="outline"
+              size="sm"
+            >
+              {tCommon("next")}
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            disabled={page <= 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            variant="outline"
-          >
-            Prev
-          </Button>
-          <Button
-            disabled={page >= totalPages}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      )}
 
       {isAdmin && (
         <Modal
@@ -331,10 +334,8 @@ function TypeBadge({ type }: { type: EventType }) {
   const variant = matched ? matched.variant : "secondary";
   return (
     <Badge variant={variant} className="gap-1.5 whitespace-nowrap">
-      <Tag className="w-3 h-3" />
-      <span className="text-[10px] font-black uppercase tracking-tight">
-        {label}
-      </span>
+      <Tag className="h-3 w-3" />
+      <span>{label}</span>
     </Badge>
   );
 }

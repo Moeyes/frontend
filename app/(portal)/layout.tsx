@@ -7,6 +7,7 @@
 
 "use client";
 
+import { useState } from "react";
 import { ProtectedRoute } from "@/modules/auth";
 import { UserRole } from "@/core/auth";
 import { Sidebar } from "@/modules/common";
@@ -25,12 +26,17 @@ export default function PortalLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
   return (
     <ProtectedRoute requiredRoles={PORTAL_ROLES}>
       <div className="flex min-h-screen bg-background text-foreground">
-        <Sidebar />
+        <Sidebar
+          mobileOpen={mobileNavOpen}
+          onMobileClose={() => setMobileNavOpen(false)}
+        />
         <div className="flex min-w-0 flex-1 flex-col">
-          <TopBar />
+          <TopBar onMenuClick={() => setMobileNavOpen(true)} />
           <main className="min-w-0 flex-1 overflow-y-auto bg-muted/20">
             {children}
           </main>

@@ -1,243 +1,217 @@
-'use client';
+"use client";
 
-import { UseFormReturn } from 'react-hook-form';
-import type { SurveyFormData, Event, Organization, Sport } from '../types';
+import type { ReactNode } from "react";
+import { UseFormReturn } from "react-hook-form";
+import { useTranslations } from "next-intl";
+import { cn } from "@/shared/utils/cn";
+import type { SurveyFormData, Event, Organization, Sport } from "../types";
 
 interface SurveyFormFieldsProps {
-    form: UseFormReturn<SurveyFormData>;
-    events: Event[];
-    organizations: Organization[];
-    eventSports: Sport[];
-    step: 'event_type' | 'event' | 'organization' | 'sports' | 'review';
-    eventTypes?: { id: string, name_kh: string }[];
-    selectedEventType?: string | null;
-    onSelectEventType?: (id: string) => void;
+  form: UseFormReturn<SurveyFormData>;
+  events: Event[];
+  organizations: Organization[];
+  eventSports: Sport[];
+  step: "event_type" | "event" | "organization" | "sports" | "review";
+  eventTypes?: { id: string; name_kh: string }[];
+  selectedEventType?: string | null;
+  onSelectEventType?: (id: string) => void;
 }
 
+const selectableCard = (selected: boolean) =>
+  cn(
+    "rounded-lg border p-4 text-left leading-relaxed transition-all",
+    selected
+      ? "border-primary bg-primary/10 ring-2 ring-primary/40 shadow-sm"
+      : "border-border hover:border-primary/40 hover:bg-accent/40",
+  );
+
 export function SurveyFormFields({
-    form,
-    events,
-    organizations,
-    eventSports,
-    step,
-    eventTypes = [],
-    selectedEventType,
-    onSelectEventType
+  form,
+  events,
+  organizations,
+  eventSports,
+  step,
+  eventTypes = [],
+  selectedEventType,
+  onSelectEventType,
 }: SurveyFormFieldsProps) {
-    const { watch, setValue, trigger } = form;
+  const { watch, setValue, trigger } = form;
+  const t = useTranslations("survey");
 
-    const selectedEventId = watch('eventId');
-    const selectedOrgId = watch('organizationId');
-    const selectedSportIds = watch('sportIds') || [];
+  const selectedEventId = watch("eventId");
+  const selectedOrgId = watch("organizationId");
+  const selectedSportIds = watch("sportIds") || [];
 
-    if (step === 'event_type') {
-        return (
-            <div className="space-y-6">
-                <div className="border-l-4 border-primary pl-3 py-2 bg-primary/10 rounded-r-lg">
-                    <h3 className="text-sm font-semibold uppercase tracking-wide text-primary">
-                        Select Event Category
-                    </h3>
-                </div>
+  const emptyState = (message: string) => (
+    <div className="rounded-lg border border-dashed border-border bg-card p-12 text-center text-sm leading-relaxed text-muted-foreground">
+      {message}
+    </div>
+  );
 
-                <div className="grid gap-3">
-                    {eventTypes.map((type) => (
-                        <button
-                            key={type.id}
-                            type="button"
-                            onClick={() => onSelectEventType?.(type.id)}
-                            className={`p-4 text-left border rounded-lg transition-all ${selectedEventType === type.id
-                                    ? 'border-primary bg-primary/5 shadow-sm'
-                                    : 'border-slate-200 hover:border-slate-300'
-                                }`}
-                        >
-                            <h4 className="font-semibold text-slate-900">{type.name_kh}</h4>
-                        </button>
-                    ))}
-                </div>
-            </div>
-        );
-    }
+  if (step === "event_type") {
+    return (
+      <div className="grid gap-3">
+        {eventTypes.map((type) => (
+          <button
+            key={type.id}
+            type="button"
+            onClick={() => onSelectEventType?.(type.id)}
+            className={selectableCard(selectedEventType === type.id)}
+          >
+            <h4 className="font-medium leading-relaxed text-foreground">{type.name_kh}</h4>
+          </button>
+        ))}
+      </div>
+    );
+  }
 
-    if (step === 'event') {
-        return (
-            <div className="space-y-6">
-                <div className="border-l-4 border-primary pl-3 py-2 bg-primary/10 rounded-r-lg">
-                    <h3 className="text-sm font-semibold uppercase tracking-wide text-primary">
-                        Select Event
-                    </h3>
-                </div>
+  if (step === "event") {
+    return events.length === 0 ? (
+      emptyState(t("noEvents"))
+    ) : (
+      <div className="grid gap-3">
+        {events.map((event) => (
+          <button
+            key={event.id}
+            type="button"
+            onClick={() => {
+              setValue("eventId", event.id);
+              trigger("eventId");
+            }}
+            className={selectableCard(selectedEventId === event.id)}
+          >
+            <h4 className="font-medium leading-relaxed text-foreground">{event.name_kh}</h4>
+          </button>
+        ))}
+      </div>
+    );
+  }
 
-                {events.length === 0 ? (
-                    <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50">
-                        <p className="text-slate-500">No events found for this category</p>
+  if (step === "organization") {
+    return organizations.length === 0 ? (
+      emptyState(t("noOrgs"))
+    ) : (
+      <div className="grid max-h-[400px] gap-3 overflow-y-auto pr-2">
+        {organizations.map((org) => (
+          <button
+            key={org.id}
+            type="button"
+            onClick={() => {
+              setValue("organizationId", org.id);
+              trigger("organizationId");
+            }}
+            className={selectableCard(selectedOrgId === org.id)}
+          >
+            <h4 className="font-medium leading-relaxed text-foreground">{org.name_kh}</h4>
+            {org.type && (
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{org.type}</p>
+            )}
+          </button>
+        ))}
+      </div>
+    );
+  }
+
+  if (step === "sports") {
+    return (
+      <div className="space-y-4">
+        <p className="text-sm leading-relaxed text-muted-foreground">{t("selectSportsHint")}</p>
+
+        {eventSports.length === 0 ? (
+          emptyState(t("noSports"))
+        ) : (
+          <>
+            <div className="grid max-h-[520px] grid-cols-1 gap-3 overflow-y-auto pr-2 md:grid-cols-2">
+              {eventSports.map((sport) => {
+                const checked = selectedSportIds.includes(sport.sports_id);
+                return (
+                  <label
+                    key={`${sport.sports_id}-${sport.id}`}
+                    className={cn(
+                      "flex cursor-pointer items-center gap-3 rounded-lg border p-4 leading-relaxed transition-colors",
+                      checked
+                        ? "border-primary bg-accent"
+                        : "border-border hover:border-primary/40 hover:bg-accent/40",
+                    )}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={(e) => {
+                        const newIds = e.target.checked
+                          ? [...selectedSportIds, sport.sports_id]
+                          : selectedSportIds.filter((id) => id !== sport.sports_id);
+                        setValue("sportIds", newIds);
+                        trigger("sportIds");
+                      }}
+                      className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                    />
+                    <div>
+                      <h4 className="font-medium leading-relaxed text-foreground">{sport.name_kh}</h4>
+                      {sport.sport_type && (
+                        <p className="text-sm leading-relaxed text-muted-foreground">{sport.sport_type}</p>
+                      )}
                     </div>
-                ) : (
-                    <div className="grid gap-3">
-                        {events.map((event) => (
-                            <button
-                                key={event.id}
-                                type="button"
-                                onClick={() => {
-                                    setValue('eventId', event.id);
-                                    trigger('eventId');
-                                }}
-                                className={`p-4 text-left border rounded-lg transition-all ${selectedEventId === event.id
-                                        ? 'border-primary bg-primary/5 shadow-sm'
-                                        : 'border-slate-200 hover:border-slate-300'
-                                    }`}
-                            >
-                                <h4 className="font-semibold text-slate-900">{event.name_kh}</h4>
-                                <p className="text-xs text-slate-500 mt-1">ID: #{event.id}</p>
-                            </button>
-                        ))}
-                    </div>
-                )}
+                  </label>
+                );
+              })}
             </div>
-        );
-    }
 
-    if (step === 'organization') {
-        return (
-            <div className="space-y-6">
-                <div className="border-l-4 border-primary pl-3 py-2 bg-primary/10 rounded-r-lg">
-                    <h3 className="text-sm font-semibold uppercase tracking-wide text-primary">
-                        Select Organization
-                    </h3>
-                </div>
-
-                {organizations.length === 0 ? (
-                    <div className="text-center py-8 text-slate-500">No organizations available</div>
-                ) : (
-                    <div className="grid gap-3 max-h-[400px] overflow-y-auto pr-2">
-                        {organizations.map((org) => (
-                            <button
-                                key={org.id}
-                                type="button"
-                                onClick={() => {
-                                    setValue('organizationId', org.id);
-                                    trigger('organizationId');
-                                }}
-                                className={`p-4 text-left border rounded-lg transition-all ${selectedOrgId === org.id
-                                        ? 'border-primary bg-primary/5 shadow-sm'
-                                        : 'border-slate-200 hover:border-slate-300'
-                                    }`}
-                            >
-                                <h4 className="font-semibold text-slate-900">{org.name_kh}</h4>
-                                {org.type && (
-                                    <p className="text-sm text-slate-600 mt-1">{org.type}</p>
-                                )}
-                            </button>
-                        ))}
-                    </div>
-                )}
+            <div className="flex items-center justify-end border-t border-border pt-3 text-sm leading-relaxed text-muted-foreground">
+              {t("selectedCount", { count: selectedSportIds.length })}
             </div>
-        );
-    }
+          </>
+        )}
 
-    if (step === 'sports') {
-        return (
-            <div className="space-y-6">
-                <div className="border-l-4 border-primary pl-3 py-2 bg-primary/10 rounded-r-lg">
-                    <h3 className="text-sm font-semibold uppercase tracking-wide text-primary">
-                        Select Sports
-                    </h3>
-                </div>
+        {form.formState.errors.sportIds && (
+          <p className="text-sm leading-relaxed text-destructive">
+            {form.formState.errors.sportIds.message}
+          </p>
+        )}
+      </div>
+    );
+  }
 
-                <p className="text-sm text-slate-600">Select one or more sports for participation</p>
+  if (step === "review") {
+    const selectedEvent = events.find((e) => e.id === selectedEventId);
+    const selectedOrg = organizations.find((o) => o.id === selectedOrgId);
+    const selectedSports = eventSports.filter((s) =>
+      selectedSportIds.includes(s.sports_id),
+    );
 
-                {eventSports.length === 0 ? (
-                    <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50">
-                        <p className="text-slate-500">No sports available for this event</p>
-                    </div>
-                ) : (
-                    <>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[520px] overflow-y-auto pr-2">
-                            {eventSports.map((sport) => (
-                                <label
-                                    key={`${sport.sports_id}-${sport.id}`}
-                                    className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${
-                                        selectedSportIds.includes(sport.sports_id)
-                                        ? 'border-primary bg-primary/5 shadow-sm'
-                                        : 'hover:bg-slate-50'
-                                    }`}
-                                >
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedSportIds.includes(sport.sports_id)}
-                                        onChange={(e) => {
-                                            const newIds = e.target.checked
-                                                ? [...selectedSportIds, sport.sports_id]
-                                                : selectedSportIds.filter((id) => id !== sport.sports_id);
-                                            setValue('sportIds', newIds);
-                                            trigger('sportIds');
-                                        }}
-                                        className="w-4 h-4 rounded text-primary border-slate-300 focus:ring-primary"
-                                    />
-                                    <div>
-                                        <h4 className="font-semibold text-slate-900">{sport.name_kh}</h4>
-                                        {sport.sport_type && (
-                                            <p className="text-sm text-slate-600">{sport.sport_type}</p>
-                                        )}
-                                    </div>
-                                </label>
-                            ))}
-                        </div>
+    const summaryBlock = (label: string, children: ReactNode) => (
+      <div className="rounded-lg border border-border bg-muted/40 p-4">
+        <h4 className="mb-2 text-xs font-medium leading-relaxed text-muted-foreground">{label}</h4>
+        {children}
+      </div>
+    );
 
-                        <div className="mt-4 flex items-center justify-between">
-                            <div className="text-sm text-muted-foreground">{selectedSportIds.length} selected</div>
-                            <div className="text-sm font-bold">Total sports selected</div>
-                        </div>
-                    </>
-                )}
+    return (
+      <div className="space-y-4">
+        {summaryBlock(
+          t("review.event"),
+          <p className="font-medium leading-relaxed text-foreground">{selectedEvent?.name_kh}</p>,
+        )}
+        {summaryBlock(
+          t("review.organization"),
+          <p className="font-medium leading-relaxed text-foreground">{selectedOrg?.name_kh}</p>,
+        )}
+        {summaryBlock(
+          `${t("review.sports")} (${selectedSports.length})`,
+          <div className="flex flex-wrap gap-2">
+            {selectedSports.map((sport) => (
+              <span
+                key={sport.sports_id}
+                className="inline-flex items-center rounded-md border border-border bg-card px-3 py-1 text-sm leading-relaxed text-foreground"
+              >
+                {sport.name_kh}
+              </span>
+            ))}
+          </div>,
+        )}
+      </div>
+    );
+  }
 
-                {form.formState.errors.sportIds && (
-                    <p className="text-sm text-red-600">{form.formState.errors.sportIds.message}</p>
-                )}
-            </div>
-        );
-    }
-
-    if (step === 'review') {
-        const selectedEvent = events.find((e) => e.id === selectedEventId);
-        const selectedOrg = organizations.find((o) => o.id === selectedOrgId);
-        const selectedSports = eventSports.filter((s) => selectedSportIds.includes(s.sports_id));
-
-        return (
-            <div className="space-y-6">
-                <div className="border-l-4 border-primary pl-3 py-2 bg-primary/10 rounded-r-lg">
-                    <h3 className="text-sm font-semibold uppercase tracking-wide text-primary">
-                        Review Your Information
-                    </h3>
-                </div>
-
-                {/* Event Summary */}
-                <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Event</h4>
-                    <p className="text-slate-900 font-medium">{selectedEvent?.name_kh}</p>
-                </div>
-
-                {/* Organization Summary */}
-                <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Organization</h4>
-                    <p className="text-slate-900 font-medium">{selectedOrg?.name_kh}</p>
-                </div>
-
-                {/* Sports Summary */}
-                <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-                        Selected Sports ({selectedSports.length})
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                        {selectedSports.map((sport) => (
-                            <span key={sport.sports_id} className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white border border-slate-200 text-slate-700">
-                                {sport.name_kh}
-                            </span>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    return null;
+  return null;
 }

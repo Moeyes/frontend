@@ -2,7 +2,7 @@ import React from 'react';
 import { cn } from '@/shared/utils/cn';
 
 interface BadgeProps {
-    children: React.ReactNode;
+    children?: React.ReactNode;
     variant?: 'draft' | 'submitted' | 'approved' | 'rejected' | 'flagged' | 'revision_requested' | 'default' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'outline';
     size?: 'xs' | 'sm' | 'md';
     className?: string;
@@ -30,23 +30,12 @@ const SIZE_MAP = {
     md: 'px-3 py-1.5 text-sm',
 };
 
-const LABEL_MAP: Record<string, string> = {
-    draft: 'ព្រាង',
-    submitted: 'បានដាក់ស្នើ',
-    approved: 'អនុម័ត',
-    rejected: 'បដិសេធ',
-    flagged: 'សម្គាល់',
-    revision_requested: 'ត្រូវកែ',
-};
-
 export function Badge({
     children,
     variant = 'default',
     size = 'sm',
     className,
 }: BadgeProps) {
-    const displayText = LABEL_MAP[variant] || children;
-    
     return (
         <span
             className={cn(
@@ -56,7 +45,7 @@ export function Badge({
                 className
             )}
         >
-            {displayText}
+            {children}
         </span>
     );
 }

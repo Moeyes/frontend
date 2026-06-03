@@ -15,6 +15,15 @@ interface DataTableProps<T> {
     emptyMessage?: string;
     className?: string;
     isLoading?: boolean;
+    /**
+     * Minimum table width before horizontal scroll kicks in. Defaults to a
+     * value that keeps full-page list tables readable on mobile. Pass
+     * `min-w-0` for compact tables living inside narrow containers (e.g.
+     * dashboard cards) so they fit without forcing scroll.
+     */
+    minWidth?: string;
+    /** Number of placeholder rows to render while loading. Defaults to 5. */
+    skeletonRows?: number;
 }
 
 export function DataTable<T>({
@@ -24,17 +33,19 @@ export function DataTable<T>({
     emptyMessage = 'No data available',
     className,
     isLoading,
+    minWidth = 'min-w-[640px]',
+    skeletonRows = 5,
 }: DataTableProps<T>) {
     return (
-        <div className={cn('w-full overflow-hidden', className)}>
-            <table className="w-full text-left border-collapse">
+        <div className={cn('w-full overflow-x-auto', className)}>
+            <table className={cn('w-full text-left border-collapse', minWidth)}>
                 <thead>
-                    <tr className="border-b border-border bg-muted/30">
+                    <tr className="border-b border-border bg-muted">
                         {columns.map((col, i) => (
                             <th
                                 key={i}
                                 className={cn(
-                                    'p-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground',
+                                    'px-4 py-3 text-sm font-medium leading-relaxed text-muted-foreground',
                                     col.align === 'right' && 'text-right',
                                     col.align === 'center' && 'text-center',
                                     col.className
@@ -47,7 +58,7 @@ export function DataTable<T>({
                 </thead>
                 <tbody className="divide-y divide-border">
                     {isLoading ? (
-                        Array.from({ length: 3 }).map((_, i) => (
+                        Array.from({ length: skeletonRows }).map((_, i) => (
                             <tr key={i} className="animate-pulse">
                                 {columns.map((_, j) => (
                                     <td key={j} className="p-4 py-4">
@@ -58,7 +69,7 @@ export function DataTable<T>({
                         ))
                     ) : data.length === 0 ? (
                         <tr>
-                            <td colSpan={columns.length} className="p-12 text-center text-sm font-medium text-muted-foreground italic">
+                            <td colSpan={columns.length} className="p-12 text-center text-sm leading-relaxed text-muted-foreground">
                                 {emptyMessage}
                             </td>
                         </tr>
@@ -69,14 +80,14 @@ export function DataTable<T>({
                                 onClick={() => onRowClick?.(item)}
                                 className={cn(
                                     'transition-colors',
-                                    onRowClick ? 'cursor-pointer hover:bg-secondary/30' : 'hover:bg-secondary/10'
+                                    onRowClick ? 'cursor-pointer hover:bg-accent/50' : 'hover:bg-accent/30'
                                 )}
                             >
                                 {columns.map((col, j) => (
                                     <td
                                         key={j}
                                         className={cn(
-                                            'p-4 py-3 text-sm font-medium text-foreground',
+                                            'px-4 py-3 text-sm leading-relaxed text-foreground',
                                             col.align === 'right' && 'text-right',
                                             col.align === 'center' && 'text-center',
                                             col.className

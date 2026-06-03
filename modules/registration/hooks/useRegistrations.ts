@@ -7,6 +7,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/core/api/queryKeys';
 import { getRegistrations, deleteRegistration } from '../services';
 
 interface RegistrationsFilter {
@@ -22,7 +23,7 @@ export function useRegistrations(filter: RegistrationsFilter) {
     const queryClient = useQueryClient();
 
     const query = useQuery({
-        queryKey: ['registrations', filter],
+        queryKey: queryKeys.registrations.list(filter),
         queryFn: () => getRegistrations(filter),
         staleTime: 30000,
     });
@@ -30,8 +31,8 @@ export function useRegistrations(filter: RegistrationsFilter) {
     const deleteMutation = useMutation({
         mutationFn: (enrollId: number) => deleteRegistration(enrollId),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['registrations'] });
-            queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+            queryClient.invalidateQueries({ queryKey: queryKeys.registrations.all });
+            queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
         },
     });
 

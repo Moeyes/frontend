@@ -7,6 +7,7 @@ import {
     ParticipationPerSport,
     ParticipationPerSportPayload,
     ParticipationPerSportListResponse,
+    ParticipationReviewPayload,
 } from '../types';
 
 /**
@@ -69,6 +70,21 @@ export async function updateParticipation(id: number, payload: Partial<Participa
 export async function deleteParticipation(id: number): Promise<{ message: string }> {
     const response = await apiClient.delete<{ message: string }>(
         `/api/participation-per-sport/${id}`
+    );
+    return response.data;
+}
+
+/**
+ * Apply a review FSM transition (admin only)
+ * PATCH /api/participation-per-sport/{id}/review
+ */
+export async function reviewParticipation(
+    id: number,
+    payload: ParticipationReviewPayload,
+): Promise<ParticipationPerSport> {
+    const response = await apiClient.patch<ParticipationPerSport>(
+        `/api/participation-per-sport/${id}/review`,
+        payload,
     );
     return response.data;
 }

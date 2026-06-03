@@ -12,13 +12,24 @@ import { RegisterFormData } from '../services/schema';
 import { eventsService } from '@/modules/events/services';
 import { useTranslations } from 'next-intl';
 
-const FORM_STEPS = ['event', 'category', 'personal', 'documents', 'review'] as const;
-type Step = (typeof FORM_STEPS)[number];
+const ALL_STEPS = ['event', 'category', 'personal', 'documents', 'review'] as const;
+type Step = (typeof ALL_STEPS)[number];
 
-export function RegisterForm() {
+interface RegisterFormProps {
+    /** 'athlete' (default) registers competitors; 'leader' registers team officials (coach, manager, …). */
+    mode?: 'athlete' | 'leader';
+}
+
+export function RegisterForm({ mode = 'athlete' }: RegisterFormProps = {}) {
+    const isLeader = mode === 'leader';
     const { user } = useAuth();
     const t = useTranslations('registration');
     const tCommon = useTranslations('common');
+    // Leaders are team officials and do not compete in a category, so that step is skipped.
+    const FORM_STEPS = useMemo<readonly Step[]>(
+        () => (isLeader ? ['event', 'personal', 'documents', 'review'] : ALL_STEPS),
+        [isLeader],
+    );
     const [currentStep, setCurrentStep] = useState<Step>('event');
     const [cascadingData, setCascadingData] = useState<CascadingDataLoaded | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
@@ -29,7 +40,7 @@ export function RegisterForm() {
     const { form, onSubmit, isPending, serverError } = useRegisterForm(() => setIsSuccess(true));
 
     const stepIndex = FORM_STEPS.indexOf(currentStep);
-    const progress = useMemo(() => ((stepIndex + 1) / FORM_STEPS.length) * 100, [stepIndex]);
+    const progress = useMemo(() => ((stepIndex + 1) / FORM_STEPS.length) * 100, [stepIndex, FORM_STEPS.length]);
     const isInitialized = useRef(false);
 
     const FORM_STEP_LABELS: Record<Step, string> = {
@@ -47,6 +58,7 @@ export function RegisterForm() {
             const data = await loadCascadingData();
             if (!active) return;
             setCascadingData(data);
+            if (isLeader) form.setValue('role', 'leader');
             if (!isInitialized.current && user?.role === UserRole.ORGANIZATION && user.org_id) {
                 form.setValue('organizationId', String(user.org_id));
                 isInitialized.current = true;
@@ -55,7 +67,7 @@ export function RegisterForm() {
         }
         initialize();
         return () => { active = false; };
-    }, [user, form]);
+    }, [user, form, isLeader]);
 
     const sportId = form.watch('sportId');
     const eventId = form.watch('eventId');
@@ -68,11 +80,17 @@ export function RegisterForm() {
                 const event = await eventsService.getEventById(Number(eventId));
                 if (!active) return;
                 const today = new Date().toISOString().split('T')[0];
-                if (event.open_register_date && today < event.open_register_date)
-                    setRegisterWindowError(t('registrationOpensOn', { date: event.open_register_date }));
-                else if (event.close_register_date && today > event.close_register_date)
-                    setRegisterWindowError(t('registrationClosedOn', { date: event.close_register_date }));
-                else setRegisterWindowError(null);
+                // registration_is_open is authoritative (it honours AUTO date
+                // windows as well as an admin force-OPEN/CLOSED). The dates are
+                // only used to make the closed message more specific.
+                if (event.registration_is_open === false) {
+                    if (event.registration_open_date && today < event.registration_open_date)
+                        setRegisterWindowError(t('registrationOpensOn', { date: event.registration_open_date }));
+                    else if (event.registration_close_date && today > event.registration_close_date)
+                        setRegisterWindowError(t('registrationClosedOn', { date: event.registration_close_date }));
+                    else
+                        setRegisterWindowError(t('registrationClosed'));
+                } else setRegisterWindowError(null);
             } catch { if (active) setRegisterWindowError(null); }
         }
         checkWindow();
@@ -103,19 +121,19 @@ export function RegisterForm() {
             const idx = FORM_STEPS.indexOf(currentStep);
             if (idx < FORM_STEPS.length - 1) setCurrentStep(FORM_STEPS[idx + 1]);
         }
-    }, [currentStep, form]);
+    }, [currentStep, form, FORM_STEPS]);
 
     const handleBack = useCallback(() => {
         const idx = FORM_STEPS.indexOf(currentStep);
         if (idx > 0) setCurrentStep(FORM_STEPS[idx - 1]);
-    }, [currentStep]);
+    }, [currentStep, FORM_STEPS]);
 
     const handleStepClick = useCallback((step: Step) => {
         if (FORM_STEPS.indexOf(step) <= stepIndex) setCurrentStep(step);
-    }, [stepIndex]);
+    }, [stepIndex, FORM_STEPS]);
 
     const handleRegisterAnother = useCallback(() => {
-        const eventValues = { eventType: form.getValues('eventType'), eventId: form.getValues('eventId'), organizationId: form.getValues('organizationId'), sportId: form.getValues('sportId'), categoryId: form.getValues('categoryId') };
+        const eventValues = { eventType: form.getValues('eventType'), eventId: form.getValues('eventId'), organizationId: form.getValues('organizationId'), sportId: form.getValues('sportId'), categoryId: form.getValues('categoryId'), role: form.getValues('role') };
         form.reset(eventValues as RegisterFormData);
         setIsSuccess(false);
         setCurrentStep('personal');
@@ -135,48 +153,48 @@ export function RegisterForm() {
     return (
         <div className="min-h-screen bg-background py-8 px-4 sm:px-6">
             <div className="max-w-3xl mx-auto">
-                <div className="text-center mb-12">
-                    <h1 className="font-bold text-3xl text-foreground mb-3">{t('title')}</h1>
-                    <p className="text-muted-foreground text-sm">{t('subtitle')}</p>
+                <div className="text-center mb-10">
+                    <h1 className="text-2xl font-semibold leading-snug text-foreground">{t(isLeader ? 'leaderTitle' : 'title')}</h1>
+                    <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{t(isLeader ? 'leaderSubtitle' : 'subtitle')}</p>
                 </div>
 
                 <div className="mb-10">
-                    <div className="flex justify-between mb-6">
+                    <div className="flex justify-between mb-5">
                         {FORM_STEPS.map((step, idx) => (
-                            <div key={step} className="flex flex-col items-center flex-1">
+                            <div key={step} className="flex flex-col items-center flex-1 gap-2">
                                 <button type="button" onClick={() => handleStepClick(step)} disabled={idx > stepIndex}
-                                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm mb-2 transition-all duration-300 ${idx < stepIndex ? 'bg-success text-white' : idx === stepIndex ? 'bg-primary text-primary-foreground ring-4 ring-primary/20' : 'bg-secondary text-muted-foreground cursor-not-allowed'}`}>
-                                    {idx < stepIndex ? <CheckCircle2 className="w-5 h-5" /> : idx + 1}
+                                    className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-medium transition-colors duration-200 ${idx < stepIndex ? 'bg-primary text-primary-foreground' : idx === stepIndex ? 'bg-primary text-primary-foreground ring-4 ring-primary/15' : 'border border-border bg-card text-muted-foreground cursor-not-allowed'}`}>
+                                    {idx < stepIndex ? <CheckCircle2 className="w-4 h-4" /> : idx + 1}
                                 </button>
-                                <span className={`text-[10px] uppercase font-bold text-center ${idx <= stepIndex ? 'text-foreground' : 'text-muted-foreground'}`}>
+                                <span className={`hidden max-w-20 text-center text-xs leading-relaxed sm:block ${idx <= stepIndex ? 'font-medium text-primary' : 'text-muted-foreground'}`}>
                                     {FORM_STEP_LABELS[step]}
                                 </span>
                             </div>
                         ))}
                     </div>
-                    <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
                         <div className="bg-primary h-full transition-all duration-500" style={{ width: `${progress}%` }} />
                     </div>
                 </div>
 
-                <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden mb-8">
-                    <div className="p-8">
+                <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden mb-8">
+                    <div className="p-6 sm:p-8">
                         {serverError && (
-                            <div className="mb-6 flex items-center gap-3 rounded-lg bg-error/10 border border-error/30 p-4">
-                                <AlertCircle className="w-5 h-5 text-error shrink-0" />
-                                <p className="text-sm text-error font-medium">{serverError}</p>
+                            <div className="mb-6 flex items-center gap-3 rounded-lg bg-destructive/10 border border-destructive/30 p-4">
+                                <AlertCircle className="w-5 h-5 text-destructive shrink-0" />
+                                <p className="text-sm leading-relaxed text-destructive">{serverError}</p>
                             </div>
                         )}
                         {registerWindowError && (
                             <div className="mb-6 flex items-center gap-3 rounded-lg bg-destructive/10 border border-destructive/30 p-4">
                                 <AlertCircle className="w-5 h-5 text-destructive shrink-0" />
-                                <p className="text-sm text-destructive font-medium">{registerWindowError}</p>
+                                <p className="text-sm leading-relaxed text-destructive">{registerWindowError}</p>
                             </div>
                         )}
                         <form onSubmit={(e) => e.preventDefault()}>
                             <div className="space-y-6">
-                                <h2 className="font-bold text-2xl text-foreground mb-1">{FORM_STEP_LABELS[currentStep]}</h2>
-                                <RegisterFormFields form={form} cascadingData={cascadingData} categories={categories} step={currentStep} />
+                                <h2 className="text-xl font-semibold leading-snug text-foreground">{FORM_STEP_LABELS[currentStep]}</h2>
+                                <RegisterFormFields form={form} cascadingData={cascadingData} categories={categories} step={currentStep} mode={mode} />
                             </div>
                         </form>
                     </div>

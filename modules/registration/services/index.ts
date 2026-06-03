@@ -36,9 +36,12 @@ export async function getRegistrations(params?: {
     sport_id?: number;
     search?: string;
 }): Promise<EnrollmentListResponse> {
+    // Backend paginates with `offset`; the list view passes `skip`. No `role`
+    // is sent so the endpoint returns athletes + leaders together.
+    const { skip, ...rest } = params ?? {};
     const response = await apiClient.get<EnrollmentListResponse>(
         '/api/registration/',
-        { params }
+        { params: { ...rest, offset: skip } }
     );
     return response.data;
 }

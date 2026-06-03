@@ -17,8 +17,9 @@ export function EventSportOrgManager({ eventId, sportId, sportName }: EventSport
     const { data: allOrgs } = useAllOrganizations();
     const { mutate: addOrg, isPending: adding } = useAddOrgToEventSport();
     const { mutate: deleteLink } = useDeleteEventSportOrgLink();
-    const { role } = useAuth();
-    const isAdmin = role === UserRole.ADMIN;
+    const { hasRole } = useAuth();
+    // Managing event-sport organizations is an admin + super_admin capability.
+    const isAdmin = hasRole([UserRole.ADMIN, UserRole.SUPER_ADMIN]);
     const t = useTranslations('events.orgs');
     const tCommon = useTranslations('common');
 
@@ -43,6 +44,9 @@ export function EventSportOrgManager({ eventId, sportId, sportName }: EventSport
         return isNotAdded && matchesSearch;
     }).slice(0, 50) || [];
 
+    // Trigger must show the org name, not the captured id (Base UI renders the raw value otherwise).
+    const selectedOrgName = allOrgs?.find(o => o.id.toString() === newOrgId)?.name_kh;
+
     if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>;
 
     return (
@@ -57,7 +61,7 @@ export function EventSportOrgManager({ eventId, sportId, sportName }: EventSport
                         <div className="flex items-center gap-2">
                             <div className="relative w-full sm:w-75">
                                 <Select value={newOrgId} onValueChange={(val) => setNewOrgId(val || '')}>
-                                    <SelectTrigger><SelectValue placeholder={t('selectOrg')} /></SelectTrigger>
+                                    <SelectTrigger><SelectValue placeholder={t('selectOrg')}>{selectedOrgName}</SelectValue></SelectTrigger>
                                     <SelectContent>
                                         <div className="px-2 py-2 border-b">
                                             <div className="relative">
@@ -77,8 +81,8 @@ export function EventSportOrgManager({ eventId, sportId, sportName }: EventSport
                     </div>
                 )}
             </div>
-            <div className="bg-card rounded-xl border border-border overflow-hidden">
-                <table className="w-full text-left border-collapse">
+            <div className="bg-card rounded-lg border border-border overflow-x-auto">
+                <table className="w-full min-w-[480px] text-left border-collapse">
                     <thead>
                         <tr className="bg-muted/50 border-b border-border">
                             <th className="p-4 font-semibold text-sm">{t('columns.orgName')}</th>

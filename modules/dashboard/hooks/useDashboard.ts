@@ -5,24 +5,27 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/core/api/queryKeys';
 import { getDashboardData } from '../services';
 import { useAuth, UserRole } from '@/core/auth';
 
 export function useDashboard() {
     const { user, role } = useAuth();
 
+    const orgId = user?.organization_id ?? user?.org_id;
+
     return useQuery({
-        queryKey: ['dashboard', role, user?.org_id],
+        queryKey: queryKeys.dashboard.scoped(role, orgId),
         queryFn: () => {
             const params: { orgId?: number; categoryId?: number } = {};
-            
-            if (role === UserRole.ORGANIZATION && user?.org_id) {
-                params.orgId = user.org_id;
+
+            if (role === UserRole.ORGANIZATION && orgId) {
+                params.orgId = orgId;
             }
-            
-            // USER2 = FEDERATION, for category-level view
-            // (Assumes category filtering might be handled differently or as a separate param)
-            
+
+            // Federation users get a category-level view
+            // (category filtering is handled separately / as its own param).
+
             return getDashboardData(params);
         },
         enabled: !!user,

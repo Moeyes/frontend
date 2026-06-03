@@ -9,10 +9,9 @@ import { Button } from '@/shared/ui/button';
 import { TextInputField } from '@/shared/form';
 import { useTranslations } from 'next-intl';
 
+// Only the fields the backend actually persists (sports table = name_kh + sport_type).
 const sportSchema = z.object({
     name_kh: z.string().min(2),
-    name_en: z.string().optional().or(z.literal('')),
-    description: z.string().optional().or(z.literal('')),
     sport_type: z.string().optional().or(z.literal('')),
 });
 
@@ -29,8 +28,8 @@ export function SportForm({ sport, onSuccess, onCancel }: SportFormProps) {
 
     const { control, handleSubmit, formState: { errors } } = useForm<SportFormValues>({
         resolver: zodResolver(sportSchema),
-        defaultValues: sport ? { name_kh: sport.name_kh, name_en: sport.name_en || '', description: sport.description || '', sport_type: sport.sport_type || '' }
-            : { name_kh: '', name_en: '', description: '', sport_type: '' }
+        defaultValues: sport ? { name_kh: sport.name_kh, sport_type: sport.sport_type || '' }
+            : { name_kh: '', sport_type: '' }
     });
 
     const onSubmit = (data: SportFormValues) => {
@@ -41,9 +40,7 @@ export function SportForm({ sport, onSuccess, onCancel }: SportFormProps) {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <TextInputField control={control} name="name_kh" label={t('sportNameKhmer')} required error={errors.name_kh?.message} />
-            <TextInputField control={control} name="name_en" label={t('sportNameEnglish')} error={errors.name_en?.message} />
             <TextInputField control={control} name="sport_type" label={t('sportTypeOptional')} error={errors.sport_type?.message} />
-            <TextInputField control={control} name="description" label={t('description_field')} error={errors.description?.message} />
             <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={onCancel}>{tCommon('cancel')}</Button>
                 <Button type="submit" disabled={isCreating || isUpdating}>

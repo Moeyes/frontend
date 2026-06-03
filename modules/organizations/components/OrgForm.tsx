@@ -46,7 +46,7 @@ export function OrgForm({ org, onSuccess, onCancel }: OrgFormProps) {
                 { value: InstituteType.PROVINCE, label: t('types.PROVINCE') },
                 { value: InstituteType.MINISTRY, label: t('types.MINISTRY') },
             ]} error={errors.type?.message} />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <TextInputField control={control} name="code" label={t('codeOptional')} error={errors.code?.message} />
                 <TextInputField control={control} name="province" label={t('provinceOptional')} error={errors.province?.message} />
             </div>

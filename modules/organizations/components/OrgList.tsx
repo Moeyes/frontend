@@ -4,30 +4,31 @@ import { useState } from 'react';
 import { Organization, InstituteType } from '../types';
 import { useOrganizations, useDeleteOrg } from '../hooks';
 import { OrgForm } from './OrgForm';
-import { Modal, DataTable, Badge, PageHeader } from '@/shared';
+import { Modal, DataTable, Badge, PageHeader, useConfirm } from '@/shared';
 import { Button } from '@/shared/ui/button';
-import { useAuth, UserRole } from '@/core/auth';
+import { usePermissions, CAPABILITIES } from '@/core/auth';
 import { Edit2, Trash2, Plus, Building2, MapPin, Landmark } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export function OrgList() {
     const { data: orgs, isLoading, error } = useOrganizations();
     const { mutate: deleteOrg } = useDeleteOrg();
-    const { role } = useAuth();
-    const isAdmin = role === UserRole.ADMIN;
+    const { can } = usePermissions();
+    const isAdmin = can(CAPABILITIES.CROSS_ORG_ADMIN);
     const t = useTranslations('organizations');
     const tCommon = useTranslations('common');
+    const confirm = useConfirm();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingOrg, setEditingOrg] = useState<Organization | undefined>(undefined);
 
     const handleCreate = () => { setEditingOrg(undefined); setIsModalOpen(true); };
     const handleEdit = (org: Organization) => { setEditingOrg(org); setIsModalOpen(true); };
-    const handleDelete = (orgId: number) => { if (window.confirm(t('deleteConfirm'))) deleteOrg({ org_id: orgId }); };
+    const handleDelete = async (orgId: number) => { if (await confirm({ message: t('deleteConfirm') })) deleteOrg({ org_id: orgId }); };
     const closeModal = () => { setIsModalOpen(false); setEditingOrg(undefined); };
 
     if (error) return (
-        <div className="rounded-2xl border border-error/20 bg-error/5 p-12 text-center">
+        <div className="rounded-lg border border-error/20 bg-error/5 p-12 text-center">
             <p className="font-black text-error">{t('failedToLoad')}</p>
             <p className="mt-1 text-xs font-medium text-muted-foreground">{tCommon('connectionError')}</p>
         </div>
@@ -38,7 +39,7 @@ export function OrgList() {
             <PageHeader title={t('title')} description={t('description')} icon={Building2}
                 action={isAdmin && <Button onClick={handleCreate} className="h-11 gap-2 px-6"><Plus className="w-4 h-4" />{t('createOrganization')}</Button>}
             />
-            <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
+            <div className="bg-card rounded-lg border border-border overflow-hidden shadow-sm">
                 <DataTable isLoading={isLoading} data={orgs || []} columns={[
                     {
                         header: t('columns.orgName'),

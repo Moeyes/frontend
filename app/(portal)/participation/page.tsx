@@ -1,9 +1,9 @@
 "use client";
 
-import { useRequireRole, UserRole } from "@/core/auth";
+import { useRequireRole, FEATURE_ACCESS } from "@/core/auth";
 import { ParticipationPage } from "@/modules/participation";
 
 export default function Page() {
-  useRequireRole([UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.ORGANIZATION]);
+  useRequireRole(FEATURE_ACCESS.participation);
   return <ParticipationPage />;
 }

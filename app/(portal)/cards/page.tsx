@@ -1,19 +1,14 @@
 "use client";
 
-import { useRequireRole, UserRole } from "@/core/auth";
+import { useRequireRole, FEATURE_ACCESS } from "@/core/auth";
 import { PageLoadingState } from "@/shared";
 import { CardsPage } from "@/modules/cards";
 
 export default function Page() {
-  const { isLoading } = useRequireRole([
-    UserRole.SUPER_ADMIN,
-    UserRole.ADMIN,
-    UserRole.ORGANIZATION,
-  ]);
+  const { isLoading, hasRole } = useRequireRole(FEATURE_ACCESS.cards);
 
-  if (isLoading) {
-    return <PageLoadingState />;
-  }
+  if (isLoading) return <PageLoadingState />;
+  if (!hasRole) return null;
 
   return <CardsPage />;
 }

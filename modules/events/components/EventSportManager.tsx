@@ -19,8 +19,10 @@ export function EventSportManager({ eventId, onSelectSport, selectedSportId }: E
     const { data: allSports } = useAllSports();
     const { mutate: addSport, isPending: adding } = useAddSportToEvent();
     const { mutate: removeSport } = useRemoveSportFromEvent();
-    const { role } = useAuth();
-    const isAdmin = role === UserRole.ADMIN;
+    const { hasRole } = useAuth();
+    // Assigning sports to an event is an administrator capability — both
+    // admin and super_admin (super_admin can access every feature).
+    const canManage = hasRole([UserRole.ADMIN, UserRole.SUPER_ADMIN]);
     const t = useTranslations('events.sports');
     const tCommon = useTranslations('common');
 
@@ -36,6 +38,9 @@ export function EventSportManager({ eventId, onSelectSport, selectedSportId }: E
     };
 
     const availableSports = allSports?.filter(s => !eventSports?.some(es => es.sports_id === s.id)) || [];
+    // The Select captures the sport id as its value, but the trigger must show
+    // the human-readable name — Base UI renders the raw value otherwise.
+    const selectedSportName = availableSports.find(s => s.id.toString() === newSportId)?.name_kh;
 
     if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>;
 
@@ -43,10 +48,10 @@ export function EventSportManager({ eventId, onSelectSport, selectedSportId }: E
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold flex items-center gap-2"><Trophy className="w-5 h-5 text-primary" />{t('title')}</h3>
-                {isAdmin && (
+                {canManage && (
                     <div className="flex items-center gap-2">
                         <Select value={newSportId} onValueChange={(val) => setNewSportId(val || '')}>
-                            <SelectTrigger className="w-50"><SelectValue placeholder={t('selectSport')} /></SelectTrigger>
+                            <SelectTrigger className="w-50"><SelectValue placeholder={t('selectSport')}>{selectedSportName}</SelectValue></SelectTrigger>
                             <SelectContent>
                                 {availableSports.map(s => <SelectItem key={s.id} value={s.id.toString()}>{s.name_kh}</SelectItem>)}
                             </SelectContent>
@@ -62,7 +67,7 @@ export function EventSportManager({ eventId, onSelectSport, selectedSportId }: E
                     <div key={sport.id} onClick={() => onSelectSport(sport.sports_id)}
                         className={`p-4 rounded-lg border transition-all cursor-pointer flex items-center justify-between ${selectedSportId === sport.sports_id ? 'border-primary bg-primary/5 shadow-md' : 'border-border bg-card hover:border-primary/50'}`}>
                         <span className="font-medium">{sport.name_kh}</span>
-                        {isAdmin && (
+                        {canManage && (
                             <button onClick={(e) => { e.stopPropagation(); handleRemove(sport.id); }} className="p-1 text-muted-foreground hover:text-destructive transition-colors">
                                 <Trash2 className="w-4 h-4" />
                             </button>

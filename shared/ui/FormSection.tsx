@@ -17,19 +17,19 @@ export function FormSection({
   children,
 }: FormSectionProps) {
   return (
-    <div className="bg-card text-card-foreground rounded-xl border border-b-4 border-l-4 border-l-primary border-border p-6 shadow-sm">
+    <div className="bg-card text-card-foreground rounded-lg border border-l-4 border-border border-l-primary p-6 shadow-sm">
       {/* Section Header with Icon */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
+      <div className="mb-5 border-b border-border pb-4">
+        <div className="flex items-center gap-2.5">
           {Icon && typeof Icon === "function" && (
-            <Icon className="w-5 h-5 text-primary" />
+            <Icon className="h-5 w-5 text-primary" />
           )}
-          <h2 className="text-primary font-black text-xs uppercase tracking-widest py-3 px-4 rounded-lg bg-primary/5">
+          <h2 className="text-base font-semibold leading-snug text-foreground">
             {title}
           </h2>
         </div>
         {description && (
-          <p className="text-sm font-medium text-muted-foreground ml-8">
+          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
             {description}
           </p>
         )}

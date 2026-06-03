@@ -1,5 +1,14 @@
+'use client';
+
+import { useRequireRole, FEATURE_ACCESS } from '@/core/auth';
+import { PageLoadingState } from '@/shared';
 import { SportsPage } from '@/modules/sports';
 
 export default function Page() {
-    return <SportsPage />;
+  const { isLoading, hasRole } = useRequireRole(FEATURE_ACCESS.sports);
+
+  if (isLoading) return <PageLoadingState />;
+  if (!hasRole) return null;
+
+  return <SportsPage />;
 }

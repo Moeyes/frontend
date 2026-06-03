@@ -2,18 +2,20 @@
 
 import { useState } from 'react';
 import { useRegistrations } from '../hooks';
-import { useAuth, UserRole } from '@/core/auth';
+import { useAuth, usePermissions, CAPABILITIES } from '@/core/auth';
 import { Search, Trash2, Edit2, User, Filter, AlertCircle } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
+import { useConfirm } from '@/shared';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
 export function ParticipantList() {
     const { user } = useAuth();
+    const { can } = usePermissions();
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
     const PAGE_SIZE = 10;
-    const isAdmin = user?.role === UserRole.ADMIN;
+    const isAdmin = can(CAPABILITIES.CROSS_ORG_ADMIN);
     const organization_id = isAdmin ? undefined : (user?.org_id || undefined);
     const t = useTranslations('registration.list');
     const tCommon = useTranslations('common');
@@ -29,7 +31,7 @@ export function ParticipantList() {
     const handleDelete = (id: number) => { if (window.confirm(t('deleteConfirm'))) deleteRegistration(id); };
 
     if (error) return (
-        <div className="p-8 text-center text-error bg-error/10 rounded-xl border border-error/20">
+        <div className="p-8 text-center text-error bg-error/10 rounded-lg border border-error/20">
             <AlertCircle className="w-8 h-8 mx-auto mb-2" />
             <p className="font-bold">{t('failedToLoad')}</p>
             <p className="text-sm opacity-80">{error instanceof Error ? error.message : tCommon('connectionError')}</p>
@@ -38,7 +40,7 @@ export function ParticipantList() {
 
     return (
         <div className="space-y-6">
-            <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
+            <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
                 <div className="flex flex-col sm:flex-row gap-4">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -51,7 +53,7 @@ export function ParticipantList() {
                 </div>
             </div>
 
-            <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+            <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
@@ -83,8 +85,8 @@ export function ParticipantList() {
                                             </div>
                                         </td>
                                         <td className="p-4">
-                                            <p className="text-sm font-semibold text-foreground">{p.sport_name || `Sport #${p.sport_id}`}</p>
-                                            <p className="text-xs text-muted-foreground truncate max-w-50">{p.event_name || `Event #${p.event_id}`}</p>
+                                            <p className="text-sm font-semibold text-foreground">{p.sport_name || '—'}</p>
+                                            <p className="text-xs text-muted-foreground truncate max-w-50">{p.event_name || '—'}</p>
                                         </td>
                                         <td className="p-4">
                                             <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${p.role === 'athlete' ? 'bg-primary/10 text-primary' : 'bg-amber-100 text-amber-700'}`}>{p.role}</span>

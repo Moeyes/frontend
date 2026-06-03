@@ -43,6 +43,15 @@ const config: Config = {
       lineHeight: {
         relaxed: "1.625",
       },
+      boxShadow: {
+        sm: "var(--shadow-sm)",
+        md: "var(--shadow-md)",
+        elevated: "var(--shadow-elevated)",
+      },
+      transitionDuration: {
+        fast: "var(--transition-fast)",
+        base: "var(--transition-base)",
+      },
     },
   },
   plugins: [],

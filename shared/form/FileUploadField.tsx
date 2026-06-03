@@ -139,7 +139,7 @@ export function FileUploadField<T extends FieldValues>({
                             onDragLeave={handleDrag}
                             onDragOver={handleDrag}
                             onDrop={handleDrop}
-                            className={`relative rounded-xl border-2 border-dashed transition-all duration-200 overflow-hidden ${dragActive
+                            className={`relative rounded-lg border-2 border-dashed transition-all duration-200 overflow-hidden ${dragActive
                                     ? 'border-primary bg-primary/5 scale-[1.02]'
                                     : uploadError || error
                                         ? 'border-destructive bg-destructive/5'

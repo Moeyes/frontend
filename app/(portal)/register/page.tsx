@@ -1,10 +1,9 @@
-import { RegisterPage } from '@/modules/registration';
+'use client';
 
-export const metadata = {
-  title: 'Register - Choschmous',
-  description: 'Register for sports events',
-};
+import { useRequireRole, FEATURE_ACCESS } from '@/core/auth';
+import { RegisterForm } from '@/modules/registration';
 
 export default function Page() {
-    return <RegisterPage />;
+  useRequireRole(FEATURE_ACCESS.register);
+  return <RegisterForm mode="athlete" />;
 }

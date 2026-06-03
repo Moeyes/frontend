@@ -24,29 +24,30 @@ const CardViewModal: React.FC<CardViewModalProps> = ({ card, onClose }) => {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
       onClick={onClose}
     >
-      <div 
-        className="relative bg-white rounded-xl shadow-2xl p-6 flex flex-col items-center gap-6 max-h-[95vh] overflow-y-auto"
+      <div
+        className="relative bg-card rounded-lg shadow-elevated border border-border p-6 flex flex-col items-center gap-6 max-h-[95vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <button 
+        <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors"
+          aria-label="Close"
+          className="absolute top-4 right-4 p-1 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
-          <X className="w-6 h-6 text-gray-500" />
+          <X className="w-6 h-6" />
         </button>
 
         <div className="text-center">
-          <h3 className="text-lg font-bold text-gray-900 leading-tight">
+          <h3 className="text-lg font-semibold text-foreground leading-snug">
             {card.prefix && <span className="mr-1">{card.prefix}</span>}
             {card.participantName}
           </h3>
-          <p className="text-sm text-gray-500 mt-1">{card.orgName || card.eventName}</p>
+          <p className="text-sm leading-relaxed text-muted-foreground mt-1">{card.orgName || card.eventName}</p>
         </div>
 
-        <div className="border rounded-lg shadow-inner bg-gray-50 p-4">
+        <div className="border border-border rounded-lg bg-muted/40 p-4">
           <CardIframe {...card} scale={1} />
         </div>
 

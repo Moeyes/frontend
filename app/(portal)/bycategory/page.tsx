@@ -1,9 +1,9 @@
 "use client";
 
-import { useRequireRole, UserRole } from "@/core/auth";
+import { useRequireRole, FEATURE_ACCESS } from "@/core/auth";
 import { ByCategoryPage } from "@/modules/common";
 
 export default function Page() {
-  useRequireRole([UserRole.SUPER_ADMIN, UserRole.FEDERATION, UserRole.ADMIN]);
+  useRequireRole(FEATURE_ACCESS.bycategory);
   return <ByCategoryPage />;
 }

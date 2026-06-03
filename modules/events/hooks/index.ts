@@ -1,6 +1,7 @@
 export * from './useEvents';
 export * from './useCreateEvent';
 export * from './useUpdateEvent';
+export * from './useUpdateEventPhase';
 export * from './useDeleteEvent';
 export * from './useEventDetail';
 export * from './useAddSportToEvent';

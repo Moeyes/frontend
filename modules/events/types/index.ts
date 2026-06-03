@@ -3,99 +3,150 @@
  */
 
 export enum EventType {
-    NATIONAL = "កីឡាជាតិ",
-    UNIVERSITY = "កីឡាឧត្តមសិក្សា និងមធ្យមសិក្សា​បចេ្ចកទេសថ្នាក់ជាតិថ្នាក់ជាតិ",
-    HIGH_SCHOOL = "សិស្សមធ្យមសិក្សា​ថ្នាក់ជាតិ",
-    PRIMARY_SCHOOL = "កីឡាសិស្សបថមសិក្សាជាតិ",
+  NATIONAL = 'កីឡាជាតិ',
+  UNIVERSITY = 'កីឡាឧត្តមសិក្សា និងមធ្យមសិក្សា​បចេ្ចកទេសថ្នាក់ជាតិថ្នាក់ជាតិ',
+  HIGH_SCHOOL = 'សិស្សមធ្យមសិក្សា​ថ្នាក់ជាតិ',
+  PRIMARY_SCHOOL = 'កីឡាសិស្សបឋមសិក្សាជាតិ',
 }
 
-export interface Event {
-    id: number;
-    name: string;
-    description?: string;
-    start_date: string;
-    end_date: string;
-    event_type: EventType;
-    location?: string;
-    open_register_date?: string | null;
-    close_register_date?: string | null;
-    created_at?: string;
-    updated_at?: string;
+/** How age_min/age_max are interpreted (must match backend AgeMode). */
+export enum AgeMode {
+  BIRTH_YEAR = 'BIRTH_YEAR',
+  EXACT_AGE = 'EXACT_AGE',
 }
 
-export interface EventCreate {
-    name: string;
-    description?: string;
-    start_date: string;
-    end_date: string;
-    event_type: EventType;
-    location: string;
-    open_register_date?: string | null;
-    close_register_date?: string | null;
+/** Lifecycle gate for a single phase (must match backend PhaseStatus). */
+export enum PhaseStatus {
+  AUTO = 'AUTO',
+  OPEN = 'OPEN',
+  CLOSED = 'CLOSED',
+}
+
+/** The four event lifecycle phases, in order. */
+export type EventPhase = 'survey_category' | 'survey_sport' | 'survey_number' | 'registration';
+
+export const EVENT_PHASES: EventPhase[] = ['survey_category', 'survey_sport', 'survey_number', 'registration'];
+
+/** Per-phase persisted fields (status + optional AUTO date window). */
+export interface PhaseFields {
+  survey_category_status: PhaseStatus;
+  survey_category_open_date?: string | null;
+  survey_category_close_date?: string | null;
+  survey_sport_status: PhaseStatus;
+  survey_sport_open_date?: string | null;
+  survey_sport_close_date?: string | null;
+  survey_number_status: PhaseStatus;
+  survey_number_open_date?: string | null;
+  survey_number_close_date?: string | null;
+  registration_status: PhaseStatus;
+  registration_open_date?: string | null;
+  registration_close_date?: string | null;
+}
+
+/** Read-only computed gates returned by the backend. */
+export interface PhaseFlags {
+  survey_category_is_open: boolean;
+  survey_sport_is_open: boolean;
+  survey_number_is_open: boolean;
+  registration_is_open: boolean;
+}
+
+export interface Event extends Partial<PhaseFields>, Partial<PhaseFlags> {
+  id: number;
+  name: string;
+  description?: string;
+  start_date: string;
+  end_date: string;
+  event_type: EventType;
+  location?: string;
+  age_mode?: AgeMode | null;
+  age_min?: number | null;
+  age_max?: number | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface EventCreate extends Partial<PhaseFields> {
+  name: string;
+  description?: string;
+  start_date: string;
+  end_date: string;
+  event_type: EventType;
+  location: string;
+  age_mode: AgeMode;
+  age_min: number;
+  age_max: number;
 }
 
 export interface EventUpdate extends Partial<EventCreate> {
-    id: number;
-    open_register_date?: string | null;
-    close_register_date?: string | null;
+  id: number;
+}
+
+/** Body for the dedicated PATCH /events/{id}/phase quick action. */
+export interface PhaseUpdatePayload {
+  id: number;
+  phase: EventPhase;
+  status: PhaseStatus;
+  open_date?: string | null;
+  close_date?: string | null;
 }
 
 export interface Organization {
-    id: number;
-    name_kh: string;
-    name_en: string;
-    code?: string;
-    type?: string;
+  id: number;
+  name_kh: string;
+  name_en: string;
+  code?: string;
+  type?: string;
 }
 
 export interface Sport {
-    id: number;        // sports_event.id (association ID — used for removal)
-    sports_id: number; // Sport.id (actual sport ID — used for filtering)
-    name_kh: string;
-    name_en: string;
+  id: number; // sports_event.id (association ID — used for removal)
+  sports_id: number; // Sport.id (actual sport ID — used for filtering)
+  name_kh: string;
+  name_en: string;
 }
 
 export interface Category {
-    id: number;
-    category: string;
-    sport_name?: string;
-    gender?: string;
+  id: number;
+  category: string;
+  sport_name?: string;
+  gender?: string;
 }
 
 export interface EventSport {
-    id: number;
-    event_id: number;
-    sport_id: number;
-    sport_name: string; // from join
+  id: number;
+  event_id: number;
+  sport_id: number;
+  sport_name: string; // from join
 }
 
 export interface EventSportOrg {
-    id: number;
-    event_id: number;
-    sport_id: number;
-    org_id: number;
-    org_name: string; // from join
+  id: number;
+  event_id: number;
+  sport_id: number;
+  org_id: number;
+  org_name: string; // from join
 }
 
 export interface AddSportToEventPayload {
-    event_id: number;
-    sport_id: number;
+  event_id: number;
+  sport_id: number;
 }
 
 export interface AddOrgToEventSportPayload {
-    event_id: number;
-    sport_id: number;
-    org_id: number;
+  event_id: number;
+  sport_id: number;
+  org_id: number;
 }
 
 export interface DeleteEventSportOrgLinkPayload {
-    association_id: number;
-    // for cache invalidation only
-    event_id: number;
-    sport_id: number;
+  association_id: number;
+  // for cache invalidation only
+  event_id: number;
+  sport_id: number;
 }
 
 export interface RemoveOrgCompletelyFromEventPayload {
-    event_id: number;
-    org_id: number;
+  event_id: number;
+  org_id: number;
 }

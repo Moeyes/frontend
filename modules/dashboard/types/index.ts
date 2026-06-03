@@ -19,9 +19,9 @@ export interface GenderDistribution {
 }
 
 export interface TopOrganization {
-    id: number;
-    name_kh: string;
-    participant_count: number;
+    name: string;
+    participants: number;
+    type: string;
 }
 
 export interface RecentEnrollment {

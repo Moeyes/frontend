@@ -11,7 +11,7 @@ export function ContentPanel({ children, className, dashed = false }: ContentPan
     return (
         <div
             className={cn(
-                'rounded-xl border border-border bg-card p-6 shadow-sm transition-all',
+                'rounded-lg border border-border bg-card p-6 shadow-sm transition-shadow',
                 dashed && 'border-dashed border-2',
                 className
             )}

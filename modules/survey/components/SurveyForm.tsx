@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/shared/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/Card';
 import { StepIndicator } from '@/shared/ui/StepIndicator';
@@ -15,13 +16,20 @@ type Step = 'event_type' | 'event' | 'organization' | 'sports' | 'review';
 const FORM_STEPS: readonly Step[] = ['event_type', 'event', 'organization', 'sports', 'review'];
 
 const EVENT_TYPES = [
-    { id: 'NATIONAL', name_kh: 'កីឡាជាតិ' },
-    { id: 'UNIVERSITY', name_kh: 'កីឡាឧត្តមសិក្សា និងមធ្យមសិក្សា​បចេ្ចកទេសថ្នាក់ជាតិថ្នាក់ជាតិ' },
-    { id: 'HIGH_SCHOOL', name_kh: 'សិស្សមធ្យមសិក្សា​ថ្នាក់ជាតិ' },
-    { id: 'PRIMARY_SCHOOL', name_kh: 'កីឡាសិស្សបថមសិក្សាជាតិ' },
+  { id: 'NATIONAL', name_kh: 'កីឡាជាតិ' },
+  { id: 'UNIVERSITY', name_kh: 'កីឡាឧត្តមសិក្សា និងមធ្យមសិក្សា​បចេ្ចកទេសថ្នាក់ជាតិថ្នាក់ជាតិ' },
+  { id: 'HIGH_SCHOOL', name_kh: 'សិស្សមធ្យមសិក្សា​ថ្នាក់ជាតិ' },
+  { id: 'PRIMARY_SCHOOL', name_kh: 'កីឡាសិស្សបឋមសិក្សាជាតិ' },
 ];
 
-export function SurveyForm() {
+interface SurveyFormProps {
+  /** Hide the page title block when embedded under a shared tab header. */
+  showHeader?: boolean;
+}
+
+export function SurveyForm({ showHeader = true }: SurveyFormProps = {}) {
+  const t = useTranslations('survey');
+  const tCommon = useTranslations('common');
   const [currentStep, setCurrentStep] = useState<Step>('event_type');
   const [isSuccess, setIsSuccess] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
@@ -35,7 +43,6 @@ export function SurveyForm() {
   });
 
   const stepIndex = FORM_STEPS.indexOf(currentStep);
-  const progress = ((stepIndex + 1) / FORM_STEPS.length) * 100;
 
   // Load initial data
   useEffect(() => {
@@ -43,7 +50,10 @@ export function SurveyForm() {
       setLoading(true);
       try {
         const { events, organizations } = await fetchSurveyData();
-        console.log('Fetched Events:', events.map(e => ({ id: e.id, type: e.type })));
+        console.log(
+          'Fetched Events:',
+          events.map((e) => ({ id: e.id, type: e.type })),
+        );
         setEvents(events);
         setOrganizations(organizations);
       } finally {
@@ -54,20 +64,20 @@ export function SurveyForm() {
   }, []);
 
   // Filtered events based on selected type
-  const filteredEvents = selectedEventType 
-    ? events.filter(e => {
+  const filteredEvents = selectedEventType
+    ? events.filter((e) => {
         const eventTypeFromApi = String(e.type).trim();
         const selectedType = String(selectedEventType).trim();
-        
+
         // Match by Enum Name (e.g. 'NATIONAL')
         if (eventTypeFromApi === selectedType) return true;
-        
+
         // Match by Khmer Value
-        const khValue = EVENT_TYPES.find(t => t.id === selectedType)?.name_kh;
+        const khValue = EVENT_TYPES.find((t) => t.id === selectedType)?.name_kh;
         if (khValue && eventTypeFromApi === khValue.trim()) return true;
-        
+
         return false;
-    })
+      })
     : [];
 
   const watchedEventId = form.watch('eventId');
@@ -82,7 +92,7 @@ export function SurveyForm() {
         // Defer to microtask to avoid synchronous setState warning
         await Promise.resolve();
         if (isMounted) {
-          setEventSports(prev => (prev.length > 0 ? [] : prev));
+          setEventSports((prev) => (prev.length > 0 ? [] : prev));
         }
         return;
       }
@@ -96,9 +106,11 @@ export function SurveyForm() {
         console.error('Failed to load sports:', error);
       }
     };
-    
+
     load();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [watchedEventId]);
 
   const handleNext = async () => {
@@ -107,13 +119,13 @@ export function SurveyForm() {
       let canProceed = true;
 
       if (currentStep === 'event_type') {
-          if (!selectedEventType) canProceed = false;
+        if (!selectedEventType) canProceed = false;
       } else if (currentStep === 'event') {
-          canProceed = await form.trigger('eventId');
+        canProceed = await form.trigger('eventId');
       } else if (currentStep === 'organization') {
-          canProceed = await form.trigger('organizationId');
+        canProceed = await form.trigger('organizationId');
       } else if (currentStep === 'sports') {
-          canProceed = await form.trigger('sportIds');
+        canProceed = await form.trigger('sportIds');
       }
 
       if (canProceed) {
@@ -149,49 +161,28 @@ export function SurveyForm() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Event Registration Survey</h1>
-          <p className="text-slate-600">Register your organization for event participation</p>
-        </div>
+    <div className="min-h-screen bg-background px-4 py-8">
+      <div className="mx-auto max-w-2xl">
+        {showHeader && (
+          <div className="mb-8">
+            <h1 className="text-2xl font-semibold leading-snug text-foreground">{t('title')}</h1>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{t('subtitle')}</p>
+          </div>
+        )}
 
         <div className="mb-8">
-          <StepIndicator
-            steps={FORM_STEPS.map(s => s.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '))}
-            currentStep={currentStep.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-            onStepClick={(stepStr) => {
-                const stepKey = stepStr.toLowerCase().replace(/ /g, '_') as Step;
-                handleStepClick(stepKey);
-            }}
-          />
-          <div className="mt-4 bg-slate-200 rounded-full h-2 overflow-hidden">
-            <div
-              className="bg-primary h-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
+          <StepIndicator steps={FORM_STEPS.map((s) => t(`steps.${s}`))} currentIndex={stepIndex} onStepClick={(index) => handleStepClick(FORM_STEPS[index])} />
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>
-              {currentStep === 'event_type' && 'Select Event Category'}
-              {currentStep === 'event' && 'Select Event'}
-              {currentStep === 'organization' && 'Select Organization'}
-              {currentStep === 'sports' && 'Select Sports'}
-              {currentStep === 'review' && 'Review Information'}
-            </CardTitle>
+            <CardTitle>{t(`headings.${currentStep}`)}</CardTitle>
           </CardHeader>
           <CardContent>
-            {serverError && (
-              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
-                {serverError}
-              </div>
-            )}
+            {serverError && <div className="mb-4 rounded-md border border-destructive/20 bg-destructive/5 p-4 text-sm leading-relaxed text-destructive">{serverError}</div>}
 
             {loading ? (
-              <div className="text-center py-12 text-slate-500">Loading...</div>
+              <div className="py-12 text-center text-sm leading-relaxed text-muted-foreground">{t('loading')}</div>
             ) : (
               <form onSubmit={form.handleSubmit(onSubmit, (err) => console.log('❌ Form Validation Errors:', err))}>
                 <div className="min-h-96">
@@ -207,27 +198,18 @@ export function SurveyForm() {
                   />
                 </div>
 
-                <div className="flex gap-4 mt-8 pt-6 border-t">
-                  <Button
-                    type="button"
-                    onClick={handlePreviousStep}
-                    variant="outline"
-                    disabled={stepIndex === 0}
-                  >
-                    Previous
+                <div className="mt-8 flex gap-4 border-t border-border pt-6">
+                  <Button type="button" onClick={handlePreviousStep} variant="outline" disabled={stepIndex === 0}>
+                    {tCommon('previous')}
                   </Button>
                   <div className="flex-1" />
                   {currentStep !== 'review' ? (
-                    <Button 
-                        type="button" 
-                        onClick={handleNext}
-                        disabled={currentStep === 'event_type' && !selectedEventType}
-                    >
-                      Next
+                    <Button type="button" onClick={handleNext} disabled={currentStep === 'event_type' && !selectedEventType}>
+                      {tCommon('next')}
                     </Button>
                   ) : (
-                    <Button type="submit" disabled={isPending}>
-                      {isPending ? 'Submitting...' : 'Submit'}
+                    <Button type="submit" loading={isPending}>
+                      {isPending ? t('submitting') : t('submit')}
                     </Button>
                   )}
                 </div>

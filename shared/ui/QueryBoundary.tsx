@@ -40,7 +40,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       }
 
       return (
-        <div className="flex flex-col items-center justify-center p-12 bg-destructive/5 border border-destructive/10 rounded-2xl gap-4 text-center">
+        <div className="flex flex-col items-center justify-center p-12 bg-destructive/5 border border-destructive/10 rounded-lg gap-4 text-center">
           <div className="flex items-center gap-3 text-destructive">
             <AlertCircle className="h-8 w-8" />
             <span className="text-lg font-black uppercase tracking-tight">Something went wrong</span>

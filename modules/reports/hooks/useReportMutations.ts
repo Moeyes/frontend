@@ -39,7 +39,11 @@ export function useReportMutations() {
     return {
         downloadOrgSport: orgSportMutation.mutate,
         isDownloadingOrgSport: orgSportMutation.isPending,
+        isOrgSportDone: orgSportMutation.isSuccess,
+        resetOrgSport: orgSportMutation.reset,
         downloadParticipant: orgSportParticipantMutation.mutate,
         isDownloadingParticipant: orgSportParticipantMutation.isPending,
+        isParticipantDone: orgSportParticipantMutation.isSuccess,
+        resetParticipant: orgSportParticipantMutation.reset,
     };
 }

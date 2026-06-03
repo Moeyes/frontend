@@ -12,9 +12,9 @@ export function GenderChart({ data }: GenderChartProps) {
     const total = data.male + data.female + data.other;
 
     if (total === 0) return (
-        <div className="bg-card p-6 rounded-xl border border-border shadow-sm flex flex-col h-full">
+        <div className="bg-card p-6 rounded-lg border border-border shadow-sm flex flex-col h-full">
             <SectionHeader title={t('genderDistribution')} icon={PieChart} />
-            <div className="flex-1 flex items-center justify-center p-8 text-muted-foreground italic text-xs font-medium">{t('noOrganizationData')}</div>
+            <div className="flex-1 flex items-center justify-center p-8 text-muted-foreground text-sm leading-relaxed">{t('noOrganizationData')}</div>
         </div>
     );
 
@@ -32,33 +32,37 @@ export function GenderChart({ data }: GenderChartProps) {
     const femaleOffset = (malePerc / 100) * circumference;
     const otherOffset = ((malePerc + femalePerc) / 100) * circumference;
 
+    const maleColor = "hsl(var(--primary))";
+    const femaleColor = "hsl(var(--secondary))";
+    const otherColor = "hsl(var(--border))";
+
     return (
-        <div className="bg-card rounded-xl border border-border shadow-sm flex flex-col items-center transition-all hover:shadow-md h-full">
+        <div className="bg-card rounded-lg border border-border shadow-sm flex flex-col items-center transition-shadow hover:shadow-md h-full">
             <SectionHeader title={t('genderDistribution')} icon={PieChart} className="w-full" />
             <div className="flex-1 flex flex-col items-center justify-center p-6 w-full">
                 <div className="relative w-45 h-45">
                     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
-                        <circle cx={center} cy={center} r={radius} fill="transparent" stroke="var(--chart-slate)" strokeWidth={strokeWidth} strokeDasharray={`${(otherPerc / 100) * circumference} ${circumference}`} strokeDashoffset={-otherOffset} className="transition-all duration-1000" />
-                        <circle cx={center} cy={center} r={radius} fill="transparent" stroke="var(--chart-pink)" strokeWidth={strokeWidth} strokeDasharray={`${(femalePerc / 100) * circumference} ${circumference}`} strokeDashoffset={-femaleOffset} className="transition-all duration-1000" />
-                        <circle cx={center} cy={center} r={radius} fill="transparent" stroke="var(--chart-blue)" strokeWidth={strokeWidth} strokeDasharray={`${(malePerc / 100) * circumference} ${circumference}`} strokeDashoffset={-maleOffset} className="transition-all duration-1000" />
+                        <circle cx={center} cy={center} r={radius} fill="transparent" stroke={otherColor} strokeWidth={strokeWidth} strokeDasharray={`${(otherPerc / 100) * circumference} ${circumference}`} strokeDashoffset={-otherOffset} className="transition-all duration-1000" />
+                        <circle cx={center} cy={center} r={radius} fill="transparent" stroke={femaleColor} strokeWidth={strokeWidth} strokeDasharray={`${(femalePerc / 100) * circumference} ${circumference}`} strokeDashoffset={-femaleOffset} className="transition-all duration-1000" />
+                        <circle cx={center} cy={center} r={radius} fill="transparent" stroke={maleColor} strokeWidth={strokeWidth} strokeDasharray={`${(malePerc / 100) * circumference} ${circumference}`} strokeDashoffset={-maleOffset} className="transition-all duration-1000" />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <span className="text-3xl font-black text-foreground tracking-tighter">{total}</span>
-                        <span className="text-[10px] uppercase font-black text-muted-foreground tracking-widest opacity-60">{t('members')}</span>
+                        <span className="text-3xl font-semibold text-foreground tracking-tight">{total}</span>
+                        <span className="text-xs leading-relaxed text-muted-foreground">{t('members')}</span>
                     </div>
                 </div>
                 <div className="mt-8 grid grid-cols-2 gap-x-8 gap-y-3 w-full max-w-50">
                     <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-(--chart-blue)" />
-                        <span className="text-[10px] font-black text-foreground uppercase tracking-tight">{t('male')}: {malePerc.toFixed(1)}%</span>
+                        <span className="h-3 w-3 rounded-full" style={{ backgroundColor: maleColor }} />
+                        <span className="text-sm leading-relaxed text-foreground">{t('male')}: {malePerc.toFixed(1)}%</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-(--chart-pink)" />
-                        <span className="text-[10px] font-black text-foreground uppercase tracking-tight">{t('female')}: {femalePerc.toFixed(1)}%</span>
+                        <span className="h-3 w-3 rounded-full" style={{ backgroundColor: femaleColor }} />
+                        <span className="text-sm leading-relaxed text-foreground">{t('female')}: {femalePerc.toFixed(1)}%</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-(--chart-slate)" />
-                        <span className="text-[10px] font-black text-foreground uppercase tracking-tight">{t('other')}: {otherPerc.toFixed(1)}%</span>
+                        <span className="h-3 w-3 rounded-full" style={{ backgroundColor: otherColor }} />
+                        <span className="text-sm leading-relaxed text-foreground">{t('other')}: {otherPerc.toFixed(1)}%</span>
                     </div>
                 </div>
             </div>

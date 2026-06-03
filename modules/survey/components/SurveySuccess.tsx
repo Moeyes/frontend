@@ -2,28 +2,28 @@
 
 import { Button } from '@/shared/ui/button';
 import { CheckCircle2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface SurveySuccessProps {
     onRegisterAnother?: () => void;
 }
 
 export function SurveySuccess({ onRegisterAnother }: SurveySuccessProps) {
+    const t = useTranslations('registration.success');
     return (
-        <div className="min-h-screen bg-linear-to-br from-green-50 to-green-100 py-8 px-4 flex items-center justify-center">
-            <div className="max-w-md w-full">
-                <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-                    <CheckCircle2 className="w-16 h-16 text-green-600 mx-auto mb-6" />
-                    <h1 className="text-2xl font-bold text-slate-900 mb-3">Registration Successful!</h1>
-                    <p className="text-slate-600 mb-8">
-                        Your organization has been successfully registered for the event. Thank you for participating!
-                    </p>
-
-                    {onRegisterAnother && (
-                        <Button onClick={onRegisterAnother} className="w-full">
-                            Register Another Organization
-                        </Button>
-                    )}
+        <div className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
+            <div className="w-full max-w-md rounded-lg border border-border bg-card p-8 text-center shadow-sm">
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
+                    <CheckCircle2 className="h-9 w-9 text-success" />
                 </div>
+                <h1 className="mb-2 text-xl font-semibold leading-snug text-foreground">{t('title')}</h1>
+                <p className="mb-8 text-sm leading-relaxed text-muted-foreground">{t('subtitle')}</p>
+
+                {onRegisterAnother && (
+                    <Button onClick={onRegisterAnother} className="w-full">
+                        {t('registerAnother')}
+                    </Button>
+                )}
             </div>
         </div>
     );

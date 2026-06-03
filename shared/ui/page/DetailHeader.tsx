@@ -27,19 +27,19 @@ export function DetailHeader({
         <div className="flex flex-col gap-4">
             <BackLink href={backHref} label={backLabel} />
 
-            <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm md:flex-row md:items-end md:justify-between">
-                <div className="space-y-1">
+            <div className="flex flex-col gap-4 rounded-lg border border-border bg-card p-6 shadow-sm md:flex-row md:items-end md:justify-between">
+                <div className="space-y-1.5">
                     {eyebrow && (
-                        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary">
+                        <div className="flex items-center gap-1.5 text-xs font-medium leading-relaxed text-primary">
                             {EyebrowIcon && <EyebrowIcon className="h-4 w-4" />}
                             {eyebrow}
                         </div>
                     )}
-                    <h1 className="text-2xl font-black text-foreground">{title}</h1>
-                    {description && <p className="text-sm font-medium text-muted-foreground">{description}</p>}
+                    <h1 className="text-2xl font-semibold leading-snug text-foreground">{title}</h1>
+                    {description && <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>}
                     {meta && <div className="pt-2 flex flex-wrap gap-3">{meta}</div>}
                 </div>
-                {action && <div className="flex items-center gap-3">{action}</div>}
+                {action && <div className="flex flex-wrap items-center gap-3">{action}</div>}
             </div>
         </div>
     );
