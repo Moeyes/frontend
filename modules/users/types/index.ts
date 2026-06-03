@@ -6,21 +6,24 @@ import { UserRole } from '@/core/auth';
  */
 
 export interface UserCreate {
-    email: string;
-    username: string;
-    password?: string;
-    role: UserRole;
-    org_id?: number | null;
-    khmer_name: string;
-    english_name: string;
+  email: string;
+  username: string;
+  password?: string;
+  role: UserRole;
+  organization_id?: number | null;
+  sport_id?: number | null;
+  kh_family_name: string;
+  kh_given_name: string;
+  en_family_name: string;
+  en_given_name: string;
 }
 
 export interface UserUpdate extends Partial<UserCreate> {
-    id: string;
-    is_active?: boolean;
+  id: string;
+  is_active?: boolean;
 }
 
 export interface UserListResponse {
-    users: User[];
-    total: number;
+  users: User[];
+  total: number;
 }
