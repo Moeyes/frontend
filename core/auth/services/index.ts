@@ -1,4 +1,5 @@
 import apiClient from '@/core/api/client';
+import unauthenticatedApiClient from '@/core/api/unauthenticatedApiClient';
 import { LoginRequest, User } from '@/core/auth/types';
 
 const BASE = '/api/auth';
@@ -9,31 +10,6 @@ export interface TokenPair {
     access_token: string;
     refresh_token: string;
     token_type?: string;
-}
-
-// --- Helpers ---------------------------------------------------------
-
-/**
- * Decode the JWT payload (no verification — purely for reading claims client-side).
- * The backend verifies the signature on every request; we only need sub/user_id here.
- */
-function decodeJwt(token: string): Record<string, unknown> {
-    try {
-        const payload = token.split('.')[1];
-        return JSON.parse(atob(payload));
-    } catch {
-        throw new Error('Invalid token format');
-    }
-}
-
-/**
- * Extract the user UUID from the access token's `sub` claim.
- */
-export function getUserIdFromToken(token: string): string {
-    const payload = decodeJwt(token);
-    const sub = payload.sub as string | undefined;
-    if (!sub) throw new Error('Token is missing `sub` claim');
-    return sub;
 }
 
 // --- API calls -------------------------------------------------------
@@ -59,28 +35,31 @@ export async function refreshAccessToken(): Promise<TokenPair> {
 }
 
 /**
- * GET /api/auth/session/:userId
- * Fetch the user record by UUID — the only "who am I?" endpoint the backend exposes.
+ * GET /api/auth/me
+ * Resolve the current user straight from the HttpOnly `access_token` cookie —
+ * a single-round-trip "who am I?" with no user id in the URL and no client-side
+ * token decoding. This is what lets the session be restored on load without
+ * persisting any user data in the browser.
  */
-export async function getUserById(userId: string): Promise<User> {
-    const { data } = await apiClient.get<User>(`${BASE}/session/${userId}`);
+export async function getCurrentUser(signal?: AbortSignal): Promise<User> {
+    const { data } = await apiClient.get<User>(`${BASE}/me`, { signal });
     return data;
 }
 
 /**
- * Logout is handled client-side only (no backend logout endpoint).
- * The refresh_token cookie will expire naturally on the server.
- * AuthContext dispatches LOGOUT which clears all in-memory state.
+ * Logout: tell the backend to revoke the refresh token and clear the auth
+ * cookies, then AuthContext dispatches LOGOUT to wipe in-memory state.
+ * Without this server call the HttpOnly refresh_token cookie survives and the
+ * session is silently restored on the next page load.
  */
 export async function logoutUser(): Promise<void> {
-    // no-op — intentional
+    await unauthenticatedApiClient.post(`${BASE}/logout`, {});
 }
 
 export const authService = {
     loginUser,
     refreshAccessToken,
-    getUserById,
-    getUserIdFromToken,
+    getCurrentUser,
     logoutUser,
 };
 

@@ -16,6 +16,8 @@ export function useLogin(): UseLoginReturn {
   const { login: contextLogin, clearError: contextClearError, error: contextError } = useAuth();
 
   const mutation = useMutation({
+    // The login form renders its own inline error, so skip the global toast.
+    meta: { suppressErrorToast: true },
     mutationFn: async ({ username, password }: { username: string; password: string }) => {
       return await contextLogin(username, password);
     },

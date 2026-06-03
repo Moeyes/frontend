@@ -13,61 +13,21 @@ import {
     loginUser,
     logoutUser,
     refreshAccessToken,
-    getUserById,
-    getUserIdFromToken,
+    getCurrentUser,
 } from '@/core/auth/services';
-import unauthenticatedApiClient from '@/core/api/unauthenticatedApiClient';
-
-// --- Constants -------------------------------------------------------
-
-const CACHE_KEY = 'auth_user_cache';
+import { queryClient } from '@/core/api/queryClient';
 
 // --- Role normalisation ----------------------------------------------
 
 function normalizeRole(raw: string): UserRole {
-    const map: Record<string, UserRole> = {
-        super_admin:  UserRole.SUPER_ADMIN,  SUPER_ADMIN:  UserRole.SUPER_ADMIN,
-        admin:        UserRole.ADMIN,        ADMIN:        UserRole.ADMIN,
-        organization: UserRole.ORGANIZATION, ORGANIZATION: UserRole.ORGANIZATION,
-        federation:   UserRole.FEDERATION,   FEDERATION:   UserRole.FEDERATION,
-        USER1:        UserRole.ORGANIZATION, user1:        UserRole.ORGANIZATION,
-        USER2:        UserRole.FEDERATION,   user2:        UserRole.FEDERATION,
-        GUEST:        UserRole.GUEST,        guest:        UserRole.GUEST,
-    };
-    const normalized = map[raw];
-    if (!normalized) console.warn(`Unknown role: "${raw}" — defaulting to GUEST`);
-    return normalized ?? UserRole.GUEST;
-}
-
-// --- Cache helpers ---------------------------------------------------
-
-interface CachedAuth {
-    user: User;
-    role: UserRole;
-}
-
-function readCache(): CachedAuth | null {
-    try {
-        const raw = localStorage.getItem(CACHE_KEY);
-        if (!raw) return null;
-        return JSON.parse(raw) as CachedAuth;
-    } catch {
-        return null;
-    }
-}
-
-function writeCache(user: User, role: UserRole): void {
-    try {
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ user, role }));
-    } catch {
-        // localStorage full or unavailable — non-fatal
-    }
-}
-
-function clearCache(): void {
-    try {
-        localStorage.removeItem(CACHE_KEY);
-    } catch { /* non-fatal */ }
+    // The UserRole enum values now match the backend strings exactly
+    // (super_admin / admin / organization / federation), so the role is read
+    // straight from the API value — no USER1/USER2 remapping. GUEST remains a
+    // defensive fallback for any unexpected/unknown value.
+    const valid = Object.values(UserRole) as string[];
+    if (valid.includes(raw)) return raw as UserRole;
+    console.warn(`Unknown role: "${raw}" — defaulting to GUEST`);
+    return UserRole.GUEST;
 }
 
 // --- Reducer ---------------------------------------------------------
@@ -96,15 +56,6 @@ function reducer(state: AuthState, action: Action): AuthState {
 }
 
 // --- Helpers ---------------------------------------------------------
-
-/**
- * Resolve a full User from a raw access_token string.
- * Decodes the JWT to extract user_id, then hits GET /api/auth/session/:id.
- */
-async function resolveUserFromToken(accessToken: string): Promise<User> {
-    const userId = getUserIdFromToken(accessToken);
-    return getUserById(userId);
-}
 
 /**
  * Returns true only for HTTP responses that explicitly reject the session.
@@ -136,15 +87,10 @@ function isAuthRejection(err: unknown): boolean {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    // FIX: Start with isLoading: false if we have a cache so there's no flicker.
-    // If there's no cache, we genuinely don't know yet → keep isLoading: true.
-    const cached = readCache();
-    const [state, dispatch] = useReducer(
-        reducer,
-        cached
-            ? { ...EMPTY, isAuthenticated: true, user: cached.user, role: cached.role, isLoading: true }
-            : { ...EMPTY, isLoading: true },
-    );
+    // No client-side session cache (PII must never be persisted), so on every
+    // load we genuinely don't know who the user is until the server tells us.
+    // Start in the loading state and verify against the session cookie.
+    const [state, dispatch] = useReducer(reducer, { ...EMPTY, isLoading: true });
 
     const didInit = useRef(false);
 
@@ -153,65 +99,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         didInit.current = true;
 
         const restore = async () => {
-            // STEP 1 — Optimistic restore: if we have a cached user, show them
-            // immediately so the UI doesn't flash a login screen on every navigation.
-            const hit = readCache();
-            if (hit) {
-                dispatch({ type: 'SET_USER', user: hit.user, role: hit.role });
-            }
-
-            // STEP 2 — Background verify: silently re-validate the session with
-            // the backend using the HttpOnly refresh_token cookie.
+            // Verify the session straight from the HttpOnly access_token cookie.
+            // `apiClient` transparently refreshes (and retries) on a 401, so a
+            // merely-expired access token still resolves here.
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => {
-                controller.abort();
-                // FIX: Timeout does NOT logout.
-                // If we already have a cached user, keep them logged in.
-                // Only clear loading state so the UI isn't stuck.
-                console.warn('Auth restore timed out — keeping cached session if available');
-                if (!readCache()) {
-                    // No cache and timed out: we genuinely have no session info.
-                    dispatch({ type: 'LOGOUT' });
-                }
-            }, 10_000);
+            const timeoutId = setTimeout(() => controller.abort(), 10_000);
 
             try {
-                const { data } = await unauthenticatedApiClient.post(
-                    '/api/auth/refresh',
-                    {},
-                    { signal: controller.signal },
-                );
-                const { access_token } = data;
-                const user = await resolveUserFromToken(access_token);
+                const user = await getCurrentUser(controller.signal);
                 const role = normalizeRole(user.role as unknown as string);
-
-                clearTimeout(timeoutId);
-
-                // Update cache with fresh data from server.
-                writeCache(user, role);
                 dispatch({ type: 'SET_USER', user, role });
-
             } catch (err) {
-                clearTimeout(timeoutId);
-
-                if (isAuthRejection(err)) {
-                    // 401 / 403 = session is truly gone, clear everything.
-                    console.info('Auth restore: session expired, logging out');
-                    clearCache();
-                    dispatch({ type: 'LOGOUT' });
-                } else {
-                    // Network error, timeout, 500, abort — server didn't reject us.
-                    // Keep whatever state we have (cached user stays logged in).
-                    const reason = (err as Record<string, unknown>)?.message ?? 'unknown';
-                    console.warn(`Auth restore network issue (${reason}) — keeping existing session`);
-
-                    // Reuse `hit` captured at the top — no second localStorage read needed.
-                    if (!hit) {
-                        // No cache at all, can't pretend to be logged in.
-                        dispatch({ type: 'LOGOUT' });
-                    }
-                    // else: SET_USER was already dispatched in STEP 1, nothing to do.
+                // With no session cache to fall back on, any failure to confirm
+                // the session (401, failed refresh, network error, or timeout)
+                // resolves to a clean logged-out state. Fail closed — never show
+                // privileged UI on an unverified session.
+                if (!isAuthRejection(err)) {
+                    console.warn('Auth restore could not verify session — treating as logged out');
                 }
+                dispatch({ type: 'LOGOUT' });
+            } finally {
+                clearTimeout(timeoutId);
             }
         };
 
@@ -221,7 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for the global session-expired event fired by the Axios interceptor.
     useEffect(() => {
         const handler = () => {
-            clearCache();
+            queryClient.clear(); // wipe any PII-bearing query cache on session end
             dispatch({ type: 'LOGOUT' });
         };
         window.addEventListener('auth:session-expired', handler);
@@ -231,11 +139,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const login = useCallback(async (username: string, password: string): Promise<UserRole> => {
         dispatch({ type: 'LOADING' });
         try {
-            const { access_token } = await loginUser({ username, password });
-            const user = await resolveUserFromToken(access_token);
+            // Backend sets the auth cookies; we then ask the server who we are
+            // rather than decoding the token or caching the user client-side.
+            await loginUser({ username, password });
+            const user = await getCurrentUser();
             const role = normalizeRole(user.role as unknown as string);
 
-            writeCache(user, role); // persist so next page load is instant
             dispatch({ type: 'SET_USER', user, role });
             return role;
         } catch (err) {
@@ -245,21 +154,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const logout = useCallback(async () => {
-        clearCache(); // wipe cache so restore doesn't resurrect the session
         try { await logoutUser(); } catch { /* intentional no-op */ }
-        finally { dispatch({ type: 'LOGOUT' }); }
+        finally {
+            queryClient.clear(); // wipe any PII-bearing query cache on sign-out
+            dispatch({ type: 'LOGOUT' });
+        }
     }, []);
 
     const refresh = useCallback(async () => {
         try {
-            const { access_token } = await refreshAccessToken();
-            const user = await resolveUserFromToken(access_token);
+            await refreshAccessToken();
+            const user = await getCurrentUser();
             const role = normalizeRole(user.role as unknown as string);
-            writeCache(user, role);
             dispatch({ type: 'SET_USER', user, role });
         } catch (err) {
             if (isAuthRejection(err)) {
-                clearCache();
+                queryClient.clear();
                 dispatch({ type: 'LOGOUT' });
             }
             throw err;
