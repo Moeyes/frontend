@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from 'axios';
+import { attachCrossCuttingHeaders } from './headers';
 
 const apiClient: AxiosInstance = axios.create({
     baseURL: '/',
@@ -6,7 +7,9 @@ const apiClient: AxiosInstance = axios.create({
     withCredentials: true, // sends HttpOnly cookies on every request automatically
 });
 
-// No request interceptor — no token to attach, browser handles cookies
+// Request interceptor: attach correlation id + CSRF token centrally. No auth
+// token is attached here — the browser sends the HttpOnly cookies itself.
+apiClient.interceptors.request.use(attachCrossCuttingHeaders);
 
 let isRefreshing = false;
 let queue: Array<() => void> = [];

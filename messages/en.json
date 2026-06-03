@@ -1,4 +1,48 @@
 {
+  "errors": {
+    "title": "Something went wrong",
+    "generic": "Something went wrong. Please try again.",
+    "tryAgain": "Try again",
+    "goToDashboard": "Go to dashboard"
+  },
+  "home": {
+    "brand": "MOEYS Sports",
+    "ministry": "Ministry of Education, Youth and Sport",
+    "nav": {
+      "signIn": "Sign In",
+      "register": "Register",
+      "dashboard": "Dashboard"
+    },
+    "hero": {
+      "title": "Sports Event Management Platform",
+      "subtitle": "Streamline participant registration, manage events, and coordinate sports activities across the Ministry with one unified platform.",
+      "getStarted": "Get Started",
+      "signIn": "Sign In"
+    },
+    "features": {
+      "title": "Platform Features",
+      "registration": {
+        "title": "Easy Registration",
+        "description": "Simple, quick registration for athletes and leaders with full Khmer and English support."
+      },
+      "events": {
+        "title": "Event Management",
+        "description": "Organize and manage sports events with categories, sports, and participant tracking."
+      },
+      "analytics": {
+        "title": "Analytics Dashboard",
+        "description": "Real-time insights and detailed reports for event organizers and administrators."
+      }
+    },
+    "cta": {
+      "title": "Ready to get started?",
+      "subtitle": "Join sports organizations using the MOEYS platform to streamline their operations.",
+      "register": "Register Now"
+    },
+    "footer": {
+      "rights": "Ministry of Education, Youth and Sport. All rights reserved."
+    }
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",
@@ -28,6 +72,20 @@
     "error": "Error",
     "success": "Success",
     "confirm": "Confirm",
+    "toast": {
+      "saved": "Saved successfully",
+      "created": "Created successfully",
+      "updated": "Updated successfully",
+      "deleted": "Deleted successfully",
+      "error": "Something went wrong. Please try again."
+    },
+    "confirmDelete": {
+      "title": "Are you sure?",
+      "message": "This action cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel",
+      "deleting": "Deleting..."
+    },
     "signOut": "Sign Out",
     "dashboard": "Dashboard",
     "account": "Account",
@@ -66,6 +124,7 @@
     "bynumber": "By Number",
     "bycategory": "By Category",
     "submissions": "Submissions",
+    "registrations": "Registrations",
     "athleteRegistration": "Athlete Registration",
     "leaderRegistration": "Leader Registration",
     "portalVersion": "Portal v1.0"
@@ -101,7 +160,14 @@
       "totalEvents": "Total Events",
       "totalOrganizations": "Total Organizations",
       "pendingSubmissions": "Pending Submissions",
-      "totalAthletesRegistered": "Total Athletes Registered"
+      "totalAthletesRegistered": "Total Athletes Registered",
+      "myEvents": "My Events",
+      "mySubmissions": "My Submissions",
+      "myAthletes": "Registered Athletes",
+      "myLeaders": "Leaders",
+      "assignedEvents": "Assigned Events",
+      "categorySurveys": "Category Surveys",
+      "totalSportsRegistered": "Total Sports"
     },
     "genderDistribution": "Gender Distribution",
     "topOrganizations": "Top Organizations",
@@ -111,7 +177,8 @@
     "members": "Members",
     "male": "Male",
     "female": "Female",
-    "other": "Other"
+    "other": "Other",
+    "quickActions": "Quick Actions"
   },
   "events": {
     "title": "Events",
@@ -131,7 +198,42 @@
     "registerWindow": "Register Window",
     "notSet": "Not set",
     "backToEvents": "Back to Events",
-    "register": "Register",
+    "register": "Registration",
+    "schedule": "Schedule",
+    "ageRule": "Age Rule",
+    "ageRuleHint": "How eligible ages are interpreted for this event",
+    "ageMode": "Age Mode",
+    "ageModes": {
+      "BIRTH_YEAR": "Birth Year",
+      "EXACT_AGE": "Exact Age"
+    },
+    "ageMin": "Minimum Age",
+    "ageMax": "Maximum Age",
+    "birthYearFrom": "Birth Year From",
+    "birthYearTo": "Birth Year To",
+    "phaseStatus": {
+      "AUTO": "Auto",
+      "OPEN": "Open",
+      "CLOSED": "Closed"
+    },
+    "phases": {
+      "title": "Lifecycle Phases",
+      "hint": "Control each phase: Auto follows the open/close dates, or force Open/Closed.",
+      "status": "Status",
+      "statusLabel": "Status",
+      "openDate": "Open Date",
+      "closeDate": "Close Date",
+      "open": "Open",
+      "closed": "Closed",
+      "survey_category": "Survey by Category",
+      "survey_sport": "Survey by Sport",
+      "survey_number": "Survey by Number",
+      "registration": "Registration",
+      "survey_categoryShort": "Category",
+      "survey_sportShort": "Sport",
+      "survey_numberShort": "Number",
+      "registrationShort": "Register"
+    },
     "types": {
       "NATIONAL": "National",
       "UNIVERSITY": "University",
@@ -141,7 +243,9 @@
     "columns": {
       "eventName": "Event Name",
       "type": "Type",
+      "status": "Status",
       "dates": "Dates",
+      "sportsCount": "Sports",
       "location": "Location"
     },
     "search": "Search events...",
@@ -171,7 +275,8 @@
         "code": "Code",
         "type": "Type"
       }
-    }
+    },
+    "publish": "Publish"
   },
   "sports": {
     "title": "Sports",
@@ -215,6 +320,35 @@
       },
       "minAge": "Min Age (Optional)",
       "maxAge": "Max Age (Optional)"
+    },
+    "deleteConfirm": "Are you sure you want to delete this sport? This cannot be undone.",
+    "participants": {
+      "title": "Participants — {category}",
+      "count": "{count} people",
+      "type": "Type",
+      "event": "Event",
+      "organization": "Organization",
+      "age": "Age",
+      "min": "Min",
+      "max": "Max",
+      "allEvents": "All events",
+      "allOrgs": "All organizations",
+      "resetFilters": "Reset filters",
+      "noResults": "No participants match these filters.",
+      "types": {
+        "all": "All",
+        "athlete": "Athlete",
+        "leader": "Leader"
+      },
+      "columns": {
+        "participant": "Participant",
+        "type": "Type",
+        "age": "Age",
+        "gender": "Gender",
+        "organization": "Organization",
+        "event": "Event",
+        "detail": "Category / Role"
+      }
     }
   },
   "organizations": {
@@ -253,13 +387,26 @@
     "password": "Password",
     "khmerName": "Khmer Name",
     "englishName": "English Name",
+    "khFamilyName": "Khmer Family Name",
+    "khGivenName": "Khmer Given Name",
+    "enFamilyName": "English Family Name",
+    "enGivenName": "English Given Name",
     "role": "Role",
     "orgIdOptional": "Organization ID (Optional)",
+    "sport": "Sport (Federation)",
+    "organization": "Organization (Ministry / Province)",
+    "selectSport": "Select a sport",
+    "selectOrganization": "Select an organization",
     "deleteConfirm": "Are you sure you want to delete this user?",
+    "errors": {
+      "sportRequired": "Sport is required for a Federation user",
+      "organizationRequired": "Organization is required for an Organization user"
+    },
     "roles": {
+      "superAdmin": "Super Admin",
       "admin": "Admin",
-      "organization": "Organization (User1)",
-      "federation": "Federation (User2)",
+      "organization": "Organization",
+      "federation": "Federation",
       "guest": "Guest",
       "org": "Org",
       "fed": "Fed"
@@ -268,12 +415,15 @@
       "user": "User",
       "email": "Email",
       "role": "Role",
-      "orgId": "Org ID"
+      "orgId": "Org ID",
+      "organization": "Organization"
     }
   },
   "registration": {
     "title": "Sports Event Registration",
     "subtitle": "Complete all 5 steps to register for the sports event",
+    "leaderTitle": "Leader Registration",
+    "leaderSubtitle": "Register a team leader or official (coach, manager, delegate, …)",
     "loadingForm": "Loading registration form...",
     "steps": {
       "event": "Event & Sport",
@@ -337,6 +487,8 @@
       "goHome": "Go to Home"
     },
     "list": {
+      "title": "Registrations",
+      "subtitle": "All registered athletes and leaders",
       "searchPlaceholder": "Search by name, phone or ID...",
       "failedToLoad": "Failed to load participants",
       "noParticipants": "No participants found",
@@ -350,7 +502,8 @@
       "pagination": {
         "showing": "Showing {from} to {to} of {total} participants"
       }
-    }
+    },
+    "registrationClosed": "Registration is closed for this event"
   },
   "participation": {
     "title": "Participation Management",
@@ -376,7 +529,48 @@
       "sportCategory": "Sport & Category",
       "registered": "Registered"
     },
-    "deleteConfirm": "Are you sure you want to remove this participation entry?"
+    "deleteConfirm": "Are you sure you want to remove this participation entry?",
+    "statuses": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Submitted",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "FLAGGED": "Flagged",
+      "REVISION_REQUESTED": "Revision requested"
+    },
+    "review": {
+      "queueTitle": "Submissions Review",
+      "queueSubtitle": "Review and decide on submissions",
+      "filterStatus": "Status",
+      "allStatuses": "All statuses",
+      "search": "Search...",
+      "backToQueue": "Back to queue",
+      "timeline": "Timeline",
+      "submittedData": "Submitted data",
+      "reviewNote": "Reason",
+      "submittedOn": "Submitted on",
+      "reviewedAt": "Reviewed at",
+      "noNote": "No reason given",
+      "approve": "Approve",
+      "reject": "Reject",
+      "flag": "Flag",
+      "requestRevision": "Request revision",
+      "submit": "Submit",
+      "reason": "Reason",
+      "reasonPlaceholder": "Enter a reason...",
+      "reasonRequired": "A reason is required",
+      "confirmReject": "Reject submission",
+      "confirmFlag": "Flag submission",
+      "confirmRevision": "Request revision",
+      "athletes": "Athletes",
+      "leaders": "Leaders",
+      "male": "M",
+      "female": "F",
+      "total": "Total",
+      "actionSuccess": "Status updated",
+      "actionFailed": "Action failed",
+      "cancel": "Cancel"
+    }
   },
   "cards": {
     "title": "Participant Cards",
@@ -408,7 +602,21 @@
       "title": "Participant Details Report",
       "description": "Exhaustive list of all registered participants including personal details, roles, and document status.",
       "download": "Download Excel"
-    }
+    },
+    "statusAvailable": "Available",
+    "statusComingSoon": "Coming soon",
+    "generate": "Generate",
+    "generating": "Generating...",
+    "generated": "Generated",
+    "download": "Download",
+    "downloadAgain": "Download again",
+    "selectFormat": "Format",
+    "formatExcel": "Excel",
+    "formatPdf": "PDF",
+    "pdfComingSoon": "PDF coming soon",
+    "generateModalTitle": "Generate Report",
+    "generatedDesc": "Your report has been downloaded",
+    "comingSoonNote": "This report is not available yet"
   },
   "bycategory": {
     "title": "By Category",
@@ -426,5 +634,81 @@
   "language": {
     "switchTo": "ភាសាខ្មែរ",
     "current": "EN"
+  },
+  "survey": {
+    "title": "Sport Type Registration",
+    "subtitle": "Register your organization for event participation",
+    "loading": "Loading...",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "selectedCount": "{count} selected",
+    "selectSportsHint": "Select one or more sports for participation",
+    "noEvents": "No events found for this category",
+    "noOrgs": "No organizations available",
+    "noSports": "No sports available for this event",
+    "steps": {
+      "event_type": "Category",
+      "event": "Event",
+      "organization": "Organization",
+      "sports": "Sports",
+      "review": "Review"
+    },
+    "headings": {
+      "event_type": "Select Event Category",
+      "event": "Select Event",
+      "organization": "Select Organization",
+      "sports": "Select Sports",
+      "review": "Review Information"
+    },
+    "review": {
+      "event": "Event",
+      "organization": "Organization",
+      "sports": "Selected Sports"
+    }
+  },
+  "bynumber": {
+    "title": "Participation By Number",
+    "subtitle": "Register your organization with participant counts",
+    "loading": "Loading...",
+    "loadingSports": "Loading sports...",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "noEvents": "No events found for this category",
+    "noOrgs": "No organizations available",
+    "noSportsTitle": "No sports registered for this organization",
+    "noSportsHint": "Please complete the survey first to link sports to your organization.",
+    "steps": {
+      "event_type": "Category",
+      "event": "Event",
+      "organization": "Organization",
+      "sports": "Counts",
+      "review": "Review"
+    },
+    "headings": {
+      "event_type": "Select Event Category",
+      "event": "Select Event",
+      "organization": "Select Organization",
+      "sports": "Enter Participant Counts",
+      "review": "Review Information"
+    },
+    "table": {
+      "sport": "Sport",
+      "athleteM": "Athletes (M)",
+      "athleteF": "Athletes (F)",
+      "leaderM": "Leaders (M)",
+      "leaderF": "Leaders (F)",
+      "subtotal": "Subtotal",
+      "totals": "Totals"
+    },
+    "review": {
+      "event": "Event",
+      "organization": "Organization",
+      "summary": "Participant Summary",
+      "totalAthletes": "Total Athletes",
+      "totalLeaders": "Total Leaders",
+      "breakdown": "Sports Breakdown",
+      "athletes": "Athletes",
+      "leaders": "Leaders"
+    }
   }
 }

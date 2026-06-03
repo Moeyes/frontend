@@ -19,7 +19,13 @@ unauthenticatedApiClient.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
         if (error.response) {
-            return Promise.reject(error.response.data);
+            // Preserve the HTTP status so callers can distinguish an auth
+            // rejection (401/403) from a network failure. Without this, a 401
+            // gets stripped to just its body and is misread as a network blip.
+            return Promise.reject({
+                status: error.response.status,
+                ...(error.response.data as object),
+            });
         }
         return Promise.reject({
             detail: error.message || 'An unexpected error occurred',
