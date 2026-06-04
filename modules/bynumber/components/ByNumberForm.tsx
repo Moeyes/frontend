@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/Card';
 import { StepIndicator } from '@/shared/ui/StepIndicator';
 import { useByNumberForm } from '../hooks/useByNumber';
-import { fetchByNumberData, fetchOrgEventSports } from '../services';
+import { bynumberRepository } from '../adapters';
 import type { Event, Organization } from '../types';
 import { ByNumberFormFields } from './ByNumberFormFields';
 import { ByNumberFormNavButtons } from './ByNumberFormNavButtons';
@@ -44,7 +44,7 @@ export function ByNumberForm() {
     const loadData = async () => {
       setLoading(true);
       try {
-        const { events, organizations } = await fetchByNumberData();
+        const { events, organizations } = await bynumberRepository.fetchByNumberData();
         setEvents(events);
         setOrganizations(organizations);
       } finally {
@@ -82,7 +82,7 @@ export function ByNumberForm() {
     const loadSports = async () => {
       setSportsLoading(true);
       try {
-        const sports = await fetchOrgEventSports(organizationId, eventId);
+        const sports = await bynumberRepository.fetchOrgEventSports(organizationId, eventId);
         form.setValue('sports', sports);
       } catch {
         // Sports failed to load; the section renders empty and reloads on retry.

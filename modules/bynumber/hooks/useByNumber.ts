@@ -6,7 +6,7 @@ import {
     byNumberSchema,
     type ByNumberFormInput,
     type ByNumberFormData,
-} from '../services/schema';
+} from '../schema/bynumber.schema';
 
 export interface UseByNumberFormReturn {
     form: UseFormReturn<ByNumberFormInput, unknown, ByNumberFormData>;
@@ -31,13 +31,13 @@ export function useByNumberForm(onSuccess?: () => void): UseByNumberFormReturn {
 
     const handleSubmit = async (data: ByNumberFormData) => {
         try {
-            const { submitByNumber } = await import('../services');
+            const { bynumberRepository } = await import('../adapters');
 
             if (!data.eventId || !data.organizationId) {
                 throw new Error('Missing required fields');
             }
 
-            await submitByNumber({
+            await bynumberRepository.submitByNumber({
                 organization_id: data.organizationId,
                 event_id: data.eventId,
                 sports: data.sports.map((sport) => ({
