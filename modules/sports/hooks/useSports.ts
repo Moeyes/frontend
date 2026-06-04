@@ -39,7 +39,10 @@ export function useSportParticipants(
         queryKey: queryKeys.sports.participants(sportId, role),
         queryFn:  () => sportsRepository.getParticipants({ role, sportId }),
         enabled:  enabled && !!sportId,
-        staleTime: 30_000,
+        // Restricted-PII (participant names/details): never retained past the
+        // screen — data-governance §3/§5.
+        staleTime: 0,
+        gcTime:    0,
         select:   (res) => res.data,
     });
 }

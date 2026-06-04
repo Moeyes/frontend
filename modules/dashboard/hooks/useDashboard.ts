@@ -19,6 +19,10 @@ export function useDashboard() {
             return dashboardHttpAdapter.getDashboardData(params);
         },
         enabled: !!user,
-        staleTime: 60000,
+        // The dashboard payload embeds recentEnrollments (names, gender, phone)
+        // — Restricted-PII, so it is never cached past the screen
+        // (data-governance §3/§5).
+        staleTime: 0,
+        gcTime:    0,
     });
 }
