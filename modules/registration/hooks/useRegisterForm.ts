@@ -10,7 +10,7 @@ import {
     registerSchema,
     type RegisterFormData,
     type RegisterFormInput,
-} from '../services/schema';
+} from '../schema/registration.schema';
 
 interface UseRegisterFormReturn {
     form: UseFormReturn<RegisterFormInput, unknown, RegisterFormData>;

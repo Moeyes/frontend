@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { RegisterFormData, RegisterFormInput } from '../services/schema';
+import { RegisterFormData, RegisterFormInput } from '../schema/registration.schema';
 import { FileUploadField } from '@/shared/form';
 import { uploadPhoto, uploadDocument } from '@/core/lib/upload/cloudinary';
 import { useTranslations } from 'next-intl';

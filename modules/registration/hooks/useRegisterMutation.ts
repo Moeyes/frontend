@@ -7,7 +7,7 @@
 'use client';
 
 import { useMutation } from '@tanstack/react-query';
-import { registerParticipant } from '@/modules/registration/services';
+import { registrationRepository } from '@/modules/registration/adapters';
 import { RegisterPayload, RegisterResponse } from '@/modules/registration/types';
 
 interface UseRegisterMutationOptions {
@@ -20,7 +20,7 @@ interface UseRegisterMutationOptions {
  */
 export function useRegisterMutation(options?: UseRegisterMutationOptions) {
     return useMutation({
-        mutationFn: (payload: RegisterPayload) => registerParticipant(payload),
+        mutationFn: (payload: RegisterPayload) => registrationRepository.register(payload),
         onSuccess: (data: RegisterResponse) => {
             // Call custom success handler if provided
             if (options?.onSuccess) {

@@ -1,7 +1,7 @@
 'use client';
 
 import { UseFormReturn } from 'react-hook-form';
-import { RegisterFormData, RegisterFormInput } from '../services/schema';
+import { RegisterFormData, RegisterFormInput } from '../schema/registration.schema';
 import { useTranslations } from 'next-intl';
 import { Trophy, User, CheckCircle2 } from 'lucide-react';
 import type { CascadingDataLoaded } from '@/core/api/referenceData';

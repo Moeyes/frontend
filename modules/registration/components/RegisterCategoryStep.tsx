@@ -1,7 +1,7 @@
 'use client';
 
 import { UseFormReturn } from 'react-hook-form';
-import { RegisterFormData, RegisterFormInput } from '../services/schema';
+import { RegisterFormData, RegisterFormInput } from '../schema/registration.schema';
 import { SelectField } from '@/shared/form';
 import { useTranslations } from 'next-intl';
 import { Users } from 'lucide-react';

@@ -1,7 +1,7 @@
 "use client";
 
 import { UseFormReturn } from "react-hook-form";
-import { RegisterFormData, RegisterFormInput } from "../services/schema";
+import { RegisterFormData, RegisterFormInput } from "../schema/registration.schema";
 import {
   type CascadingDataLoaded,
   type CategoryReference as Category,

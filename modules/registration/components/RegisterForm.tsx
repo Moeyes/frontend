@@ -9,7 +9,7 @@ import { RegisterFormNavButtons } from './RegisterFormNavButtons';
 import { RegistrationSuccess } from './RegistrationSuccess';
 import { useAuth, UserRole } from '@/core/auth';
 import { loadCascadingData, fetchCategories, type CascadingDataLoaded, type CategoryReference as Category } from '@/core/api/referenceData';
-import { RegisterFormData } from '../services/schema';
+import { RegisterFormData } from '../schema/registration.schema';
 import { eventsRepository } from '@/modules/events/adapters';
 import { useTranslations } from 'next-intl';
 

@@ -1,4 +1,4 @@
-import type { RegisterFormData } from '../services/schema';
+import type { RegisterFormData } from '../schema/registration.schema';
 import type { RegisterPayload, ApiErrorResponse } from '../types';
 
 export function formDataToPayload(data: RegisterFormData, userId: string): RegisterPayload {
