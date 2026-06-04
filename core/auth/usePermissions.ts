@@ -23,6 +23,12 @@ export const CAPABILITIES = {
      * the admin review queue. Granted to administrators.
      */
     CROSS_ORG_ADMIN: 'cross-org-admin',
+    /**
+     * Reveal Restricted-PII (e.g. a participant's phone) that is masked by
+     * default. UX gate only — the server re-checks (admin-only) and audits
+     * every reveal. Granted to administrators.
+     */
+    REVEAL_PII: 'reveal-pii',
 } as const;
 
 export type Capability = (typeof CAPABILITIES)[keyof typeof CAPABILITIES];
@@ -34,6 +40,7 @@ const CAPABILITY_ROLES: Record<Capability, UserRole[]> = {
     // FEATURE_ACCESS where SUPER_ADMIN can reach every feature. Including it
     // here aligns the two.
     [CAPABILITIES.CROSS_ORG_ADMIN]: [SUPER_ADMIN, ADMIN],
+    [CAPABILITIES.REVEAL_PII]: [SUPER_ADMIN, ADMIN],
 };
 
 export function usePermissions() {

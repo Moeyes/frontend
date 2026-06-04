@@ -72,6 +72,14 @@ export const enrollmentListResponseSchema = z.object({
 
 export type EnrollmentListParsed = z.infer<typeof enrollmentListResponseSchema>;
 
+/** Response of the audited PII reveal endpoint. */
+export const revealedPiiSchema = z.object({
+    enroll_id: z.number().int(),
+    phone: z.string(),
+}).strict();
+
+export type RevealedPiiParsed = z.infer<typeof revealedPiiSchema>;
+
 /* ------------------------------------------------------------------ *
  * Registration form (RHF input) validation schema.
  * Client-side UX validation only — the adapter still parses every

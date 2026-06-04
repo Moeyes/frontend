@@ -14,6 +14,8 @@ export interface IRegistrationRepository {
         search?: string;
     }): Promise<EnrollmentListResponse>;
     getById(enrollId: number): Promise<Enrollment>;
+    /** Audited, admin-only reveal of a participant's masked phone (server enforces + logs). */
+    revealPhone(enrollId: number): Promise<{ enroll_id: number; phone: string }>;
     update(enrollId: number, payload: Partial<RegisterPayload>): Promise<Enrollment>;
     delete(enrollId: number): Promise<{ message: string }>;
 }

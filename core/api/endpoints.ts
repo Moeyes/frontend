@@ -41,6 +41,7 @@ export const API = {
         base: '/api/registration',
         search: '/api/registration/search',
         byId: (id: number) => `/api/registration/${id}`,
+        reveal: (id: number) => `/api/registration/${id}/reveal`,
         update: '/api/registration/update',
         delete: '/api/registration/delete',
     },

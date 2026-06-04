@@ -20,6 +20,16 @@ export async function apiSearchRegistrations(params?: Record<string, unknown>) {
     return data;
 }
 
+/**
+ * Reveal a participant's masked phone. POST (no body) so the action is a
+ * deliberate, CSRF-protected request; the backend is admin-only and audits the
+ * access (data-governance §4/§6).
+ */
+export async function apiRevealParticipantPii(enrollId: number) {
+    const { data } = await apiClient.post(API.registration.reveal(enrollId), {});
+    return data;
+}
+
 export async function apiGetRegistration(enrollId: number) {
     const { data } = await apiClient.get(API.registration.byId(enrollId));
     return data;

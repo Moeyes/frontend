@@ -1,10 +1,40 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { User as UserIcon, Loader2 } from 'lucide-react';
+import { User as UserIcon, Loader2, Eye } from 'lucide-react';
 import { Badge } from '@/shared';
-import { maskPhone } from '@/shared/utils/maskPhone';
+import { usePermissions, CAPABILITIES } from '@/core/auth';
+import { useRevealParticipantPhone } from '@/modules/registration/hooks';
 import type { SportParticipant } from '../types';
+
+/**
+ * Phone is Restricted-PII and is not sent with the list (data minimization).
+ * Admins can fetch it on demand via the audited reveal endpoint; everyone else
+ * sees nothing. participant_id is the enroll_id the reveal endpoint expects.
+ */
+function RevealablePhone({ enrollId }: { enrollId: number }) {
+  const t = useTranslations('sports.participants');
+  const { can } = usePermissions();
+  const reveal = useRevealParticipantPhone();
+
+  if (!can(CAPABILITIES.REVEAL_PII)) return null;
+
+  if (reveal.data) {
+    return <span className="text-[11px] text-muted-foreground">{reveal.data.phone}</span>;
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => reveal.mutate(enrollId)}
+      disabled={reveal.isPending}
+      className="flex items-center gap-1 text-[11px] text-primary hover:underline disabled:opacity-50"
+    >
+      <Eye className="h-3 w-3" />
+      {reveal.isPending ? t('revealing') : t('revealPhone')}
+    </button>
+  );
+}
 
 function ageFromDob(dob?: string | null): number | null {
   if (!dob) return null;
@@ -66,7 +96,7 @@ export function CategoryParticipantTable({ rows, isLoading, eventName }: Categor
                     </span>
                     <div className="flex flex-col">
                       <span className="text-sm font-semibold text-foreground">{p.name_kh?.trim() || p.name_en}</span>
-                      {p.phone && <span className="text-[11px] text-muted-foreground">{maskPhone(p.phone)}</span>}
+                      <RevealablePhone enrollId={p.participant_id} />
                     </div>
                   </div>
                 </td>

@@ -335,6 +335,8 @@
       "allOrgs": "All organizations",
       "resetFilters": "Reset filters",
       "noResults": "No participants match these filters.",
+      "revealPhone": "Show phone",
+      "revealing": "Revealing…",
       "types": {
         "all": "All",
         "athlete": "Athlete",
