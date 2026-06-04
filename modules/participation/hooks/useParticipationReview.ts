@@ -1,14 +1,8 @@
-/**
- * useParticipationReview Hook
- *
- * Admin review FSM transitions (approve / reject / flag / request_revision / submit).
- */
-
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/api/queryKeys';
-import { reviewParticipation } from '../services';
+import { participationRepository } from '../adapters';
 import type { ParticipationReviewPayload } from '../types';
 
 export function useParticipationReview() {
@@ -16,7 +10,7 @@ export function useParticipationReview() {
 
     const mutation = useMutation({
         mutationFn: ({ id, payload }: { id: number; payload: ParticipationReviewPayload }) =>
-            reviewParticipation(id, payload),
+            participationRepository.review(id, payload),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: queryKeys.participations.all });
         },

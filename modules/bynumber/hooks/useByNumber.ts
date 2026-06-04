@@ -20,8 +20,8 @@ export function useByNumberForm(onSuccess?: () => void): UseByNumberFormReturn {
         resolver: zodResolver(byNumberSchema),
         mode: 'onBlur',
         defaultValues: {
-            eventId: null,
-            organizationId: null,
+            eventId: undefined,
+            organizationId: undefined,
             sports: [],
             eventName: '',
             organizationName: '',

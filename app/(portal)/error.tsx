@@ -7,13 +7,14 @@ import { AlertTriangle, RefreshCcw, Home } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { PageEmptyState } from '@/shared/ui/page/PageEmptyState';
 import { apiErrorKey } from '@/shared/utils/apiError';
+import { logger } from '@/core/lib/logger';
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   const t = useTranslations('errors');
 
   useEffect(() => {
-    // Keep the raw error for diagnostics; never surface it to the user.
-    console.error('Portal Error:', error);
+    // Diagnostics only — log a stable code + digest, never the raw error.
+    logger.error('portal.error_boundary', { digest: error.digest });
   }, [error]);
 
   // Map the error to a generic, translated message. Raw error.message is no

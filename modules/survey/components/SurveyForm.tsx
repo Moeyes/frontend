@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Button } from '@/shared/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/Card';
 import { StepIndicator } from '@/shared/ui/StepIndicator';
 import { useSurveyForm } from '../hooks/useSurvey';
 import { fetchSurveyData, fetchEventSports } from '../services';
 import type { Event, Organization, Sport } from '../types';
 import { SurveyFormFields } from './SurveyFormFields';
+import { SurveyFormNavButtons } from './SurveyFormNavButtons';
 import { SurveySuccess } from './SurveySuccess';
 
 type Step = 'event_type' | 'event' | 'organization' | 'sports' | 'review';
@@ -29,7 +29,6 @@ interface SurveyFormProps {
 
 export function SurveyForm({ showHeader = true }: SurveyFormProps = {}) {
   const t = useTranslations('survey');
-  const tCommon = useTranslations('common');
   const [currentStep, setCurrentStep] = useState<Step>('event_type');
   const [isSuccess, setIsSuccess] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
@@ -50,10 +49,6 @@ export function SurveyForm({ showHeader = true }: SurveyFormProps = {}) {
       setLoading(true);
       try {
         const { events, organizations } = await fetchSurveyData();
-        console.log(
-          'Fetched Events:',
-          events.map((e) => ({ id: e.id, type: e.type })),
-        );
         setEvents(events);
         setOrganizations(organizations);
       } finally {
@@ -102,8 +97,8 @@ export function SurveyForm({ showHeader = true }: SurveyFormProps = {}) {
         if (isMounted) {
           setEventSports(sports);
         }
-      } catch (error) {
-        console.error('Failed to load sports:', error);
+      } catch {
+        // Sports failed to load; the field renders empty and the user can retry.
       }
     };
 
@@ -184,7 +179,7 @@ export function SurveyForm({ showHeader = true }: SurveyFormProps = {}) {
             {loading ? (
               <div className="py-12 text-center text-sm leading-relaxed text-muted-foreground">{t('loading')}</div>
             ) : (
-              <form onSubmit={form.handleSubmit(onSubmit, (err) => console.log('❌ Form Validation Errors:', err))}>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div className="min-h-96">
                   <SurveyFormFields
                     form={form}
@@ -198,21 +193,14 @@ export function SurveyForm({ showHeader = true }: SurveyFormProps = {}) {
                   />
                 </div>
 
-                <div className="mt-8 flex gap-4 border-t border-border pt-6">
-                  <Button type="button" onClick={handlePreviousStep} variant="outline" disabled={stepIndex === 0}>
-                    {tCommon('previous')}
-                  </Button>
-                  <div className="flex-1" />
-                  {currentStep !== 'review' ? (
-                    <Button type="button" onClick={handleNext} disabled={currentStep === 'event_type' && !selectedEventType}>
-                      {tCommon('next')}
-                    </Button>
-                  ) : (
-                    <Button type="submit" loading={isPending}>
-                      {isPending ? t('submitting') : t('submit')}
-                    </Button>
-                  )}
-                </div>
+                <SurveyFormNavButtons
+                  stepIndex={stepIndex}
+                  currentStep={currentStep}
+                  selectedEventType={selectedEventType}
+                  isPending={isPending}
+                  onPrevious={handlePreviousStep}
+                  onNext={handleNext}
+                />
               </form>
             )}
           </CardContent>

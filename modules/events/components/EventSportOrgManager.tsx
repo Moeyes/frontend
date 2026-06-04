@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAuth, UserRole } from '@/core/auth';
 import { Plus, Trash2, Building2, Loader2, Search } from 'lucide-react';
 import { Input } from '@/shared/ui/input';
-import { Organization } from '@/modules/registration/services/registration-data.service';
+import type { OrganizationReference as Organization } from '@/core/api/referenceData';
 import { useTranslations } from 'next-intl';
 
 interface EventSportOrgManagerProps { eventId: number; sportId: number; sportName: string; }

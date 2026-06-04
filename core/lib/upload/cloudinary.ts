@@ -28,15 +28,10 @@ const DEFAULT_ALLOWED_FORMATS = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
  * Get pre-signed URL from backend
  */
 export async function getPresignedUrl(folder: string = 'domrov-pictures'): Promise<PresignUrlResponse> {
-    try {
-        const response = await apiClient.get('/api/cloudinary/presign-url', {
-            params: { folder },
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Error getting presigned URL:', error);
-        throw error;
-    }
+    const response = await apiClient.get('/api/cloudinary/presign-url', {
+        params: { folder },
+    });
+    return response.data;
 }
 
 /**
@@ -63,38 +58,33 @@ export async function uploadToCloudinary(
         throw new Error(`Invalid file format. Allowed: ${allowedFormats.join(', ')}`);
     }
 
-    try {
-        // Get presigned URL
-        const presignData = await getPresignedUrl(folder);
+    // Get presigned URL
+    const presignData = await getPresignedUrl(folder);
 
-        // Prepare form data
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('signature', presignData.signature);
-        formData.append('timestamp', presignData.timestamp.toString());
-        formData.append('public_id', presignData.public_id);
-        formData.append('folder', presignData.folder);
-        formData.append('api_key', presignData.api_key);
+    // Prepare form data
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('signature', presignData.signature);
+    formData.append('timestamp', presignData.timestamp.toString());
+    formData.append('public_id', presignData.public_id);
+    formData.append('folder', presignData.folder);
+    formData.append('api_key', presignData.api_key);
 
-        // Upload to Cloudinary
-        const response = await fetch(
-            `https://api.cloudinary.com/v1_1/${presignData.cloud_name}/image/upload`,
-            {
-                method: 'POST',
-                body: formData,
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error('Upload failed');
+    // Upload to Cloudinary
+    const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${presignData.cloud_name}/image/upload`,
+        {
+            method: 'POST',
+            body: formData,
         }
+    );
 
-        const result = await response.json();
-        return result.secure_url || result.url;
-    } catch (error) {
-        console.error('Error uploading to Cloudinary:', error);
-        throw error;
+    if (!response.ok) {
+        throw new Error('Upload failed');
     }
+
+    const result = await response.json();
+    return result.secure_url || result.url;
 }
 
 /**

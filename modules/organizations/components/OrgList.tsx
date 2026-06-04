@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { Organization, InstituteType } from '../types';
-import { useOrganizations, useDeleteOrg } from '../hooks';
+import { useMemo, useState } from 'react';
+import { InstituteType } from '../types';
+import type { OrganizationPublic } from '../schema/organizations.schema';
+import { useOrganizations, useDeleteOrganization } from '../hooks';
+import { useOrganizationsFiltersStore } from '../store/organizationsFilters.store';
 import { OrgForm } from './OrgForm';
 import { Modal, DataTable, Badge, PageHeader, useConfirm } from '@/shared';
 import { Button } from '@/shared/ui/button';
@@ -11,8 +13,11 @@ import { Edit2, Trash2, Plus, Building2, MapPin, Landmark } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export function OrgList() {
-    const { data: orgs, isLoading, error } = useOrganizations();
-    const { mutate: deleteOrg } = useDeleteOrg();
+    const getQueryParams = useOrganizationsFiltersStore((s) => s.getQueryParams);
+    const params = useMemo(() => getQueryParams(), [getQueryParams]);
+
+    const { data: orgs, isLoading, error } = useOrganizations(params);
+    const { mutate: deleteOrg } = useDeleteOrganization();
     const { can } = usePermissions();
     const isAdmin = can(CAPABILITIES.CROSS_ORG_ADMIN);
     const t = useTranslations('organizations');
@@ -20,11 +25,11 @@ export function OrgList() {
     const confirm = useConfirm();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingOrg, setEditingOrg] = useState<Organization | undefined>(undefined);
+    const [editingOrg, setEditingOrg] = useState<OrganizationPublic | undefined>(undefined);
 
     const handleCreate = () => { setEditingOrg(undefined); setIsModalOpen(true); };
-    const handleEdit = (org: Organization) => { setEditingOrg(org); setIsModalOpen(true); };
-    const handleDelete = async (orgId: number) => { if (await confirm({ message: t('deleteConfirm') })) deleteOrg({ org_id: orgId }); };
+    const handleEdit = (org: OrganizationPublic) => { setEditingOrg(org); setIsModalOpen(true); };
+    const handleDelete = async (orgId: number) => { if (await confirm({ message: t('deleteConfirm') })) deleteOrg(orgId); };
     const closeModal = () => { setIsModalOpen(false); setEditingOrg(undefined); };
 
     if (error) return (
@@ -62,7 +67,7 @@ export function OrgList() {
                     },
                     ...(isAdmin ? [{
                         header: tCommon('actions'), align: 'right' as const,
-                        accessor: (org: Organization) => (
+                        accessor: (org: OrganizationPublic) => (
                             <div className="flex items-center justify-end gap-2">
                                 <Button variant="ghost" size="icon-sm" onClick={() => handleEdit(org)}><Edit2 className="w-4 h-4" /></Button>
                                 <Button variant="ghost" size="icon-sm" onClick={() => handleDelete(org.id)} className="text-error hover:text-error hover:bg-error/5"><Trash2 className="w-4 h-4" /></Button>

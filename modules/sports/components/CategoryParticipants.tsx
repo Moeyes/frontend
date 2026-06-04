@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Users, Loader2, RotateCcw, User as UserIcon } from 'lucide-react';
+import { Users, RotateCcw } from 'lucide-react';
 import { Category, SportParticipant } from '../types';
 import { useSportParticipants } from '../hooks';
 import { useEvents } from '@/modules/events/hooks';
@@ -16,6 +16,7 @@ import {
 } from '@/shared/ui/select';
 import { Input } from '@/shared/ui/input';
 import { Badge } from '@/shared';
+import { CategoryParticipantTable } from './CategoryParticipantTable';
 
 interface CategoryParticipantsProps {
     sportId: number;
@@ -175,66 +176,11 @@ export function CategoryParticipants({ sportId, category }: CategoryParticipants
                 </button>
             )}
 
-            {/* Results */}
-            {isLoading ? (
-                <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary" /></div>
-            ) : rows.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
-                    {t('noResults')}
-                </div>
-            ) : (
-                <div className="overflow-x-auto rounded-lg border border-border bg-card">
-                    <table className="w-full min-w-[640px] border-collapse text-left">
-                        <thead>
-                            <tr className="border-b border-border bg-muted/50 text-[11px] uppercase tracking-wider text-muted-foreground">
-                                <th className="p-3 font-semibold">{t('columns.participant')}</th>
-                                <th className="p-3 font-semibold">{t('columns.type')}</th>
-                                <th className="p-3 font-semibold">{t('columns.age')}</th>
-                                <th className="p-3 font-semibold">{t('columns.gender')}</th>
-                                <th className="p-3 font-semibold">{t('columns.organization')}</th>
-                                <th className="p-3 font-semibold">{t('columns.event')}</th>
-                                <th className="p-3 font-semibold">{t('columns.detail')}</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-border">
-                            {rows.map((p) => {
-                                const age = ageFromDob(p.date_of_birth);
-                                return (
-                                    <tr key={`${p.role}-${p.participant_id}`} className="hover:bg-muted/30">
-                                        <td className="p-3">
-                                            <div className="flex items-center gap-2.5">
-                                                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                                                    <UserIcon className="h-4 w-4 text-muted-foreground" />
-                                                </span>
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-semibold text-foreground">{p.name_kh?.trim() || p.name_en}</span>
-                                                    {p.phone && <span className="text-[11px] text-muted-foreground">{p.phone}</span>}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="p-3">
-                                            <Badge variant={p.role === 'athlete' ? 'info' : 'secondary'}>
-                                                {t(`types.${p.role}`)}
-                                            </Badge>
-                                        </td>
-                                        <td className="p-3 text-sm text-foreground">{age ?? '—'}</td>
-                                        <td className="p-3 text-sm text-muted-foreground">{p.gender || '—'}</td>
-                                        <td className="p-3 text-sm text-muted-foreground">{p.organization?.name || '—'}</td>
-                                        <td className="p-3 text-sm text-muted-foreground">{eventName(p.event_id) || '—'}</td>
-                                        <td className="p-3 text-sm text-muted-foreground">
-                                            {p.role === 'athlete'
-                                                ? p.category?.name || '—'
-                                                : p.leader_role
-                                                  ? p.leader_role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-                                                  : '—'}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+            <CategoryParticipantTable
+              rows={rows}
+              isLoading={isLoading}
+              eventName={eventName}
+            />
         </div>
     );
 }

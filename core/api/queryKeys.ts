@@ -14,10 +14,13 @@ export const queryKeys = {
   organizations: {
     all: ['organizations'] as const,
     allList: ['organizations', 'all'] as const,
+    list: (params?: unknown) => ['organizations', 'list', params] as const,
+    detail: (id: number) => ['organizations', 'detail', id] as const,
   },
   sports: {
     all: ['sports'] as const,
     allList: ['sports', 'all'] as const,
+    list: (params?: unknown) => ['sports', 'list', params] as const,
     detail: (sportId: string | number) => ['sports', sportId] as const,
     participants: (sportId: string | number, role: string) => ['sport-participants', sportId, role] as const,
   },

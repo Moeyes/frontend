@@ -5,3 +5,7 @@ export * from './EventSportManager';
 export * from './EventSportOrgManager';
 export * from './EventsPage';
 export * from './EventDetailPage';
+export * from './EventTypeBadge';
+export * from './EventFilters';
+export * from './EventDetailPanels';
+export * from './EventPhasesFields';

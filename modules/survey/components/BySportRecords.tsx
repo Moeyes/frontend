@@ -41,18 +41,16 @@ export function BySportRecords() {
 
   // Load registered sports whenever both org and event are chosen.
   useEffect(() => {
+    if (!eventId || !orgId) return;
     let active = true;
-    if (!eventId || !orgId) {
-      setSports([]);
-      return;
-    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     fetchOrgEventSports(orgId, eventId)
       .then((rows) => {
-        if (active) setSports(rows.map((r) => ({ sport_id: r.sport_id, sport_name_kh: r.sport_name_kh })));
-      })
-      .finally(() => {
-        if (active) setLoading(false);
+        if (active) {
+          setSports(rows.map((r) => ({ sport_id: r.sport_id, sport_name_kh: r.sport_name_kh })));
+          setLoading(false);
+        }
       });
     return () => {
       active = false;

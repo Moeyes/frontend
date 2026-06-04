@@ -2,21 +2,13 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Category, Gender, AddCategoryBody } from '../types';
+import { Category, Gender } from '../types';
+import { categoryFormSchema, type CategoryFormValues } from '../schema/sports.schema';
+import { formDataToAddCategory, formDataToUpdateCategory } from '../mappers/sports.mapper';
 import { useAddCategory, useUpdateCategory } from '../hooks';
 import { Button } from '@/shared/ui/button';
 import { TextInputField, SelectField } from '@/shared/form';
 import { useTranslations } from 'next-intl';
-
-const categorySchema = z.object({
-    category: z.string().min(2),
-    gender: z.nativeEnum(Gender).nullable().optional(),
-    age_min: z.any().optional(),
-    age_max: z.any().optional(),
-});
-
-type CategoryFormValues = z.infer<typeof categorySchema>;
 
 interface CategoryFormProps { sportId: number; category?: Category; onSuccess: () => void; onCancel: () => void; }
 
@@ -28,15 +20,15 @@ export function CategoryForm({ sportId, category, onSuccess, onCancel }: Categor
     const tCommon = useTranslations('common');
 
     const { control, handleSubmit, formState: { errors } } = useForm<CategoryFormValues>({
-        resolver: zodResolver(categorySchema),
-        defaultValues: category ? { category: category.category, gender: category.gender || null, age_min: category.age_min?.toString() || '', age_max: category.age_max?.toString() || '' }
-            : { category: '', gender: null, age_min: '', age_max: '' }
+        resolver: zodResolver(categoryFormSchema),
+        defaultValues: category
+            ? { category: category.category, gender: category.gender || null, age_min: category.age_min?.toString() || '', age_max: category.age_max?.toString() || '' }
+            : { category: '', gender: null, age_min: '', age_max: '' },
     });
 
     const onSubmit = (data: CategoryFormValues) => {
-        const payload = { ...data, sport_id: sportId, age_min: data.age_min ? Number(data.age_min) : null, age_max: data.age_max ? Number(data.age_max) : null, gender: data.gender || null };
-        if (isEditing) update({ id: category.id, ...payload }, { onSuccess });
-        else add(payload as AddCategoryBody, { onSuccess });
+        if (isEditing) update(formDataToUpdateCategory(category.id, sportId, data), { onSuccess });
+        else add(formDataToAddCategory(sportId, data), { onSuccess });
     };
 
     return (

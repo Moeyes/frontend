@@ -1,45 +1,12 @@
-/**
- * ByNumber Feature Types
- * Handles organization participation registration with participant counts
- */
-import type { ByNumberFormData as ByNumberSchemaData } from '../services/schema';
-import type { ByNumberFormInput as ByNumberSchemaInput } from '../services/schema';
+import type {
+    ByNumberFormData as ByNumberSchemaData,
+    ByNumberFormInput as ByNumberSchemaInput,
+    SportRow as SportRowSchema,
+} from '../schema/bynumber.schema';
 
-export interface Event {
-    id: number;
-    name_kh: string;
-    type?: string;
-    created_at?: string;
-}
+export type { Event, Organization, Sport } from '../schema/bynumber.schema';
 
-export interface Organization {
-    id: number;
-    name_kh: string;
-    type?: string;
-    code?: string;
-    created_at?: string;
-}
-
-export interface Sport {
-    id: number;
-    name_kh: string;
-    sport_type?: string;
-    created_at?: string;
-}
-
-export interface SportRow {
-    sport_id: number;
-    sport_name_kh: string;
-    athlete_male_count: number;
-    athlete_female_count: number;
-    leader_male_count: number;
-    leader_female_count: number;
-    sportsEventOrgId?: number;
-    // Aliases for sync
-    maleCount?: number;
-    femaleCount?: number;
-}
-
+export type SportRow = SportRowSchema;
 export type ByNumberFormData = ByNumberSchemaData;
 export type ByNumberFormInput = ByNumberSchemaInput;
 

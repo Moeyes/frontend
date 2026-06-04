@@ -15,8 +15,8 @@ export function SurveyProvider({ children }: { children: React.ReactNode }) {
         const load = async () => {
             try {
                 await fetchEvents();
-            } catch (e) {
-                console.error("Failed to preload events", e);
+            } catch {
+                // Preload is best-effort; the form fetches events again when rendered.
             }
         };
         load();

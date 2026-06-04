@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { SportDetailPage } from '@/modules/sports';
-import { getSportById } from '@/modules/sports/services';
+import { sportsRepository } from '@/modules/sports/adapters';
 
 interface PageProps {
     params: Promise<{ sport_id: string }>;
@@ -9,12 +9,11 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { sport_id } = await params;
     try {
-        const sport = await getSportById(Number(sport_id));
+        const sport = await sportsRepository.getById(Number(sport_id));
         return { 
             title: sport?.name_kh || 'Sport Detail',
         };
-    } catch (error) {
-        console.error('Failed to fetch sport data for metadata:', error);
+    } catch {
         return { title: 'Sport Detail' };
     }
 }

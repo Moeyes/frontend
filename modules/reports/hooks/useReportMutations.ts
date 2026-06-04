@@ -1,13 +1,7 @@
-/**
- * useReportMutations Hook
- * 
- * Mutations for downloading Excel reports
- */
-
 'use client';
 
 import { useMutation } from '@tanstack/react-query';
-import { downloadOrgSportReport, downloadOrgSportParticipantReport } from '../services';
+import { reportsHttpAdapter } from '../adapters/reportsHttpAdapter';
 
 function triggerDownload(blob: Blob, filename: string) {
     const url = window.URL.createObjectURL(new Blob([blob]));
@@ -21,16 +15,16 @@ function triggerDownload(blob: Blob, filename: string) {
 
 export function useReportMutations() {
     const orgSportMutation = useMutation({
-        mutationFn: (params: { event_id: number; organization_id?: number }) => 
-            downloadOrgSportReport(params),
+        mutationFn: (params: { event_id: number; organization_id?: number }) =>
+            reportsHttpAdapter.downloadOrgSportReport(params),
         onSuccess: (blob) => {
             triggerDownload(blob, `org-sport-report-${new Date().getTime()}.xlsx`);
         },
     });
 
     const orgSportParticipantMutation = useMutation({
-        mutationFn: (params: { event_id: number; organization_id?: number }) => 
-            downloadOrgSportParticipantReport(params),
+        mutationFn: (params: { event_id: number; organization_id?: number }) =>
+            reportsHttpAdapter.downloadOrgSportParticipantReport(params),
         onSuccess: (blob) => {
             triggerDownload(blob, `participant-report-${new Date().getTime()}.xlsx`);
         },

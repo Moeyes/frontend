@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useReportMutations } from '../hooks/useReportMutations';
 import { usePermissions, CAPABILITIES } from '@/core/auth';
-import { loadCascadingData, type CascadingDataLoaded } from '@/core/lib/reference-data';
+import { loadCascadingData, type CascadingDataLoaded } from '@/core/api/referenceData';
 import {
     ClipboardList,
     LayoutGrid,

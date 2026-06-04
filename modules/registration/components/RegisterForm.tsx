@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
-import { ChevronRight, ChevronLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { useRegisterForm } from '@/modules/registration/hooks';
 import { RegisterFormFields } from './RegisterFormFields';
+import { RegisterStepIndicator } from './RegisterStepIndicator';
+import { RegisterFormNavButtons } from './RegisterFormNavButtons';
 import { RegistrationSuccess } from './RegistrationSuccess';
-import { Button } from '@/shared/ui/button';
 import { useAuth, UserRole } from '@/core/auth';
-import { loadCascadingData, fetchCategories, type CascadingDataLoaded, type CategoryReference as Category } from '@/core/lib/reference-data';
+import { loadCascadingData, fetchCategories, type CascadingDataLoaded, type CategoryReference as Category } from '@/core/api/referenceData';
 import { RegisterFormData } from '../services/schema';
 import { eventsService } from '@/modules/events/services';
 import { useTranslations } from 'next-intl';
@@ -24,7 +25,6 @@ export function RegisterForm({ mode = 'athlete' }: RegisterFormProps = {}) {
     const isLeader = mode === 'leader';
     const { user } = useAuth();
     const t = useTranslations('registration');
-    const tCommon = useTranslations('common');
     // Leaders are team officials and do not compete in a category, so that step is skipped.
     const FORM_STEPS = useMemo<readonly Step[]>(
         () => (isLeader ? ['event', 'personal', 'documents', 'review'] : ALL_STEPS),
@@ -128,8 +128,8 @@ export function RegisterForm({ mode = 'athlete' }: RegisterFormProps = {}) {
         if (idx > 0) setCurrentStep(FORM_STEPS[idx - 1]);
     }, [currentStep, FORM_STEPS]);
 
-    const handleStepClick = useCallback((step: Step) => {
-        if (FORM_STEPS.indexOf(step) <= stepIndex) setCurrentStep(step);
+    const handleStepClick = useCallback((step: string) => {
+        if (FORM_STEPS.indexOf(step as Step) <= stepIndex) setCurrentStep(step as Step);
     }, [stepIndex, FORM_STEPS]);
 
     const handleRegisterAnother = useCallback(() => {
@@ -158,24 +158,13 @@ export function RegisterForm({ mode = 'athlete' }: RegisterFormProps = {}) {
                     <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{t(isLeader ? 'leaderSubtitle' : 'subtitle')}</p>
                 </div>
 
-                <div className="mb-10">
-                    <div className="flex justify-between mb-5">
-                        {FORM_STEPS.map((step, idx) => (
-                            <div key={step} className="flex flex-col items-center flex-1 gap-2">
-                                <button type="button" onClick={() => handleStepClick(step)} disabled={idx > stepIndex}
-                                    className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-medium transition-colors duration-200 ${idx < stepIndex ? 'bg-primary text-primary-foreground' : idx === stepIndex ? 'bg-primary text-primary-foreground ring-4 ring-primary/15' : 'border border-border bg-card text-muted-foreground cursor-not-allowed'}`}>
-                                    {idx < stepIndex ? <CheckCircle2 className="w-4 h-4" /> : idx + 1}
-                                </button>
-                                <span className={`hidden max-w-20 text-center text-xs leading-relaxed sm:block ${idx <= stepIndex ? 'font-medium text-primary' : 'text-muted-foreground'}`}>
-                                    {FORM_STEP_LABELS[step]}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div className="bg-primary h-full transition-all duration-500" style={{ width: `${progress}%` }} />
-                    </div>
-                </div>
+                <RegisterStepIndicator
+                  steps={FORM_STEPS}
+                  stepIndex={stepIndex}
+                  progress={progress}
+                  stepLabels={FORM_STEP_LABELS}
+                  onStepClick={handleStepClick}
+                />
 
                 <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden mb-8">
                     <div className="p-6 sm:p-8">
@@ -200,20 +189,15 @@ export function RegisterForm({ mode = 'athlete' }: RegisterFormProps = {}) {
                     </div>
                 </div>
 
-                <div className="flex justify-between items-center gap-4">
-                    <Button onClick={handleBack} variant="outline" disabled={currentStep === 'event'} className="flex items-center gap-2">
-                        <ChevronLeft className="w-4 h-4" />{tCommon('back')}
-                    </Button>
-                    {currentStep !== 'review' ? (
-                        <Button onClick={handleNext} disabled={registerWindowError !== null} className="flex items-center gap-2">
-                            {tCommon('next')} <ChevronRight className="w-4 h-4" />
-                        </Button>
-                    ) : (
-                        <Button onClick={form.handleSubmit(onSubmit)} disabled={isPending || registerWindowError !== null} className="flex items-center gap-2 min-w-35">
-                            {isPending ? tCommon('saving') : t('success.registerAnother')}
-                        </Button>
-                    )}
-                </div>
+                <RegisterFormNavButtons
+                  isFirstStep={currentStep === 'event'}
+                  isReviewStep={currentStep === 'review'}
+                  isPending={isPending}
+                  registerWindowError={registerWindowError}
+                  onBack={handleBack}
+                  onNext={handleNext}
+                  onSubmit={form.handleSubmit(onSubmit)}
+                />
             </div>
         </div>
     );

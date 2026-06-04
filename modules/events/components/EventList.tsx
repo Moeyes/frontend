@@ -1,23 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Event, EventType } from "../types";
+import { Event } from "../types";
 import { useEvents, useDeleteEvent } from "../hooks";
 import { EventForm } from "./EventForm";
 import { EventPhaseBadges } from "./EventPhases";
+import { TypeBadge } from "./EventTypeBadge";
+import { EventFilters } from "./EventFilters";
 import { Modal, DataTable, Badge, PageHeader, PageEmptyState, PageErrorState, useConfirm } from "@/shared";
 import { Button } from "@/shared/ui/button";
-import { Input } from "@/shared/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/shared/ui/select";
 import { useRouter } from "next/navigation";
 import { useAuth, UserRole } from "@/core/auth";
-import { Edit2, Trash2, Plus, Calendar, MapPin, Tag, Eye } from "lucide-react";
+import { Edit2, Trash2, Plus, Calendar, MapPin, Eye } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
@@ -108,45 +102,12 @@ export function EventList() {
         }
       />
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="flex-1">
-          <Input
-            placeholder={t("search") as string}
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setPage(1);
-            }}
-          />
-        </div>
-        <div className="w-full sm:w-48">
-          <Select
-            value={statusFilter}
-            onValueChange={(v) => {
-              setStatusFilter(
-                v as "all" | "upcoming" | "ongoing" | "completed",
-              );
-              setPage(1);
-            }}
-          >
-            <SelectTrigger size="sm" className="w-full">
-              <SelectValue>{t(`statusFilter.${statusFilter}`)}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("statusFilter.all")}</SelectItem>
-              <SelectItem value="upcoming">
-                {t("statusFilter.upcoming")}
-              </SelectItem>
-              <SelectItem value="ongoing">
-                {t("statusFilter.ongoing")}
-              </SelectItem>
-              <SelectItem value="completed">
-                {t("statusFilter.completed")}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      <EventFilters
+        query={query}
+        onQueryChange={(value) => { setQuery(value); setPage(1); }}
+        statusFilter={statusFilter}
+        onStatusFilterChange={(value) => { setStatusFilter(value); setPage(1); }}
+      />
 
       {!isLoading && total === 0 ? (
         <PageEmptyState
@@ -312,30 +273,3 @@ export function EventList() {
   );
 }
 
-function TypeBadge({ type }: { type: EventType }) {
-  const t = useTranslations("events.types");
-  const config: Record<
-    string,
-    {
-      label: string;
-      variant: "default" | "info" | "warning" | "success" | "secondary";
-    }
-  > = {
-    [EventType.NATIONAL]: { label: t("NATIONAL"), variant: "default" },
-    [EventType.UNIVERSITY]: { label: t("UNIVERSITY"), variant: "info" },
-    [EventType.HIGH_SCHOOL]: { label: t("HIGH_SCHOOL"), variant: "warning" },
-    [EventType.PRIMARY_SCHOOL]: {
-      label: t("PRIMARY_SCHOOL"),
-      variant: "success",
-    },
-  };
-  const matched = config[type];
-  const label = matched ? matched.label : (type ?? "Unknown");
-  const variant = matched ? matched.variant : "secondary";
-  return (
-    <Badge variant={variant} className="gap-1.5 whitespace-nowrap">
-      <Tag className="h-3 w-3" />
-      <span>{label}</span>
-    </Badge>
-  );
-}

@@ -2,20 +2,13 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Sport, SportCreate } from '../types';
+import { Sport } from '../types';
+import { sportFormSchema, type SportFormValues } from '../schema/sports.schema';
+import { formDataToCreateSport, formDataToUpdateSport } from '../mappers/sports.mapper';
 import { useCreateSport, useUpdateSport } from '../hooks';
 import { Button } from '@/shared/ui/button';
 import { TextInputField } from '@/shared/form';
 import { useTranslations } from 'next-intl';
-
-// Only the fields the backend actually persists (sports table = name_kh + sport_type).
-const sportSchema = z.object({
-    name_kh: z.string().min(2),
-    sport_type: z.string().optional().or(z.literal('')),
-});
-
-type SportFormValues = z.infer<typeof sportSchema>;
 
 interface SportFormProps { sport?: Sport; onSuccess: () => void; onCancel: () => void; }
 
@@ -27,14 +20,15 @@ export function SportForm({ sport, onSuccess, onCancel }: SportFormProps) {
     const tCommon = useTranslations('common');
 
     const { control, handleSubmit, formState: { errors } } = useForm<SportFormValues>({
-        resolver: zodResolver(sportSchema),
-        defaultValues: sport ? { name_kh: sport.name_kh, sport_type: sport.sport_type || '' }
-            : { name_kh: '', sport_type: '' }
+        resolver: zodResolver(sportFormSchema),
+        defaultValues: sport
+            ? { name_kh: sport.name_kh, sport_type: sport.sport_type || '' }
+            : { name_kh: '', sport_type: '' },
     });
 
     const onSubmit = (data: SportFormValues) => {
-        if (isEditing) update({ id: sport.id, ...data }, { onSuccess });
-        else create(data as SportCreate, { onSuccess });
+        if (isEditing) update(formDataToUpdateSport(sport.id, data), { onSuccess });
+        else create(formDataToCreateSport(data), { onSuccess });
     };
 
     return (

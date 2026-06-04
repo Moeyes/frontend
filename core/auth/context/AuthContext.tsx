@@ -16,6 +16,7 @@ import {
     getCurrentUser,
 } from '@/core/auth/services';
 import { queryClient } from '@/core/api/queryClient';
+import { logger } from '@/core/lib/logger';
 
 // --- Role normalisation ----------------------------------------------
 
@@ -26,7 +27,7 @@ function normalizeRole(raw: string): UserRole {
     // defensive fallback for any unexpected/unknown value.
     const valid = Object.values(UserRole) as string[];
     if (valid.includes(raw)) return raw as UserRole;
-    console.warn(`Unknown role: "${raw}" — defaulting to GUEST`);
+    logger.warn('auth.unknown_role');
     return UserRole.GUEST;
 }
 
@@ -115,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 // resolves to a clean logged-out state. Fail closed — never show
                 // privileged UI on an unverified session.
                 if (!isAuthRejection(err)) {
-                    console.warn('Auth restore could not verify session — treating as logged out');
+                    logger.warn('auth.session_unverified');
                 }
                 dispatch({ type: 'LOGOUT' });
             } finally {

@@ -1,10 +1,11 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { cn } from "@/shared/utils/cn";
 import type { SurveyFormData, Event, Organization, Sport } from "../types";
+import { SurveyFormSportsStep } from "./SurveyFormSportsStep";
+import { SurveyFormReviewStep } from "./SurveyFormReviewStep";
 
 interface SurveyFormFieldsProps {
   form: UseFormReturn<SurveyFormData>;
@@ -113,103 +114,19 @@ export function SurveyFormFields({
   }
 
   if (step === "sports") {
-    return (
-      <div className="space-y-4">
-        <p className="text-sm leading-relaxed text-muted-foreground">{t("selectSportsHint")}</p>
-
-        {eventSports.length === 0 ? (
-          emptyState(t("noSports"))
-        ) : (
-          <>
-            <div className="grid max-h-[520px] grid-cols-1 gap-3 overflow-y-auto pr-2 md:grid-cols-2">
-              {eventSports.map((sport) => {
-                const checked = selectedSportIds.includes(sport.sports_id);
-                return (
-                  <label
-                    key={`${sport.sports_id}-${sport.id}`}
-                    className={cn(
-                      "flex cursor-pointer items-center gap-3 rounded-lg border p-4 leading-relaxed transition-colors",
-                      checked
-                        ? "border-primary bg-accent"
-                        : "border-border hover:border-primary/40 hover:bg-accent/40",
-                    )}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={(e) => {
-                        const newIds = e.target.checked
-                          ? [...selectedSportIds, sport.sports_id]
-                          : selectedSportIds.filter((id) => id !== sport.sports_id);
-                        setValue("sportIds", newIds);
-                        trigger("sportIds");
-                      }}
-                      className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
-                    />
-                    <div>
-                      <h4 className="font-medium leading-relaxed text-foreground">{sport.name_kh}</h4>
-                      {sport.sport_type && (
-                        <p className="text-sm leading-relaxed text-muted-foreground">{sport.sport_type}</p>
-                      )}
-                    </div>
-                  </label>
-                );
-              })}
-            </div>
-
-            <div className="flex items-center justify-end border-t border-border pt-3 text-sm leading-relaxed text-muted-foreground">
-              {t("selectedCount", { count: selectedSportIds.length })}
-            </div>
-          </>
-        )}
-
-        {form.formState.errors.sportIds && (
-          <p className="text-sm leading-relaxed text-destructive">
-            {form.formState.errors.sportIds.message}
-          </p>
-        )}
-      </div>
-    );
+    return <SurveyFormSportsStep form={form} eventSports={eventSports} />;
   }
 
   if (step === "review") {
-    const selectedEvent = events.find((e) => e.id === selectedEventId);
-    const selectedOrg = organizations.find((o) => o.id === selectedOrgId);
-    const selectedSports = eventSports.filter((s) =>
-      selectedSportIds.includes(s.sports_id),
-    );
-
-    const summaryBlock = (label: string, children: ReactNode) => (
-      <div className="rounded-lg border border-border bg-muted/40 p-4">
-        <h4 className="mb-2 text-xs font-medium leading-relaxed text-muted-foreground">{label}</h4>
-        {children}
-      </div>
-    );
-
     return (
-      <div className="space-y-4">
-        {summaryBlock(
-          t("review.event"),
-          <p className="font-medium leading-relaxed text-foreground">{selectedEvent?.name_kh}</p>,
-        )}
-        {summaryBlock(
-          t("review.organization"),
-          <p className="font-medium leading-relaxed text-foreground">{selectedOrg?.name_kh}</p>,
-        )}
-        {summaryBlock(
-          `${t("review.sports")} (${selectedSports.length})`,
-          <div className="flex flex-wrap gap-2">
-            {selectedSports.map((sport) => (
-              <span
-                key={sport.sports_id}
-                className="inline-flex items-center rounded-md border border-border bg-card px-3 py-1 text-sm leading-relaxed text-foreground"
-              >
-                {sport.name_kh}
-              </span>
-            ))}
-          </div>,
-        )}
-      </div>
+      <SurveyFormReviewStep
+        events={events}
+        organizations={organizations}
+        eventSports={eventSports}
+        selectedEventId={selectedEventId}
+        selectedOrgId={selectedOrgId}
+        selectedSportIds={selectedSportIds}
+      />
     );
   }
 

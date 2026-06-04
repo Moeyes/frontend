@@ -2,14 +2,12 @@
 
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import {
   Event,
   EventType,
   EventCreate,
   AgeMode,
   PhaseStatus,
-  EVENT_PHASES,
 } from "../types";
 import { useCreateEvent, useUpdateEvent } from "../hooks";
 import { Button } from "@/shared/ui/button";
@@ -17,68 +15,8 @@ import { TextInputField, SelectField } from "@/shared/form";
 import { FormSection } from "@/shared";
 import { Calendar, CalendarClock, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-const eventSchema = z
-  .object({
-    name: z.string().min(3),
-    description: z.string().optional().or(z.literal("")),
-    start_date: z.string().min(1),
-    end_date: z.string().min(1),
-    event_type: z.nativeEnum(EventType),
-    location: z.string().min(2),
-    age_mode: z.nativeEnum(AgeMode),
-    age_min: z.string().min(1),
-    age_max: z.string().min(1),
-
-    survey_category_status: z.nativeEnum(PhaseStatus),
-    survey_category_open_date: z.string().optional().or(z.literal("")),
-    survey_category_close_date: z.string().optional().or(z.literal("")),
-    survey_sport_status: z.nativeEnum(PhaseStatus),
-    survey_sport_open_date: z.string().optional().or(z.literal("")),
-    survey_sport_close_date: z.string().optional().or(z.literal("")),
-    survey_number_status: z.nativeEnum(PhaseStatus),
-    survey_number_open_date: z.string().optional().or(z.literal("")),
-    survey_number_close_date: z.string().optional().or(z.literal("")),
-    registration_status: z.nativeEnum(PhaseStatus),
-    registration_open_date: z.string().optional().or(z.literal("")),
-    registration_close_date: z.string().optional().or(z.literal("")),
-  })
-  .superRefine((data, ctx) => {
-    if (data.start_date && data.end_date && data.end_date < data.start_date)
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "End date must be on or after start date",
-        path: ["end_date"],
-      });
-
-    const min = Number(data.age_min);
-    const max = Number(data.age_max);
-    if (
-      data.age_min &&
-      data.age_max &&
-      Number.isFinite(min) &&
-      Number.isFinite(max) &&
-      min > max
-    )
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Minimum must be less than or equal to maximum",
-        path: ["age_max"],
-      });
-
-    for (const phase of EVENT_PHASES) {
-      const open = data[`${phase}_open_date`];
-      const close = data[`${phase}_close_date`];
-      if (open && close && close < open)
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Close date must be on or after open date",
-          path: [`${phase}_close_date`],
-        });
-    }
-  });
-
-type EventFormValues = z.infer<typeof eventSchema>;
+import { eventSchema, EventFormValues } from "./eventForm.schema";
+import { EventPhasesFields } from "./EventPhasesFields";
 
 interface EventFormProps {
   event?: Event;
@@ -153,12 +91,6 @@ export function EventForm({ event, onSuccess, onCancel }: EventFormProps) {
   const isBirthYear = ageMode === AgeMode.BIRTH_YEAR;
   const ageMinLabel = isBirthYear ? t("birthYearFrom") : t("ageMin");
   const ageMaxLabel = isBirthYear ? t("birthYearTo") : t("ageMax");
-
-  const statusOptions = [
-    { value: PhaseStatus.AUTO, label: t("phaseStatus.AUTO") },
-    { value: PhaseStatus.OPEN, label: t("phaseStatus.OPEN") },
-    { value: PhaseStatus.CLOSED, label: t("phaseStatus.CLOSED") },
-  ];
 
   const onSubmit = (data: EventFormValues) => {
     const payload = {
@@ -284,41 +216,7 @@ export function EventForm({ event, onSuccess, onCancel }: EventFormProps) {
         description={t("phases.hint")}
         icon={CalendarClock}
       >
-        <div className="space-y-4">
-          {EVENT_PHASES.map((phase) => (
-            <div
-              key={phase}
-              className="rounded-lg border border-border bg-muted/30 p-3"
-            >
-              <p className="mb-2 text-sm font-semibold text-foreground">
-                {t(`phases.${phase}`)}
-              </p>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                <SelectField
-                  control={control}
-                  name={`${phase}_status`}
-                  label={t("phases.status")}
-                  options={statusOptions}
-                  error={errors[`${phase}_status`]?.message}
-                />
-                <TextInputField
-                  control={control}
-                  name={`${phase}_open_date`}
-                  label={t("phases.openDate")}
-                  type="date"
-                  error={errors[`${phase}_open_date`]?.message}
-                />
-                <TextInputField
-                  control={control}
-                  name={`${phase}_close_date`}
-                  label={t("phases.closeDate")}
-                  type="date"
-                  error={errors[`${phase}_close_date`]?.message}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
+        <EventPhasesFields control={control} errors={errors} />
       </FormSection>
 
       <div className="flex justify-end gap-3 pt-4">

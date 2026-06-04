@@ -14,8 +14,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         return { 
             title: event?.name || 'Event Detail',
         };
-    } catch (error) {
-        console.error('Failed to fetch event data for metadata:', error);
+    } catch {
         return { title: 'Event Detail' };
     }
 }

@@ -13,8 +13,6 @@
  *   phone           ← alias: phone (same)
  */
 
-import { RegisterFormData } from '../services/schema';
-
 // ─── API Payload ─────────────────────────────────────────────────────────────
 // Must match backend FullRegistrationRequest exactly
 
@@ -109,61 +107,4 @@ interface FieldError {
 
 // ─── Payload Transformer ──────────────────────────────────────────────────────
 
-export function formDataToPayload(data: RegisterFormData, userId: string): RegisterPayload {
-    return {
-        // Authenticated user registering this participant
-        userId,
-
-        // Event context
-        eventId: data.eventId as number,
-        organizationId: Number(data.organizationId), // backend expects int
-        sportId: data.sportId as number,
-        categoryId: data.categoryId ?? null,
-
-        // Personal info — map to backend aliases
-        lastNameKhmer: data.khFamilyName,
-        firstNameKhmer: data.khGivenName,
-        lastNameLatin: data.enFamilyName,
-        firstNameLatin: data.enGivenName,
-        phone: data.phone,
-        gender: data.gender,
-        dateOfBirth: data.dateOfBirth,
-        idDocType: data.idDocumentType,
-        address: data.address,
-        nationality: data.nationality,
-
-        // Role
-        role: data.role,
-        leaderRole: data.leaderRole || null,
-
-        // Document URLs — *Path → *Url
-        photoUrl: data.photoPath ?? null,
-        birthCertificateUrl: data.birthCertificatePath ?? null,
-        nationalIdUrl: data.nationalIdPath ?? null,
-        passportUrl: data.passportPath ?? null,
-        nationalityDocumentUrl: null,
-    };
-}
-
-// ─── Error Parser ─────────────────────────────────────────────────────────────
-
-export function parseApiError(error: ApiErrorResponse): string | Map<string, string> {
-    const detail = error?.detail;
-
-    // Plain string error
-    if (typeof detail === 'string') {
-        return detail;
-    }
-
-    // FastAPI validation errors: array of { loc, msg }
-    if (Array.isArray(detail)) {
-        const map = new Map<string, string>();
-        detail.forEach((err) => {
-            const field = err.loc[err.loc.length - 1]; // last segment is the field name
-            map.set(field, err.msg);
-        });
-        return map;
-    }
-
-    return 'An unexpected error occurred. Please try again.';
-}
+export { formDataToPayload, parseApiError } from '../mappers/registration.mapper';

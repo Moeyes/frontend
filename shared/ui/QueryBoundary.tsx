@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Component, ErrorInfo, ReactNode, Suspense } from 'react';
+import React, { Component, ReactNode, Suspense } from 'react';
 import { Button } from './button';
 import { PageLoadingState } from './page/PageLoadingState';
 import { AlertCircle, RefreshCcw } from 'lucide-react';
@@ -23,10 +23,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
   resetError = () => {

@@ -1,14 +1,8 @@
-/**
- * useRegistrations Hook
- * 
- * Fetches and manages registration list
- */
-
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/api/queryKeys';
-import { getRegistrations, deleteRegistration } from '../services';
+import { registrationRepository } from '../adapters';
 
 interface RegistrationsFilter {
     organization_id?: number;
@@ -24,12 +18,13 @@ export function useRegistrations(filter: RegistrationsFilter) {
 
     const query = useQuery({
         queryKey: queryKeys.registrations.list(filter),
-        queryFn: () => getRegistrations(filter),
-        staleTime: 30000,
+        queryFn: () => registrationRepository.getAll(filter as Record<string, unknown>),
+        staleTime: 0,
+        gcTime:    0,
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (enrollId: number) => deleteRegistration(enrollId),
+        mutationFn: (enrollId: number) => registrationRepository.delete(enrollId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: queryKeys.registrations.all });
             queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });

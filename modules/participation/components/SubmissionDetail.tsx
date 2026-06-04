@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, Building2, Calendar, CheckCircle2, XCircle, Flag, AlertCircle } from 'lucide-react';
+import { ChevronLeft, Building2, Calendar, CheckCircle2, XCircle, Flag } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/Badge';
-import { Modal } from '@/shared/ui/Modal';
 import { useTranslations } from 'next-intl';
 import { useParticipationReview } from '../hooks';
 import { StatusTimeline } from './StatusTimeline';
+import { SubmissionReviewModal } from './SubmissionReviewModal';
 import type { ParticipationPerSport, ParticipationStatus, ReviewAction } from '../types';
 
 interface SubmissionDetailProps {
@@ -183,43 +183,14 @@ export function SubmissionDetail({ submission, onBack }: SubmissionDetailProps) 
                 </div>
             )}
 
-            {/* Reason modal (reject / flag) */}
-            <Modal
-                isOpen={reasonAction !== null}
-                onClose={() => setReasonAction(null)}
-                title={reasonAction === 'reject' ? t('confirmReject') : t('confirmFlag')}
-            >
-                <div className="space-y-4">
-                    <div className="flex items-start gap-3 rounded-md border border-warning/30 bg-warning/10 p-3">
-                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
-                        <p className="text-sm leading-relaxed text-foreground">{t('reasonRequired')}</p>
-                    </div>
-                    <div className="space-y-1.5">
-                        <label className="block text-sm font-medium text-foreground">{t('reason')}</label>
-                        <textarea
-                            value={reason}
-                            onChange={(e) => setReason(e.target.value)}
-                            rows={4}
-                            placeholder={t('reasonPlaceholder')}
-                            className="w-full rounded-md border border-input bg-background px-3 py-2.5 text-sm leading-relaxed focus:border-primary focus:ring-1 focus:ring-ring"
-                        />
-                    </div>
-                    <div className="flex justify-end gap-3 border-t border-border pt-4">
-                        <Button variant="outline" onClick={() => setReasonAction(null)}>
-                            {t('cancel')}
-                        </Button>
-                        <Button
-                            variant={reasonAction === 'reject' ? 'destructive' : 'default'}
-                            className={reasonAction === 'flag' ? 'bg-warning text-warning-foreground hover:bg-warning/90 border-warning' : undefined}
-                            loading={isReviewing}
-                            disabled={!reason.trim() || isReviewing}
-                            onClick={() => reasonAction && doAction(reasonAction, reason.trim())}
-                        >
-                            {reasonAction === 'reject' ? t('reject') : t('flag')}
-                        </Button>
-                    </div>
-                </div>
-            </Modal>
+            <SubmissionReviewModal
+              reasonAction={reasonAction}
+              reason={reason}
+              onReasonChange={setReason}
+              onClose={() => setReasonAction(null)}
+              onConfirm={() => reasonAction && doAction(reasonAction, reason.trim())}
+              isReviewing={isReviewing}
+            />
         </div>
     );
 }

@@ -5,7 +5,7 @@ import { useRegistrations } from '../hooks';
 import { useAuth, usePermissions, CAPABILITIES } from '@/core/auth';
 import { Search, Trash2, Edit2, User, Filter, AlertCircle } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
-import { useConfirm } from '@/shared';
+
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 

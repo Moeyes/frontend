@@ -10,27 +10,22 @@ import {
   MapPin,
   Pencil,
   Tag,
-  Trophy,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import {
   Badge,
-  ContentPanel,
   DetailHeader,
-  PageEmptyState,
   PageLoadingState,
   PageNotFound,
   PageShell,
   Modal,
 } from "@/shared";
 import { useAuth, UserRole } from "@/core/auth";
-import { useUpdateEvent, useUpdateEventPhase } from "../hooks";
+import { useUpdateEvent } from "../hooks";
 import { useEventDetail, useEventSports } from "../hooks";
-import { EventSportManager } from "./EventSportManager";
 import { EventUpdate } from "../types";
 import { EventForm } from "./EventForm";
-import { EventSportOrgManager } from "./EventSportOrgManager";
-import { EventPhaseControl } from "./EventPhases";
+import { EventDetailPanels } from "./EventDetailPanels";
 import { useTranslations } from "next-intl";
 
 interface EventDetailPageProps {
@@ -46,12 +41,8 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const canManage =
     role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN;
   const { mutate: publishEvent } = useUpdateEvent();
-  const { mutate: updatePhase } = useUpdateEventPhase();
   const t = useTranslations("events");
   const tCommon = useTranslations("common");
-
-  const selectedSportName =
-    eventSports?.find((s) => s.sports_id === selectedSportId)?.name_kh || "";
 
   const getStatus = (start: string, end: string) => {
     const now = new Date();
@@ -147,47 +138,14 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
             </div>
           }
         />
-        <div className="grid grid-cols-1 gap-8">
-          <ContentPanel>
-            <div className="mb-4">
-              <h2 className="text-base font-semibold text-foreground">
-                {t("phases.title")}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {t("phases.hint")}
-              </p>
-            </div>
-            <EventPhaseControl
-              event={event}
-              canManage={canManage}
-              onChange={(phase, status) =>
-                updatePhase({ id: event.id, phase, status })
-              }
-            />
-          </ContentPanel>
-          <ContentPanel>
-            <EventSportManager
-              eventId={eventId}
-              onSelectSport={setSelectedSportId}
-              selectedSportId={selectedSportId}
-            />
-          </ContentPanel>
-          {selectedSportId ? (
-            <ContentPanel className="min-h-100">
-              <EventSportOrgManager
-                eventId={eventId}
-                sportId={selectedSportId}
-                sportName={selectedSportName}
-              />
-            </ContentPanel>
-          ) : (
-            <PageEmptyState
-              icon={Trophy}
-              title={t("sports.title")}
-              description={t("sports.noSportsAssigned")}
-            />
-          )}
-        </div>
+        <EventDetailPanels
+          event={event}
+          eventId={eventId}
+          eventSports={eventSports}
+          selectedSportId={selectedSportId}
+          onSelectSport={setSelectedSportId}
+          canManage={canManage}
+        />
       </PageShell>
       <Modal
         isOpen={isEditOpen}

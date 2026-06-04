@@ -1,12 +1,8 @@
-/**
- * useParticipations Hook
- */
-
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/api/queryKeys';
-import { getParticipations } from '../services';
+import { participationRepository } from '../adapters';
 
 interface ParticipationsFilter {
     organization_id?: number;
@@ -19,7 +15,8 @@ interface ParticipationsFilter {
 export function useParticipations(filter: ParticipationsFilter) {
     return useQuery({
         queryKey: queryKeys.participations.list(filter),
-        queryFn: () => getParticipations(filter),
-        staleTime: 30000,
+        queryFn: () => participationRepository.getAll(filter),
+        staleTime: 0,
+        gcTime:    0,
     });
 }

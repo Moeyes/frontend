@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react';
 import type { Path } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { Button } from '@/shared/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/Card';
 import { StepIndicator } from '@/shared/ui/StepIndicator';
 import { useByNumberForm } from '../hooks/useByNumber';
 import { fetchByNumberData, fetchOrgEventSports } from '../services';
 import type { Event, Organization } from '../types';
 import { ByNumberFormFields } from './ByNumberFormFields';
+import { ByNumberFormNavButtons } from './ByNumberFormNavButtons';
 import { ByNumberSuccess } from './ByNumberSuccess';
 
 type Step = 'event_type' | 'event' | 'organization' | 'sports' | 'review';
@@ -32,7 +32,6 @@ export function ByNumberForm() {
   const [loading, setLoading] = useState(true);
   const [sportsLoading, setSportsLoading] = useState(false);
   const t = useTranslations('bynumber');
-  const tCommon = useTranslations('common');
 
   const { form, onSubmit, isPending, serverError } = useByNumberForm(() => {
     setIsSuccess(true);
@@ -85,8 +84,8 @@ export function ByNumberForm() {
       try {
         const sports = await fetchOrgEventSports(organizationId, eventId);
         form.setValue('sports', sports);
-      } catch (error) {
-        console.error('Error loading sports:', error);
+      } catch {
+        // Sports failed to load; the section renders empty and reloads on retry.
       } finally {
         setSportsLoading(false);
       }
@@ -181,21 +180,14 @@ export function ByNumberForm() {
                   )}
                 </div>
 
-                <div className="mt-8 flex gap-4 border-t border-border pt-6">
-                  <Button type="button" onClick={handlePreviousStep} variant="outline" disabled={stepIndex === 0}>
-                    {tCommon('previous')}
-                  </Button>
-                  <div className="flex-1" />
-                  {currentStep !== 'review' ? (
-                    <Button type="button" onClick={handleNext} disabled={currentStep === 'event_type' && !selectedEventType}>
-                      {tCommon('next')}
-                    </Button>
-                  ) : (
-                    <Button type="submit" loading={isPending}>
-                      {isPending ? t('submitting') : t('submit')}
-                    </Button>
-                  )}
-                </div>
+                <ByNumberFormNavButtons
+                  stepIndex={stepIndex}
+                  currentStep={currentStep}
+                  selectedEventType={selectedEventType}
+                  isPending={isPending}
+                  onPrevious={handlePreviousStep}
+                  onNext={handleNext}
+                />
               </form>
             )}
           </CardContent>

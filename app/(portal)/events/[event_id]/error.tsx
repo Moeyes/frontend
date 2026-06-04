@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { AlertTriangle, RefreshCcw, Home } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { PageEmptyState } from '@/shared/ui/page/PageEmptyState';
+import { logger } from '@/core/lib/logger';
 
 export default function Error({
   error,
@@ -14,7 +15,7 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('Event Detail Error:', error);
+    logger.error('event_detail.error_boundary', { digest: error.digest });
   }, [error]);
 
   return (
