@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect } from 'react';
 import type { SurveyContextType, SurveyFormData } from '../types';
-import { fetchEvents } from '../services';
+import { surveyRepository } from '../adapters';
 import { useSurvey } from '../hooks';
 
 const SurveyContextComponent = createContext<SurveyContextType | undefined>(undefined);
@@ -14,7 +14,7 @@ export function SurveyProvider({ children }: { children: React.ReactNode }) {
         // Preload events on mount
         const load = async () => {
             try {
-                await fetchEvents();
+                await surveyRepository.fetchEvents();
             } catch {
                 // Preload is best-effort; the form fetches events again when rendered.
             }

@@ -5,8 +5,8 @@ import { useTranslations } from 'next-intl';
 import { Calendar, Building2, Trophy, ListChecks, AlertCircle } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
 import { useAuth, UserRole } from '@/core/auth';
-import { fetchSurveyData } from '../services';
-import { fetchOrgEventSports } from '@/modules/bynumber/services';
+import { surveyRepository } from '../adapters';
+import { bynumberRepository } from '@/modules/bynumber/adapters';
 import type { Event, Organization } from '../types';
 
 /**
@@ -29,7 +29,7 @@ export function BySportRecords() {
   // Load events + organizations once.
   useEffect(() => {
     let active = true;
-    fetchSurveyData().then(({ events, organizations }) => {
+    surveyRepository.fetchSurveyData().then(({ events, organizations }) => {
       if (!active) return;
       setEvents(events);
       setOrganizations(organizations);
@@ -45,7 +45,7 @@ export function BySportRecords() {
     let active = true;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
-    fetchOrgEventSports(orgId, eventId)
+    bynumberRepository.fetchOrgEventSports(orgId, eventId)
       .then((rows) => {
         if (active) {
           setSports(rows.map((r) => ({ sport_id: r.sport_id, sport_name_kh: r.sport_name_kh })));

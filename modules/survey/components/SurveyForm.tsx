@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/Card';
 import { StepIndicator } from '@/shared/ui/StepIndicator';
 import { useSurveyForm } from '../hooks/useSurvey';
-import { fetchSurveyData, fetchEventSports } from '../services';
+import { surveyRepository } from '../adapters';
 import type { Event, Organization, Sport } from '../types';
 import { SurveyFormFields } from './SurveyFormFields';
 import { SurveyFormNavButtons } from './SurveyFormNavButtons';
@@ -48,7 +48,7 @@ export function SurveyForm({ showHeader = true }: SurveyFormProps = {}) {
     const loadData = async () => {
       setLoading(true);
       try {
-        const { events, organizations } = await fetchSurveyData();
+        const { events, organizations } = await surveyRepository.fetchSurveyData();
         setEvents(events);
         setOrganizations(organizations);
       } finally {
@@ -93,7 +93,7 @@ export function SurveyForm({ showHeader = true }: SurveyFormProps = {}) {
       }
 
       try {
-        const sports = await fetchEventSports(watchedEventId);
+        const sports = await surveyRepository.fetchEventSports(watchedEventId);
         if (isMounted) {
           setEventSports(sports);
         }

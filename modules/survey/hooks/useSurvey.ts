@@ -2,7 +2,7 @@
 
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { surveySchema } from '../services/schema';
+import { surveySchema } from '../schema/survey.schema';
 import type { SurveyFormData } from '../types';
 
 export interface UseSurveyFormReturn {
@@ -25,13 +25,13 @@ export function useSurveyForm(onSuccess?: () => void): UseSurveyFormReturn {
 
     const handleSubmit = async (data: SurveyFormData) => {
         try {
-            const { submitSurvey } = await import('../services');
+            const { surveyRepository } = await import('../adapters');
 
             if (!data.eventId || !data.organizationId) {
                 throw new Error('Missing required fields');
             }
 
-            await submitSurvey({
+            await surveyRepository.submitSurvey({
                 organization_id: data.organizationId,
                 event_id: data.eventId,
                 sport_ids: data.sportIds,
