@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { User as UserIcon, Loader2 } from 'lucide-react';
 import { Badge } from '@/shared';
+import { maskPhone } from '@/shared/utils/maskPhone';
 import type { SportParticipant } from '../types';
 
 function ageFromDob(dob?: string | null): number | null {
@@ -65,7 +66,7 @@ export function CategoryParticipantTable({ rows, isLoading, eventName }: Categor
                     </span>
                     <div className="flex flex-col">
                       <span className="text-sm font-semibold text-foreground">{p.name_kh?.trim() || p.name_en}</span>
-                      {p.phone && <span className="text-[11px] text-muted-foreground">{p.phone}</span>}
+                      {p.phone && <span className="text-[11px] text-muted-foreground">{maskPhone(p.phone)}</span>}
                     </div>
                   </div>
                 </td>

@@ -4,6 +4,7 @@
  * Helper functions and utilities used across all features
  */
 
-// Example: export { formatDate } from './date';
-// Example: export { validateEmail } from './validators';
-// Example: export { classNames } from './classNames';
+// Restricted-PII display masking (data-governance §4)
+export { maskEmail } from './maskEmail';
+export { maskPhone } from './maskPhone';
+export { maskNationalId } from './maskNationalId';
