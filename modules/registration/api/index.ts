@@ -7,9 +7,16 @@ export async function apiRegisterParticipant(payload: RegisterPayload) {
     return data;
 }
 
-export async function apiGetRegistrations(params?: Record<string, unknown>) {
+/**
+ * List/search registrations. Filters (incl. the free-text `search`, which may
+ * contain names or phone numbers) go in the POST body, never the URL, so
+ * Restricted-PII stays out of browser history, referrers and access logs
+ * (data-governance §3). The backend POST /search mirrors the GET list, with the
+ * same org scoping derived from the auth token.
+ */
+export async function apiSearchRegistrations(params?: Record<string, unknown>) {
     const { skip, ...rest } = params ?? {};
-    const { data } = await apiClient.get(`${API.registration.base}/`, { params: { ...rest, offset: skip } });
+    const { data } = await apiClient.post(API.registration.search, { ...rest, offset: skip });
     return data;
 }
 
