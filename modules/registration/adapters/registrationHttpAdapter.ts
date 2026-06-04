@@ -1,5 +1,5 @@
 import type { IRegistrationRepository } from '../ports/IRegistrationRepository';
-import { enrollmentListSchema, enrollmentSchema, registerResponseSchema } from '../schema/registration.schema';
+import { enrollmentListResponseSchema, enrollmentSchema, registerResponseSchema } from '../schema/registration.schema';
 import {
     apiRegisterParticipant, apiSearchRegistrations, apiGetRegistration,
     apiUpdateRegistration, apiDeleteRegistration,
@@ -12,7 +12,7 @@ export const registrationHttpAdapter: IRegistrationRepository = {
         return parsed as unknown as RegisterResponse;
     },
     getAll: async (params) => {
-        const parsed = enrollmentListSchema.parse(await apiSearchRegistrations(params));
+        const parsed = enrollmentListResponseSchema.parse(await apiSearchRegistrations(params));
         return parsed as unknown as EnrollmentListResponse;
     },
     getById: async (enrollId: number) => {

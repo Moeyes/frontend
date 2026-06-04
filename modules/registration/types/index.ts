@@ -88,8 +88,28 @@ export interface Enrollment {
     category_name?: string;
 }
 
+/**
+ * Lean list item returned by the registrations list/search endpoint — only the
+ * fields the table renders. Restricted-PII (phone, DOB, document URLs, etc.) is
+ * intentionally absent; fetch the full Enrollment from the detail endpoint when
+ * a single record genuinely needs it. (data-governance §2)
+ */
+export interface EnrollmentListItem {
+    id: number;
+    created_at: string | null;
+    kh_family_name: string;
+    kh_given_name: string;
+    en_family_name: string;
+    en_given_name: string;
+    photo_url?: string | null;
+    sport_name?: string | null;
+    event_name?: string | null;
+    role: string;
+    leader_role?: string | null;
+}
+
 export interface EnrollmentListResponse {
-    data: Enrollment[];
+    data: EnrollmentListItem[];
     count: number;
 }
 

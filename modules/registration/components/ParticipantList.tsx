@@ -92,7 +92,7 @@ export function ParticipantList() {
                                             <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${p.role === 'athlete' ? 'bg-primary/10 text-primary' : 'bg-amber-100 text-amber-700'}`}>{p.role}</span>
                                             {p.leader_role && <p className="text-[10px] text-muted-foreground mt-1 ml-1">{p.leader_role}</p>}
                                         </td>
-                                        <td className="p-4 text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</td>
+                                        <td className="p-4 text-xs text-muted-foreground">{p.created_at ? new Date(p.created_at).toLocaleDateString() : '—'}</td>
                                         <td className="p-4 text-right">
                                             <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary"><Edit2 className="w-4 h-4" /></Button>

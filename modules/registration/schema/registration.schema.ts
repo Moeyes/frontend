@@ -40,12 +40,37 @@ export const enrollmentSchema = z.object({
 
 export type EnrollmentParsed = z.infer<typeof enrollmentSchema>;
 
-export const enrollmentListSchema = z.object({
-    data:  enrollmentSchema.array(),
-    count: z.number().int().nonnegative(),
+/**
+ * Lean list/search item — data minimization (data-governance §2). The
+ * registrations table only renders these fields, so the backend list/search
+ * endpoint returns no Restricted-PII (phone, DOB, national-ID/passport URLs,
+ * gender, address). `.strict()` is deliberate: if any of those ever leak back
+ * into the list response, this parse fails loudly rather than silently caching
+ * PII. Full records come only from the detail endpoint (enrollmentSchema).
+ */
+export const enrollmentListItemSchema = z.object({
+    id: z.number().int(),
+    created_at: z.string().nullable(),
+    kh_family_name: z.string(),
+    kh_given_name: z.string(),
+    en_family_name: z.string(),
+    en_given_name: z.string(),
+    photo_url: z.string().nullable().optional(),
+    sport_name: z.string().nullable().optional(),
+    event_name: z.string().nullable().optional(),
+    role: z.string(),
+    leader_role: z.string().nullable().optional(),
 }).strict();
 
-export type EnrollmentListParsed = z.infer<typeof enrollmentListSchema>;
+export type EnrollmentListItemParsed = z.infer<typeof enrollmentListItemSchema>;
+
+export const enrollmentListResponseSchema = z.object({
+    status: z.string(),
+    data:   enrollmentListItemSchema.array(),
+    count:  z.number().int().nonnegative(),
+}).strict();
+
+export type EnrollmentListParsed = z.infer<typeof enrollmentListResponseSchema>;
 
 /* ------------------------------------------------------------------ *
  * Registration form (RHF input) validation schema.
