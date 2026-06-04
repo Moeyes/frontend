@@ -15,6 +15,21 @@ export async function apiGetEventById(eventId: number) {
     return data;
 }
 
+/**
+ * Public, unauthenticated fetch of a single event — safe to call during SSR
+ * (e.g. generateMetadata). On the server, apiClient's relative baseURL ('/')
+ * has no origin, so we prefix the absolute API URL; in the browser the path
+ * stays relative.
+ */
+export async function apiGetPublicEventById(eventId: number) {
+    const base =
+        typeof window === 'undefined'
+            ? (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000')
+            : '';
+    const { data } = await apiClient.get<unknown>(`${base}${API.events.publicById(eventId)}`);
+    return data;
+}
+
 export async function apiCreateEvent(payload: Record<string, unknown>) {
     const { data } = await apiClient.post<unknown>(`${API.events.base}/`, payload);
     return data;

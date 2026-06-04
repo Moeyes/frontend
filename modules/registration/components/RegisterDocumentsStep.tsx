@@ -7,7 +7,7 @@ import { FileUploadField } from '@/shared/form';
 import { uploadPhoto, uploadDocument } from '@/core/lib/upload/cloudinary';
 import { useTranslations } from 'next-intl';
 import { Camera, AlertCircle } from 'lucide-react';
-import { eventsService } from '@/modules/events/services';
+import { eventsRepository } from '@/modules/events/adapters';
 
 interface RegisterDocumentsStepProps {
     form: UseFormReturn<RegisterFormInput, unknown, RegisterFormData>;
@@ -80,7 +80,7 @@ function Under18Note({
         if (!dob || !eventId) return;
         (async () => {
             try {
-                const event = await eventsService.getEventById(Number(eventId));
+                const event = await eventsRepository.getById(Number(eventId));
                 if (!active) return;
                 const evDateStr =
                     (event as { start_date?: string }).start_date ||

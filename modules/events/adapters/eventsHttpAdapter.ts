@@ -8,7 +8,7 @@ import {
     type RawEvent, type RawEventSport, type RawSportOrg,
 } from '../schema/events.schema';
 import {
-    apiGetEvents, apiGetEventById, apiCreateEvent, apiUpdateEvent, apiDeleteEvent,
+    apiGetEvents, apiGetEventById, apiGetPublicEventById, apiCreateEvent, apiUpdateEvent, apiDeleteEvent,
     apiUpdateEventPhase,
     apiGetEventSports, apiAddSportToEvent, apiRemoveSportFromEvent,
     apiGetEventSportOrgs, apiAddOrgToEventSport, apiDeleteEventSportOrgLink,
@@ -78,6 +78,11 @@ export const eventsHttpAdapter: IEventRepository = {
 
     getById: async (id: number) => {
         const raw = rawEventSchema.parse(await apiGetEventById(id));
+        return mapRawEvent(raw);
+    },
+
+    getPublicById: async (id: number) => {
+        const raw = rawEventSchema.parse(await apiGetPublicEventById(id));
         return mapRawEvent(raw);
     },
 

@@ -2,6 +2,7 @@ export const API = {
     events: {
         base: '/api/events',
         byId: (id: number) => `/api/events/${id}`,
+        publicById: (id: number) => `/api/public/events/${id}`,
         sports: (eventId: number) => `/api/events/${eventId}/sports`,
         sportOrgs: (eventId: number, sportId: number) => `/api/events/${eventId}/sports/${sportId}/orgs`,
         sportCategories: (eventId: number, sportId: number) => `/api/events/${eventId}/sports/${sportId}/categories`,

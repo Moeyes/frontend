@@ -10,7 +10,7 @@ import { RegistrationSuccess } from './RegistrationSuccess';
 import { useAuth, UserRole } from '@/core/auth';
 import { loadCascadingData, fetchCategories, type CascadingDataLoaded, type CategoryReference as Category } from '@/core/api/referenceData';
 import { RegisterFormData } from '../services/schema';
-import { eventsService } from '@/modules/events/services';
+import { eventsRepository } from '@/modules/events/adapters';
 import { useTranslations } from 'next-intl';
 
 const ALL_STEPS = ['event', 'category', 'personal', 'documents', 'review'] as const;
@@ -77,7 +77,7 @@ export function RegisterForm({ mode = 'athlete' }: RegisterFormProps = {}) {
         async function checkWindow() {
             if (!eventId) { if (active) setRegisterWindowError(null); return; }
             try {
-                const event = await eventsService.getEventById(Number(eventId));
+                const event = await eventsRepository.getById(Number(eventId));
                 if (!active) return;
                 const today = new Date().toISOString().split('T')[0];
                 // registration_is_open is authoritative (it honours AUTO date

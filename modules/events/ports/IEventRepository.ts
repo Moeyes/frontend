@@ -11,6 +11,8 @@ import type {
 export interface IEventRepository {
     getAll(): Promise<EventPublic[]>;
     getById(id: number): Promise<EventPublic>;
+    /** Public, unauthenticated fetch — SSR-safe (see api/apiGetPublicEventById). */
+    getPublicById(id: number): Promise<EventPublic>;
     create(dto: EventCreate): Promise<EventPublic>;
     update(dto: EventUpdate): Promise<EventPublic>;
     delete(id: number): Promise<void>;
