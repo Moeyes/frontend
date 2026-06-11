@@ -23,11 +23,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"],
-      "@modules/*": ["./modules/*"],
-      "@shared/*": ["./shared/*"],
-      "@core/*": ["./core/*"],
-      "@components/*": ["./components/*"]
+      "@/*": ["./src/*"],
+      "@modules/*": ["./src/modules/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@core/*": ["./src/core/*"]
     }
   },
   "include": [
